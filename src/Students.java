@@ -6,11 +6,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 
 public class Students {
@@ -19,8 +22,9 @@ public class Students {
 	private Statement stmt = null;
 	private Statement stmt2;
 	private HashMap<String, String> registeredStudents;
+	private LinkedHashMap<Integer, String> student_ids = new LinkedHashMap<Integer, String>();
 	private int studentID;
-	private String studentName = null;
+	private String studentName;
 	private final String USER = "root";
 	private final String PASS = "";
 	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
@@ -51,6 +55,7 @@ public class Students {
 	protected void pushStudentData() throws SQLException {
 		conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
 		stmt = conn.createStatement();
+
 		String insertSql = "INSERT INTO STUDENT(ID, studentName) VALUES ('" + this.studentID + "', + '"
 				+ this.studentName + "')";
 		System.out.println("Inserting into student.. [" + studentID + "]" + "=" + studentName);
@@ -66,18 +71,27 @@ public class Students {
 			rs = stmt.executeQuery(userID);
 			fetchModuleCode(moduleCode);
 			fetchModuleTitle(moduleTitle);
+
 			while (rs.next()) {
 				int id = rs.getInt("ID");
 				this.studentID = Integer.valueOf(id);
+				String name = rs.getString("studentName");
+				this.studentName = name;
 				extractModuleCode(moduleCode);
 				extractModuleTitle(moduleTitle);
-				String insertSql = "INSERT INTO REGISTRATION(StudentID, ModuleCode, Title) VALUES ('" + studentID + "', + '"
-						+ shuffleModules(moduleTitle) + "', + '"+ this.moduleTitle + "')";
-				System.out.println("Inserting into REGISTRATION.. [" + studentID + "]" + "[" + this.moduleCode + "]");
-				stmt2 = conn.createStatement();
-				stmt2.executeUpdate(insertSql);
+				student_ids.put(studentID, studentName);
+				/*
+				 * String insertSql =
+				 * "INSERT INTO REGISTRATION(StudentID, ModuleCode, Title) VALUES ('"
+				 * + studentID + "', + '" + shuffleModules(moduleTitle) +
+				 * "', + '" + this.moduleTitle + "')"; System.out.println(
+				 * "Inserting into REGISTRATION.. [" + studentID + "]" + "[" +
+				 * this.moduleCode + "]"); stmt2 = conn.createStatement();
+				 * stmt2.executeUpdate(insertSql);
+				 */
 			}
-			extractInfoForExam(moduleCode, moduleTitle);
+			populateModules(registeredStudents);
+			// extractInfoForExam(moduleCode, moduleTitle);
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
@@ -93,16 +107,24 @@ public class Students {
 		return moduleCode;
 	}
 
+	protected String fetchStudentID(Object studentID) {
+		for (Object key : student_ids.keySet()) {
+			studentID = key;
+			System.out.println("Here " + studentID);
+		}
+		return moduleCode;
+	}
+
 	protected String extractModuleCode(String moduleCode) {
-		//moduleCode = list_moduleCodes.remove(0);
+		// moduleCode = list_moduleCodes.remove(0);
 		this.moduleCode = moduleCode;
 		return moduleCode;
 	}
-	
+
 	private String shuffleModules(String moduleTitle) {
 		double rand = Math.random();
-		for(int i=0; i<list_moduleCodes.size(); i++) {
-			moduleTitle = list_moduleCodes.get((int)rand);
+		for (int i = 0; i < list_moduleCodes.size(); i++) {
+			moduleTitle = list_moduleCodes.get((int) rand);
 			System.out.println(moduleTitle);
 		}
 		return moduleTitle;
@@ -120,8 +142,7 @@ public class Students {
 	}
 
 	protected String extractModuleTitle(String moduleTitle) {
-		//moduleTitle = list_moduleTitles.remove(0);
-		System.out.println("github test");
+		// moduleTitle = list_moduleTitles.remove(0);
 		this.moduleTitle = moduleTitle;
 		System.out.println(moduleTitle);
 		return moduleTitle;
@@ -134,10 +155,33 @@ public class Students {
 		moduleTitle = exam_list_with_titles.remove(0);
 		return moduleCode + moduleTitle;
 	}
-	
-	//populate students to module codes
-	private int populateModules(int studentID) {
+
+	// populate students to module codes
+	private void populateModules(HashMap<String, String> registeredStudents) throws SQLException {
+		conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
+		stmt = conn.createStatement();
+		System.out.println(student_ids);	
+
+		System.out.println(student_ids.size());
+		for (int i = 0; i < student_ids.size(); i++) {
+			Integer key = (Integer) student_ids.keySet().toArray()[new Random().nextInt(student_ids.keySet().toArray().length)];
+			i--;
+			student_ids.keySet().remove(key);
 		
-		return studentID;
+			System.out.println(student_ids.size());
+			getModule(key);		
+			
+		}
+	}
+
+	private void getModule(int student) throws SQLException {
+		int counter = 0;
+		while (counter < 3) {
+			String key = (String) registeredStudents.keySet().toArray()[new Random().nextInt(registeredStudents.keySet().toArray().length)];
+			String insertSql = "INSERT INTO REGISTRATION(StudentID, ModuleCode, Title) VALUES ('" + student + "', + '"+ key + "', + '" + registeredStudents.get(key) + "')";
+			stmt2 = conn.createStatement();
+			stmt2.executeUpdate(insertSql);
+			counter++;
+		}
 	}
 }

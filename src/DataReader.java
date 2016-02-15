@@ -41,6 +41,7 @@ public class DataReader {
 					e.printStackTrace();
 				}
 			}
+			
 		} else {
 			System.out.println("File's empty!");
 		}
