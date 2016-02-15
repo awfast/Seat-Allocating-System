@@ -121,6 +121,7 @@ public class Students {
 
 	protected String extractModuleTitle(String moduleTitle) {
 		//moduleTitle = list_moduleTitles.remove(0);
+		System.out.println("github test");
 		this.moduleTitle = moduleTitle;
 		System.out.println(moduleTitle);
 		return moduleTitle;
