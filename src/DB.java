@@ -34,8 +34,8 @@ public class DB {
 	private Statement stmt3;
 	private int lastDayOfTheMonth = 0;
 	private Students studentsTable = new Students();
-	private Exam examTable = new Exam();
-	DataReader dataReader = new DataReader();
+	Exam examGenerator;
+	private DataReader dataReader = new DataReader();
 	
 	protected Connection getConnection() {
 		try {
@@ -93,7 +93,7 @@ public class DB {
 		stmt = conn.createStatement();
 		String drop = "DROP TABLE IF EXISTS REGISTRATION ";
 		String table = "CREATE TABLE IF NOT EXISTS REGISTRATION " + "(StudentID INTEGER not NULL, "
-				+ "ModuleCode varchar(255))";
+				+ "ModuleCode varchar(255), " + "Title VARCHAR(255))";
 
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
@@ -127,11 +127,16 @@ public class DB {
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
 		String drop = "DROP TABLE IF EXISTS EXAM ";
-		String table = "CREATE TABLE IF NOT EXISTS EXAM " + "(ModuleCode varchar(255), " + "Duration varchar(255))";
+		String table = "CREATE TABLE IF NOT EXISTS EXAM " + "(Code varchar(255), " + "Title VARCHAR(255), "
+				+ "Day VARCHAR(255), "
+				+"Date VARCHAR(255), " + "Session VARCHAR(255), " + "Duration VARCHAR(255), " + "Location VARCHAR(255))";
 
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
 		System.out.println("Created table 'EXAM' in given database...");
+		
+		examGenerator = new Exam();
+		examGenerator.pushExamData();
 	}
 	
 	private void printDate(String dateFrom, String dateTo) {

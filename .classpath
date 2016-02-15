@@ -4,5 +4,6 @@
 	<classpathentry kind="lib" path="libs/javacsv.jar"/>
 	<classpathentry kind="lib" path="libs/mysql-connector-java-5.1.37-bin.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="F:/Downloads/org.springframework.jdbc-3.0.0.M2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
