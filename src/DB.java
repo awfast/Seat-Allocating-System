@@ -33,7 +33,7 @@ public class DB {
 	private Statement stmt2;
 	private Statement stmt3;
 	private int lastDayOfTheMonth = 0;
-	private Students studentsTable = new Students();
+	private Students students = new Students();
 	Exam examGenerator;
 	private DataReader dataReader = new DataReader();
 	
@@ -61,7 +61,7 @@ public class DB {
 
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
-		studentsTable.populateStudentsTable();
+		students.populateStudentsTable();
 	}
 
 	
@@ -135,8 +135,7 @@ public class DB {
 		stmt.executeUpdate(table);
 		System.out.println("Created table 'EXAM' in given database...");
 		
-		examGenerator = new Exam();
-		examGenerator.pushExamData();
+		students.finalizeExamGeneration();
 	}
 	
 	private void printDate(String dateFrom, String dateTo) {

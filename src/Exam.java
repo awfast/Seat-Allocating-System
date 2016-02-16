@@ -13,14 +13,14 @@ public class Exam {
 	protected Connection conn = null;
 	private Statement stmt = null;
 	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
-	private ResultSet rs;
+	private ResultSet rs;	
 	private String examDuration;
 	private String moduleCode = null;
 	private String moduleTitle = null;
 	private String day = "Thursday";
 	private String date = "14/01/2016";
-	private String session = "am";
-	private String location = "Building 46. Rooms 3001, 2003, 2005";
+	private String sessionTime = "am";
+	private String location_example = "46. Rooms 3001, 2003, 2005";
 	
 	public Exam() {
 		
@@ -31,17 +31,20 @@ public class Exam {
 		this.moduleTitle = title;
 		this.day = day;
 		this.date = date;
-		this.session = session;
+		this.sessionTime = session;
 		this.examDuration = duration;
-		this.location = location;
+		this.location_example = location;
 	}
 	
 	protected void pushExamData() {
+
 		try {
 			conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
-			String userID = "SELECT * FROM REGISTRATION";
-			rs = stmt.executeQuery(userID);
+			String studentID_moduleCode_moduleTitle = "SELECT * FROM REGISTRATION";
+			String date_MorningAfternoon = "SELECT * FROM SESSION";
+			String buildingNumber_roomNumber_seatNumber = "SELECT * FROM LOCATION";
+			rs = stmt.executeQuery(studentID_moduleCode_moduleTitle);
 
 			while (rs.next()) {
 				generateDuration();
@@ -49,8 +52,8 @@ public class Exam {
 				String moduleTitle = rs.getString("Title");
 				
 				String insertSql = "INSERT INTO EXAM(Code, Title, Day, Date, Session, Duration, Location) VALUES ('"
-						+ moduleCode + "', + '" + moduleTitle + "', + '" + day + "', +'" + date + "', + '" + session + "', + '"
-						+ this.examDuration + "', + '" + location + "')";
+						+ moduleCode + "', + '" + moduleTitle + "', + '" + day + "', +'" + date + "', + '" + sessionTime + "', + '"
+						+ this.examDuration + "', + '" + "Building" + location_example + "')";
 
 				stmt = conn.createStatement();
 				stmt.executeUpdate(insertSql);
