@@ -26,6 +26,7 @@ public class Location {
 	private LinkedHashMap<Integer, Integer> map1 = new LinkedHashMap<Integer, Integer>();
 	private LinkedHashMap<Integer, Integer> map2 = new LinkedHashMap<Integer, Integer>();
 	
+	
 	protected void storeBuildingsAndRoomsAvailable(int buildingNumber, int roomNumber) {
 		this.buildingNumber = buildingNumber;
 		this.roomNumber = roomNumber;
@@ -53,7 +54,7 @@ public class Location {
 			ts.add(i);
 		}
 		
-		studentsNumber = getStudentsNumber();
+		studentsNumber = getNumberOfStudents();
 		System.out.println("For "+studentsNumber + " students, "+ "building number "+getBuildingNumber(findValue(ts.ceiling(studentsNumber))) + ", room number " + getRoomNumber(optimalSeats, 2) + ".");
 	
 	}
@@ -70,7 +71,7 @@ public class Location {
 		
 	}
 	
-	private int findValue(int optimal) throws SQLException {
+	protected int findValue(int optimal) throws SQLException {
 		Connection mysqlConn = DriverManager.getConnection(DB_URL, USER, PASS);
 		try {
 			String query = "select count(*) from location";
@@ -84,11 +85,11 @@ public class Location {
 		}
 		optimalSeats = optimal;
 		
-		return optimal;
+		return optimalSeats;
 	}
 	
-	private int getBuildingNumber(int value) throws SQLException {
-		int row = 0;
+	protected int getBuildingNumber(int value) throws SQLException {
+		int buildingNumber = 0;
 		Connection mysqlConn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 		try {
@@ -96,18 +97,16 @@ public class Location {
 			Statement st = mysqlConn.prepareStatement(query);
 			ResultSet rs = st.executeQuery(query);
 			while (rs.next()) {
-				row = rs.getInt(1);
+				buildingNumber = rs.getInt(1);
 			}
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
-		return row;
+		return buildingNumber;
 	}
 	
-	private int getRoomNumber(int value, int room) throws SQLException {
-
+	protected int getRoomNumber(int value, int room) throws SQLException {
 		Connection mysqlConn = DriverManager.getConnection(DB_URL, USER, PASS);
-
 		try {
 			String query ="SELECT * FROM LOCATION WHERE SeatNumber ="+ value;
 			Statement st = mysqlConn.prepareStatement(query);
@@ -121,7 +120,7 @@ public class Location {
 		return room;
 	}
 
-	protected int getStudentsNumber() throws SQLException {
+	protected int getNumberOfStudents() throws SQLException {
 		Connection mysqlConn = DriverManager.getConnection(DB_URL, USER, PASS);
 		try {
 			String query = "select count(*) from student";

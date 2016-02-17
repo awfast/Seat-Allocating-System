@@ -21,7 +21,7 @@ public class Students {
 	protected Connection conn = null;
 	private Statement stmt = null;
 	private Statement stmt2;
-	private HashMap<String, String> moduleCode_moduleTitle;
+	protected HashMap<String, String> moduleCode_moduleTitle;
 	private int studentID;
 	private String studentName;
 	private final String USER = "root";
@@ -30,7 +30,6 @@ public class Students {
 	private ResultSet rs;
 	protected String moduleCode = null;
 	protected String moduleTitle = null;
-	private Exam examTable = new Exam();
 	private LinkedHashMap<Integer, String> temporary_studentList = new LinkedHashMap<Integer, String>();
 	private LinkedHashMap<Integer, String> student_ids = new LinkedHashMap<Integer, String>();
 	
@@ -40,17 +39,6 @@ public class Students {
 	protected void populateStudentsTable() throws SQLException, IOException {
 		DataReader reader = new DataReader();
 		reader.readStudentData(studentID, studentName);
-	}
-
-	protected void finalizeExamGeneration() {
-		generateNeededInformation();
-		examTable.pushExamData();
-	}
-
-	// return information about module code, module title, studentID;
-	private HashMap<String, String> generateNeededInformation() {
-		System.out.println(moduleCode_moduleTitle);
-		return moduleCode_moduleTitle;
 	}
 
 	protected void getStudentInfo(int id, String name) throws SQLException {
@@ -69,15 +57,13 @@ public class Students {
 		stmt.executeUpdate(insertSql);
 	}
 
-	protected void pushRegisteredStudentsData(HashMap<String, String> registeredStudents) {
+	protected void pushRegisteredStudentsData(HashMap<String, String> moduleCode_moduleTitle) {
 		try {
 			conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
-			this.moduleCode_moduleTitle = registeredStudents;
+			this.moduleCode_moduleTitle = moduleCode_moduleTitle;
 			String userID = "SELECT * FROM STUDENT";
 			rs = stmt.executeQuery(userID);
-			fetchModuleCode(moduleCode);
-			fetchModuleTitle(moduleTitle);
 
 			while (rs.next()) {
 				int id = rs.getInt("ID");
@@ -86,21 +72,58 @@ public class Students {
 				this.studentName = name;
 				temporary_studentList.put(studentID, studentName);
 			}
-			populateModules(registeredStudents);
+			populateModules(moduleCode_moduleTitle);
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
 	}
+	
+	// populate students to module codes
+		private void populateModules(HashMap<String, String> moduleCode_moduleTitle) throws SQLException {
+			conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
+			stmt = conn.createStatement();
+			System.out.println(temporary_studentList);
 
-	protected String fetchModuleCode(String moduleCode) {
+			for (int i = 0; i < temporary_studentList.size(); i++) {
+				i--;
+				Integer key = (Integer) temporary_studentList.keySet().toArray()[new Random().nextInt(temporary_studentList.keySet().toArray().length)];
+				storeStudentID(key, temporary_studentList.get(key));
+				temporary_studentList.keySet().remove(key);
+				getModule(key, moduleCode_moduleTitle);
+			}
+		}
+
+		private void getModule(int student, HashMap<String, String> moduleCode_moduleTitle) throws SQLException {
+			int counter = 0;
+			while (counter < 4) {
+				String key = (String) moduleCode_moduleTitle.keySet().toArray()[new Random().nextInt(moduleCode_moduleTitle.keySet().toArray().length)];
+				fetchModuleCode(key);
+				fetchModuleTitle(moduleCode_moduleTitle.get(key));
+				String insertSql = "INSERT INTO REGISTRATION(StudentID, ModuleCode, Title) VALUES ('" + student + "', + '"
+						+ key + "', + '" + moduleCode_moduleTitle.get(key) + "')";
+				stmt2 = conn.createStatement();
+				stmt2.executeUpdate(insertSql);
+				counter++;
+			}
+			System.out.println("All->" + getAllModuleCodes(list_moduleCodes));
+		}
+
+	private String fetchModuleCode(String moduleCode) {
 		if (!list_moduleCodes.contains(moduleCode)) {
 			list_moduleCodes.add(moduleCode);
 		}
 		return moduleCode;
-
 	}
-
-	protected void fetchStudentID(Integer studentID, String name) {
+	
+	protected List<String> getAllModuleCodes(List<String>list_moduleCodes) {
+		return list_moduleCodes = this.list_moduleCodes;
+	}
+	
+	protected List<String> getAllModuleTitles(List<String>list_moduleTitles) {
+		return list_moduleTitles = this.list_moduleTitles;
+	}
+	
+	protected void storeStudentID(Integer studentID, String name) {
 		student_ids.put(studentID, name);
 	}
 	
@@ -113,34 +136,5 @@ public class Students {
 			list_moduleTitles.add(moduleTitle);
 		}
 		return moduleTitle;
-	}
-
-	// populate students to module codes
-	private void populateModules(HashMap<String, String> registeredStudents) throws SQLException {
-		conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
-		stmt = conn.createStatement();
-		System.out.println(temporary_studentList);
-
-		for (int i = 0; i < temporary_studentList.size(); i++) {
-			Integer key = (Integer) temporary_studentList.keySet().toArray()[new Random().nextInt(temporary_studentList.keySet().toArray().length)];
-			fetchStudentID(key, temporary_studentList.get(key));
-			i--;
-			temporary_studentList.keySet().remove(key);
-			getModule(key);
-		}
-	}
-
-	private void getModule(int student) throws SQLException {
-		int counter = 0;
-		while (counter < 4) {
-			String key = (String) moduleCode_moduleTitle.keySet().toArray()[new Random().nextInt(moduleCode_moduleTitle.keySet().toArray().length)];
-			fetchModuleCode(key);
-			fetchModuleTitle(moduleCode_moduleTitle.get(key));
-			String insertSql = "INSERT INTO REGISTRATION(StudentID, ModuleCode, Title) VALUES ('" + student + "', + '"
-					+ key + "', + '" + moduleCode_moduleTitle.get(key) + "')";
-			stmt2 = conn.createStatement();
-			stmt2.executeUpdate(insertSql);
-			counter++;
-		}
 	}
 }

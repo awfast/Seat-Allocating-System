@@ -17,7 +17,6 @@ public class DataReader {
 	protected FileChooser fileChooser = new FileChooser();
 	private DB db;
 	private Stage stage = new Stage();
-	private Students students = new Students();
 	private HashMap<String, String> moduleCode_moduleTitle = new HashMap<String, String>();
 
 	// student data reader
@@ -35,7 +34,7 @@ public class DataReader {
 				id = studentID;
 				name = studentName;
 				try {
-					students.getStudentInfo(id, name);
+					db.examGenerator.students.getStudentInfo(id, name);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -48,7 +47,7 @@ public class DataReader {
 	}
 
 	// registeredStudents data reader
-	protected void readRegisteredStudentsData() throws IOException {
+	protected void readRegisteredStudentsData() throws IOException, SQLException {
 		String path = "F:\\ProjectData\\RegistrationData.csv";
 		System.out.println(path);
 		db = new DB();
@@ -59,13 +58,12 @@ public class DataReader {
 			String col2 = reader.get("Title");
 			moduleCode_moduleTitle.put(col1, col2);
 		}
-		storedRegisteredStudentsData(moduleCode_moduleTitle);
+		db.examGenerator.students.pushRegisteredStudentsData(moduleCode_moduleTitle);
 	}
 
 	// location data reader
 	protected void readLocationData(int buildingNumber, int roomNumber, int seatNumber, int accessibleSeatsNumber)
 			throws IOException {
-		Location location = new Location();
 		// File file = fileChooser.showOpenDialog(stage);
 		db = new DB();
 		// if (file != null) {
@@ -85,11 +83,11 @@ public class DataReader {
 			seatNumber = Integer.valueOf(col3);
 			accessibleSeatsNumber = Integer.valueOf(col4);
 			
-			location.storeBuildingsAndRoomsAvailable(buildingNumber, roomNumber);
-			location.storeSeatsAvailable(seatNumber, accessibleSeatsNumber);
+			db.examGenerator.location.storeBuildingsAndRoomsAvailable(buildingNumber, roomNumber);
+			db.examGenerator.location.storeSeatsAvailable(seatNumber, accessibleSeatsNumber);
 		}
 		try {
-			location.processData();
+			db.examGenerator.location.processData();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -98,11 +96,13 @@ public class DataReader {
 		 * else { System.out.println("File's empty!"); }
 		 */
 	}
-
-	protected void storedRegisteredStudentsData(HashMap<String, String> moduleCode_moduleTitle) {
-		this.moduleCode_moduleTitle = moduleCode_moduleTitle;
-		System.out.println(moduleCode_moduleTitle);
-		students.pushRegisteredStudentsData(moduleCode_moduleTitle);
+	
+	protected void readDates(String dateFrom, String dateTo) throws SQLException {
+		db = new DB();
+		db.examGenerator.session.printDate(dateFrom, dateTo);
 	}
-
+	
+	protected void generateExam() throws SQLException {
+		db.examGenerator.generateInformation();
+	}
 }

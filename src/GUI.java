@@ -27,7 +27,6 @@ public class GUI {
 	private String examPeriodFrom;
 	private String examPeriodTo;
 	private Session session;
-	private Exam examGenerator = new Exam();
 
 	protected void loadGUI(Scene appScene, BorderPane componentLayout, Stage stage) {
 		db.getConnection();
@@ -48,7 +47,7 @@ public class GUI {
 	private void getExamPeriod(Stage stage) {
 		browseBtn.setOnAction(new EventHandler() {
 			public void handle(Event t) {
-				examPeriodFrom = "01/06/2015";
+				/*examPeriodFrom = "01/06/2015";
 				examPeriodTo = "01/07/2015";
 				
 				stage.close();
@@ -57,17 +56,14 @@ public class GUI {
 					loadMainGUI();
 				} catch (SQLException e) {
 					e.printStackTrace();
-				}
+				}*/
 			
-			/*if (dateFrom.getValue().isAfter(dateTo.getValue())) {
+			if (dateFrom.getValue().isAfter(dateTo.getValue())) {
 				System.out.println("From can't be after to");
 				return;
 			} else {
 				examPeriodFrom = dateFrom.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-				examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-				examPeriodFrom = "01/06/2015";
-				examPeriodTo = "01/07/2015";
-				
+				examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));				
 				stage.close();
 				try {
 					db.createTableSession(examPeriodFrom, examPeriodTo);
@@ -75,7 +71,7 @@ public class GUI {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-			}*/
+			}
 			}
 		});
 	}
@@ -141,6 +137,9 @@ public class GUI {
 					db.createTableExam();
 					System.out.printf("Generating an exam schedule for the period: " + examPeriodFrom + " - " + examPeriodTo);
 				} catch (SQLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

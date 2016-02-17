@@ -33,9 +33,8 @@ public class DB {
 	private Statement stmt2;
 	private Statement stmt3;
 	private int lastDayOfTheMonth = 0;
-	private Students students = new Students();
-	Exam examGenerator;
-	private DataReader dataReader = new DataReader();
+	protected Exam examGenerator = new Exam();
+	private DataReader dataReader = new DataReader();	
 	
 	protected Connection getConnection() {
 		try {
@@ -61,7 +60,8 @@ public class DB {
 
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
-		students.populateStudentsTable();
+		
+		dataReader.readStudentData(studentID, studentName);
 	}
 
 	
@@ -118,11 +118,17 @@ public class DB {
 	
 	protected void pushSessionData(String dateFrom, String dateTo) {
 		System.out.println(dateFrom + "<--->" + dateTo);
-		printDate(dateFrom, dateTo);
+		try {
+			dataReader.readDates(dateFrom, dateTo);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//printDate(dateFrom, dateTo);
 	}
 	
 	// table EXAM
-	protected void createTableExam() throws SQLException {
+	protected void createTableExam() throws SQLException, IOException {
 		// STEP 4: Execute a query
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
@@ -134,11 +140,10 @@ public class DB {
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
 		System.out.println("Created table 'EXAM' in given database...");
-		
-		students.finalizeExamGeneration();
+		dataReader.generateExam();
 	}
 	
-	private void printDate(String dateFrom, String dateTo) {
+	/*private void printDate(String dateFrom, String dateTo) {
 		String[] fromDates = dateFrom.split("/");
 		String[] toDates = dateTo.split("/");
 		String fromDay = fromDates[0];
@@ -305,7 +310,7 @@ public class DB {
 				e.printStackTrace();
 			}
 		}
-	}
+	}*/
 	
 	private void getLastDayOfTheMonth(int month, int year) {
 		   Calendar calendar = Calendar.getInstance();
