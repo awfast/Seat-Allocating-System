@@ -66,7 +66,7 @@ public class GUI {
 				examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));				
 				stage.close();
 				try {
-					db.createTableSession(examPeriodFrom, examPeriodTo);
+					db.createTableSession(db.getConnection(), examPeriodFrom, examPeriodTo);
 					loadMainGUI();
 				} catch (SQLException e) {
 					e.printStackTrace();

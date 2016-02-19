@@ -43,7 +43,7 @@ public class Session {
 	}
 	
 
-	public void printDate(String dateFrom, String dateTo) throws SQLException {
+	public void printDate(Connection conn, String dateFrom, String dateTo) throws SQLException {
 		
 		String[] fromDates = dateFrom.split("/");
 		String[] toDates = dateTo.split("/");
@@ -198,6 +198,7 @@ public class Session {
 		} finally {
 			String query = "SELECT * FROM SESSION";
 			try {
+				stmt = conn.createStatement();
 				rs = stmt.executeQuery(query);
 				rs.afterLast();
 				while (rs.previous()) {

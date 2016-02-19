@@ -1,6 +1,7 @@
 import java.awt.List;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,9 +98,9 @@ public class DataReader {
 		 */
 	}
 	
-	protected void readDates(String dateFrom, String dateTo) throws SQLException {
+	protected void readDates(Connection conn, String dateFrom, String dateTo) throws SQLException {
 		db = new DB();
-		db.examGenerator.session.printDate(dateFrom, dateTo);
+		db.examGenerator.session.printDate(conn, dateFrom, dateTo);
 	}
 	
 	protected void generateExam() throws SQLException {

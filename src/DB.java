@@ -103,7 +103,7 @@ public class DB {
 	}
 
 	// table SESSION
-	protected void createTableSession(String dateFrom, String dateTo) throws SQLException {
+	protected void createTableSession(Connection conn, String dateFrom, String dateTo) throws SQLException {
 		// STEP 4: Execute a query
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
@@ -113,13 +113,13 @@ public class DB {
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
 		System.out.println("Created table 'SESSION' in given database...");
-		pushSessionData(dateFrom, dateTo);
+		pushSessionData(conn, dateFrom, dateTo);
 	}
 	
-	protected void pushSessionData(String dateFrom, String dateTo) {
+	protected void pushSessionData(Connection conn, String dateFrom, String dateTo) {
 		System.out.println(dateFrom + "<--->" + dateTo);
 		try {
-			dataReader.readDates(dateFrom, dateTo);
+			dataReader.readDates(conn, dateFrom, dateTo);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
