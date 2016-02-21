@@ -22,21 +22,24 @@ public class DB {
 	protected Connection conn = null;
 	private Statement stmt = null;
 	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
-	private int studentID;
-	private String studentName = null;
-	private int roomNumber;
-	private int buildingNumber;
-	private int numberOfSeats;
-	private int numberOfAccessibleSeats;
 	protected String moduleCode = null;
-	private ResultSet rs;
-	private Statement stmt2;
-	private Statement stmt3;
 	private int lastDayOfTheMonth = 0;
-	protected Exam examGenerator = new Exam();
-	private DataReader dataReader = new DataReader();	
 	
-	protected Connection getConnection() {
+	
+	private int studentID;
+	private String studentName;
+	
+	protected Students students;
+	protected Session session;
+	protected Location location;
+	
+	public DB() {
+		students = new Students();
+		location = new Location();		
+		session = new Session();
+	}
+	
+	protected Connection getConnection(Connection conn) {
 		try {
 			System.out.println("Connecting to database...");
 			conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
@@ -51,22 +54,23 @@ public class DB {
 	}
 
 	// Student table
-	protected void createTableStudents() throws SQLException, IOException {
+	protected void createTableStudents(Connection conn) throws SQLException, IOException {
 		// STEP 4: Execute a query
 		System.out.println("Creating table 'STUDENT' in the given database...");
 		stmt = conn.createStatement();
 		String drop = "DROP TABLE IF EXISTS STUDENT ";
-		String table = "CREATE TABLE IF NOT EXISTS STUDENT " + "(ID INTEGER not NULL, " + "studentName VARCHAR(255))";
+		String table = "CREATE TABLE IF NOT EXISTS STUDENT " + "(ID INTEGER not NULL, "
+				+ "StudentName varchar(255))";
 
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
 		
-		dataReader.readStudentData(studentID, studentName);
+		//----->>>>>>     dataReader.readStudentData(studentID, studentName);
 	}
 
 	
 	// Location table
-	protected void createTableLocation() throws SQLException, IOException {
+	protected void createTableLocation(Connection conn) throws SQLException, IOException {
 		// STEP 4: Execute a query
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
@@ -79,15 +83,15 @@ public class DB {
 		stmt.executeUpdate(table);
 		System.out.println("Created table 'Location' in given database...");
 		
-		populateLocationTable();
+		//----->>>>>>     populateLocationTable();
 	}
 
 	protected void populateLocationTable() throws SQLException, IOException {
-		dataReader.readLocationData(buildingNumber, roomNumber, numberOfSeats, numberOfAccessibleSeats);
+		//----->>>>>>     dataReader.readLocationData(buildingNumber, roomNumber, numberOfSeats, numberOfAccessibleSeats);
 	}
 
 	// registeredStudents table
-	protected void createTableRegisteredStudents() throws SQLException, IOException {
+	protected void createTableRegisteredStudents(Connection conn) throws SQLException, IOException {
 		// STEP 4: Execute a query
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
@@ -99,7 +103,7 @@ public class DB {
 		stmt.executeUpdate(table);
 		System.out.println("Created table 'REGISTRATION' in given database...");
 		
-		dataReader.readRegisteredStudentsData();
+		//----->>>>>>     dataReader.readRegisteredStudentsData();
 	}
 
 	// table SESSION
@@ -118,17 +122,10 @@ public class DB {
 	
 	protected void pushSessionData(Connection conn, String dateFrom, String dateTo) {
 		System.out.println(dateFrom + "<--->" + dateTo);
-		try {
-			dataReader.readDates(conn, dateFrom, dateTo);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//printDate(dateFrom, dateTo);
 	}
 	
 	// table EXAM
-	protected void createTableExam() throws SQLException, IOException {
+	protected void createTableExam(String examPeriodFrom, String examPeriodTo) throws SQLException, IOException {
 		// STEP 4: Execute a query
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
@@ -140,7 +137,7 @@ public class DB {
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
 		System.out.println("Created table 'EXAM' in given database...");
-		dataReader.generateExam();
+		//----->>>>>>     dataReader.generateExam();
 	}
 	
 	/*private void printDate(String dateFrom, String dateTo) {

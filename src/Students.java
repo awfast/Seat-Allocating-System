@@ -32,36 +32,22 @@ public class Students {
 	protected String moduleTitle = null;
 	private LinkedHashMap<Integer, String> temporary_studentList = new LinkedHashMap<Integer, String>();
 	private LinkedHashMap<Integer, String> student_ids = new LinkedHashMap<Integer, String>();
-	
 	private List<String> list_moduleCodes = new LinkedList<String>();
 	private List<String> list_moduleTitles = new LinkedList<String>();
 
-	protected void populateStudentsTable() throws SQLException, IOException {
-		DataReader reader = new DataReader();
-		reader.readStudentData(studentID, studentName);
-	}
-
-	protected void getStudentInfo(int id, String name) throws SQLException {
-		this.studentID = id;
-		this.studentName = name;
-		pushStudentData();
-	}
-
-	protected void pushStudentData() throws SQLException {
+	protected void pushStudentData(int id, String studentName) throws SQLException {
 		conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
 		stmt = conn.createStatement();
 
-		String insertSql = "INSERT INTO STUDENT(ID, studentName) VALUES ('" + this.studentID + "', + '"
-				+ this.studentName + "')";
-		System.out.println("Inserting into student.. [" + studentID + "]" + "=" + studentName);
+		String insertSql = "INSERT INTO STUDENT(ID, StudentName) VALUES ('" + id + "', + '" + studentName + "')";
+		System.out.println("Inserting into student.. [" + id + "]" + "[" + studentName + "]");
 		stmt.executeUpdate(insertSql);
 	}
 
-	protected void pushRegisteredStudentsData(HashMap<String, String> moduleCode_moduleTitle) {
+	protected HashMap<String, String> pushRegisteredStudentsData(HashMap<String, String> moduleCode_moduleTitle) throws IOException, SQLException {
 		try {
 			conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
-			this.moduleCode_moduleTitle = moduleCode_moduleTitle;
 			String userID = "SELECT * FROM STUDENT";
 			rs = stmt.executeQuery(userID);
 
@@ -76,6 +62,7 @@ public class Students {
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
+		return moduleCode_moduleTitle;
 	}
 	
 	// populate students to module codes
@@ -105,7 +92,7 @@ public class Students {
 				stmt2.executeUpdate(insertSql);
 				counter++;
 			}
-			System.out.println("All->" + getAllModuleCodes(list_moduleCodes));
+			System.out.println("All->" + getAllModuleCodes());
 		}
 
 	private String fetchModuleCode(String moduleCode) {
@@ -115,26 +102,27 @@ public class Students {
 		return moduleCode;
 	}
 	
-	protected List<String> getAllModuleCodes(List<String>list_moduleCodes) {
-		return list_moduleCodes = this.list_moduleCodes;
-	}
-	
-	protected List<String> getAllModuleTitles(List<String>list_moduleTitles) {
-		return list_moduleTitles = this.list_moduleTitles;
-	}
-	
-	protected void storeStudentID(Integer studentID, String name) {
-		student_ids.put(studentID, name);
-	}
-	
-	protected String getStudentName(String name) {
-		return student_ids.get(studentID);
-	}
-
 	protected String fetchModuleTitle(String moduleTitle) {
 		if (!list_moduleTitles.contains(moduleTitle)) {
 			list_moduleTitles.add(moduleTitle);
 		}
 		return moduleTitle;
 	}
+	
+	protected List<String> getAllModuleCodes() {
+		return this.list_moduleCodes;
+	}
+	
+	protected List<String> getAllModuleTitles() {
+		return this.list_moduleTitles;
+	}
+	
+	protected void storeStudentID(Integer studentID, String name) {
+		student_ids.put(studentID, name);
+	}
+	
+	/*protected String getStudentName(String name) {
+		return student_ids.get(studentID);
+	}*/
+
 }

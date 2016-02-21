@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -26,24 +27,18 @@ public class Location {
 	private LinkedHashMap<Integer, Integer> map1 = new LinkedHashMap<Integer, Integer>();
 	private LinkedHashMap<Integer, Integer> map2 = new LinkedHashMap<Integer, Integer>();
 	
-	
-	protected void storeBuildingsAndRoomsAvailable(int buildingNumber, int roomNumber) {
-		this.buildingNumber = buildingNumber;
-		this.roomNumber = roomNumber;
-		map1.put(buildingNumber, roomNumber);
-	}
-
-	protected void storeSeatsAvailable(int numberOfSeats, int numberOfAccessibleSeats) {
+	protected void storeLocationInformation(int buildings, int rooms, int numberOfSeats, int numberOfAccessibleSeats) throws IOException, SQLException {
+		this.roomNumber = buildings;
+		this.buildingNumber = rooms;
 		this.numberOfSeats = numberOfSeats;
 		this.numberOfAccessibleSeats = numberOfAccessibleSeats;
+		
+		map1.put(buildingNumber, roomNumber);
 		map2.put(numberOfSeats, numberOfAccessibleSeats);
-
-		try {
-			pushLocationData();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		pushLocationData(buildings, rooms, numberOfSeats, numberOfAccessibleSeats);
+		processData();
 	}
+	
 
 	protected void processData() throws SQLException {		
 		for (Integer key : map2.keySet()) {
@@ -56,17 +51,16 @@ public class Location {
 		
 		studentsNumber = getNumberOfStudents();
 		System.out.println("For "+studentsNumber + " students, "+ "building number "+getBuildingNumber(findValue(ts.ceiling(studentsNumber))) + ", room number " + getRoomNumber(optimalSeats, 2) + ".");
-	
 	}
 
-	protected void pushLocationData() throws SQLException {
+	protected void pushLocationData(int buildings, int rooms, int numberOfSeats, int numberOfAccessibleSeats) throws SQLException {
 		conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
 		stmt = conn.createStatement();
 		String insertSql = "INSERT INTO LOCATION(BuildingNumber, RoomNumber, SeatNumber, AccessibleSeatsNumber) VALUES ('"
-				+ this.buildingNumber + "', + '" + this.roomNumber + "', + '" + this.numberOfSeats + "', + '"
-				+ this.numberOfAccessibleSeats + "')";
-		System.out.println("Inserting into location.. [" + this.buildingNumber + "]" + "[" + this.roomNumber + "]" + "["
-				+ this.numberOfSeats + "]" + "[" + this.numberOfAccessibleSeats + "]");
+				+ buildings + "', + '" + rooms + "', + '" + numberOfSeats + "', + '"
+				+ numberOfAccessibleSeats + "')";
+		System.out.println("Inserting into location.. [" + buildings + "]" + "[" + rooms + "]" + "["
+				+ numberOfSeats + "]" + "[" + numberOfAccessibleSeats + "]");
 		stmt.executeUpdate(insertSql);
 		
 	}

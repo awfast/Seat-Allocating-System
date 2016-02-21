@@ -1,6 +1,9 @@
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+
+import com.mysql.jdbc.Connection;
+
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -26,10 +29,13 @@ public class GUI {
 	private Button locationBtn;
 	private String examPeriodFrom;
 	private String examPeriodTo;
-	private Session session;
+	private DataReader dataReader = new DataReader();
+	private Exam exam;
+	private String studentName = null;
+	private Connection conn;
 
 	protected void loadGUI(Scene appScene, BorderPane componentLayout, Stage stage) {
-		db.getConnection();
+		db.getConnection(conn);
 		VBox vbox = new VBox();
 
 		dateFrom = new DatePicker();
@@ -66,11 +72,19 @@ public class GUI {
 				examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));				
 				stage.close();
 				try {
-					db.createTableSession(db.getConnection(), examPeriodFrom, examPeriodTo);
-					loadMainGUI();
+					System.out.println("here.....................");
+					System.out.println(db);
+					System.out.println(db.getConnection(conn));
+					System.out.println(examPeriodFrom);
+					System.out.println(dataReader);
+					System.out.println("now here.............");
+					dataReader.createExamPeriod(db, db.getConnection(conn), examPeriodFrom, examPeriodTo);
 				} catch (SQLException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				//db.createTableSession(db.getConnection(), examPeriodFrom, examPeriodTo);
+				loadMainGUI();
 			}
 			}
 		});
@@ -78,6 +92,7 @@ public class GUI {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void loadMainGUI(){
+		int id = 0;
 		Scene newAppScene = new Scene(flow, 400, 350);
 		pane = new FlowPane();
 		studentBtn = new Button("StudentInfo");
@@ -96,7 +111,8 @@ public class GUI {
 			@Override
 			public void handle(Event arg0) {
 				try {
-					db.createTableStudents();
+					dataReader.getStudentID(id, studentName);
+					//db.createTableStudents();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -109,7 +125,8 @@ public class GUI {
 			@Override
 			public void handle(Event arg0) {
 				try {
-					db.createTableRegisteredStudents();
+					dataReader.readRegisteredStudentsData();
+					//db.createTableRegisteredStudents();
 				} catch (SQLException | IOException e) {
 					e.printStackTrace();
 				}
@@ -120,7 +137,8 @@ public class GUI {
 			@Override
 			public void handle(Event arg0) {
 				try {
-					db.createTableLocation();
+					dataReader.getLocations();
+					//db.createTableLocation();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -134,7 +152,10 @@ public class GUI {
 			public void handle(Event arg0) {
 				//A* algorithm to be called in here
 				try {
-					db.createTableExam();
+					Exam exam = new Exam(dataReader);
+					exam.generateInformation();
+					//dataReader.createNewExam(examPeriodFrom, examPeriodTo);
+					//db.createTableExam(examPeriodFrom, examPeriodTo);
 					System.out.printf("Generating an exam schedule for the period: " + examPeriodFrom + " - " + examPeriodTo);
 				} catch (SQLException e) {
 					e.printStackTrace();

@@ -24,33 +24,25 @@ public class Exam {
 	protected Location location;
 	protected Students students;
 	protected Session session;
+	private DataReader dataReader;
 
 	private String examDuration;
+	private int id;
+	private String name;
+	private HashMap<String, String> moduleCode_moduleTitle = new HashMap<String, String>();
+	private int numberOfSeats = 0;
+	private int numberOfAccessibleSeats = 0;
 
-	private List<String> list_moduleCodes = new LinkedList<String>();
-	private List<String> list_moduleTitles = new LinkedList<String>();
-	private LinkedHashMap<Integer, String> studentIDs = new LinkedHashMap<Integer, String>();
-	private HashMap<Integer, String> sessionID_sessionDate = new HashMap<Integer, String>();
-	private HashMap<HashMap<Integer, String>, String> sessionDate_sessionInterval = new HashMap<HashMap<Integer, String>, String>();
-
-	public Exam() {
-		location = new Location();
-		students = new Students();
-		session = new Session();
+	public Exam(DataReader reader) throws SQLException, IOException {
 	}
 	
 	protected void generateInformation() throws SQLException {		
-		System.out.println("Number Of Students: " + location.getNumberOfStudents());
-		System.out.println("Optimal building number: " + location.getBuildingNumber(location.getNumberOfStudents()));
-		System.out.println("Optimal room number: " + location.getRoomNumber(location.getNumberOfStudents(), roomNumber));
-		System.out.println("ModuleCodes: " + students.getAllModuleCodes(list_moduleCodes));
-		System.out.println("ModuleTitles: " + students.getAllModuleTitles(list_moduleTitles));
-		System.out.println("Session ID and DATE: " + session.getAllSessions(sessionID_sessionDate));
-	}
-
-
-	protected LinkedHashMap<Integer, String> fetchStudentIDs(LinkedHashMap<Integer, String> studentIDs) {
-		return this.studentIDs = studentIDs;
+		System.out.println("Number Of Students: " + dataReader.db.location.getNumberOfStudents());
+		System.out.println("Optimal building number: " + dataReader.db.location.getBuildingNumber(location.getNumberOfStudents()));
+		System.out.println("Optimal room number: " + dataReader.db.location.getRoomNumber(location.getNumberOfStudents(), roomNumber));
+		System.out.println("ModuleCodes: " + dataReader.db.students.getAllModuleCodes());
+		System.out.println("ModuleTitles: " + dataReader.db.students.getAllModuleTitles());
+		System.out.println("Session ID and DATE: " + dataReader.db.session.getAllSessions());
 	}
 
 	// A* algorithm to be implemented in here in stead of a random assignment
@@ -74,10 +66,6 @@ public class Exam {
 		}
 	}
 	// end of exam table
-
-	private void generateExam() {
-
-	}
 
 	/*
 	 * Map<Exam, String> leastCost = new HashMap<Exam, String>(); Map<Exam,

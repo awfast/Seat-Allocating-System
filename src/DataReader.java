@@ -1,5 +1,6 @@
 import java.awt.List;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,34 +15,46 @@ import javafx.stage.Stage;
 
 public class DataReader {
 
+	private String dateFrom = null;
+	private String dateTo = null;
+	private String studentName = null;
 	private CsvReader reader;
 	protected FileChooser fileChooser = new FileChooser();
-	private DB db;
+	protected DB db = null;
 	private Stage stage = new Stage();
 	private HashMap<String, String> moduleCode_moduleTitle = new HashMap<String, String>();
-
-	// student data reader
-	protected void readStudentData(int id, String name) throws IOException {
+	private Connection conn = null;
+	
+	protected void createExamPeriod(DB db, Connection conn, String examPeriodFrom, String examPeriodTo) throws SQLException {
+		this.db = db;
+		this.conn = conn;
+		db.createTableSession(conn, examPeriodFrom, examPeriodTo);
+		this.dateFrom = examPeriodFrom;
+		this.dateTo = examPeriodTo;
+	}
+	
+	// student data reader	
+	protected void getStudentID(int id, String studentName) throws SQLException, IOException {
 		File file = fileChooser.showOpenDialog(stage);
-		db = new DB();
+		db.createTableStudents(conn);
 		if (file != null) {
 			String path = file.getAbsolutePath();
-			reader = new CsvReader(path);
-			reader.readHeaders();
-			while (reader.readRecord()) {
-				String x = reader.get("STUDENT ID");
-				String studentName = reader.get("STUDENT NAME");
-				int studentID = Integer.valueOf(x);
-				id = studentID;
-				name = studentName;
-				try {
-					db.examGenerator.students.getStudentInfo(id, name);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			try {
+				reader = new CsvReader(path);
+				reader.readHeaders();
+				
+				while (reader.readRecord()) {
+					String x = reader.get("STUDENT ID");
+					int studentID = Integer.valueOf(x);
+					id = studentID;
+					String name = reader.get("STUDENT NAME");
+					studentName = name;
+					db.students.pushStudentData(id, name);
 				}
-			}
-			
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
 		} else {
 			System.out.println("File's empty!");
 		}
@@ -49,9 +62,9 @@ public class DataReader {
 
 	// registeredStudents data reader
 	protected void readRegisteredStudentsData() throws IOException, SQLException {
+		db.createTableRegisteredStudents(conn);
 		String path = "F:\\ProjectData\\RegistrationData.csv";
 		System.out.println(path);
-		db = new DB();
 		reader = new CsvReader(path);
 		reader.readHeaders();
 		while (reader.readRecord()) {
@@ -59,17 +72,17 @@ public class DataReader {
 			String col2 = reader.get("Title");
 			moduleCode_moduleTitle.put(col1, col2);
 		}
-		db.examGenerator.students.pushRegisteredStudentsData(moduleCode_moduleTitle);
+		db.students.pushRegisteredStudentsData(moduleCode_moduleTitle);
+		//db.examGenerator.students.pushRegisteredStudentsData(moduleCode_moduleTitle);
 	}
-
-	// location data reader
-	protected void readLocationData(int buildingNumber, int roomNumber, int seatNumber, int accessibleSeatsNumber)
-			throws IOException {
-		// File file = fileChooser.showOpenDialog(stage);
-		db = new DB();
-		// if (file != null) {
-
-		// String path = file.getAbsolutePath();
+	
+	protected void getLocations() throws IOException, SQLException {
+		db.createTableLocation(conn);
+		getAvailableBuildings();
+		//db.location.storeLocationInformation(getAvailableBuildings(buildings), getAvailableRooms(rooms), getAvailableSeats(numberOfSeats), getAvailableAccessibleSeats(numberOfAccessibleSeats));		
+	}
+	
+	protected void getAvailableBuildings() throws IOException, SQLException {
 		String path = "F:\\ProjectData\\LocationData.csv";
 		reader = new CsvReader(path);
 		reader.readHeaders();
@@ -78,32 +91,12 @@ public class DataReader {
 			String col2 = reader.get("Room");
 			String col3 = reader.get("Capacity");
 			String col4 = reader.get("Accessible");
-
-			buildingNumber = Integer.valueOf(col1);
-			roomNumber = Integer.valueOf(col2);
-			seatNumber = Integer.valueOf(col3);
-			accessibleSeatsNumber = Integer.valueOf(col4);
+			int buildings = Integer.valueOf(col1);
+			int rooms = Integer.valueOf(col2);
+			int numberOfSeats = Integer.valueOf(col3);
+			int numberOfAccessibleSeats = Integer.valueOf(col4);
 			
-			db.examGenerator.location.storeBuildingsAndRoomsAvailable(buildingNumber, roomNumber);
-			db.examGenerator.location.storeSeatsAvailable(seatNumber, accessibleSeatsNumber);
+			db.location.storeLocationInformation(buildings, rooms, numberOfSeats, numberOfAccessibleSeats);	
 		}
-		try {
-			db.examGenerator.location.processData();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		// }
-		/*
-		 * else { System.out.println("File's empty!"); }
-		 */
-	}
-	
-	protected void readDates(Connection conn, String dateFrom, String dateTo) throws SQLException {
-		db = new DB();
-		db.examGenerator.session.printDate(conn, dateFrom, dateTo);
-	}
-	
-	protected void generateExam() throws SQLException {
-		db.examGenerator.generateInformation();
 	}
 }

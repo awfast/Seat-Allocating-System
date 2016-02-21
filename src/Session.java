@@ -240,7 +240,7 @@ public class Session {
 		this.lastDayOfTheMonth = lastDayOfTheMonth;
 	}
 
-	protected HashMap<Integer, String> getAllSessions(HashMap<Integer, String> sessionID_sessionDate) {
-		return sessionID_sessionDate = this.sessionID_sessionDate;
+	protected HashMap<Integer, String> getAllSessions() {
+		return this.sessionID_sessionDate;
 	}
 }
