@@ -29,6 +29,7 @@ public class DataReader {
 		this.db = db;
 		this.conn = conn;
 		db.createTableSession(conn, examPeriodFrom, examPeriodTo);
+		db.session.printDate(conn, examPeriodFrom, examPeriodTo);
 		this.dateFrom = examPeriodFrom;
 		this.dateTo = examPeriodTo;
 	}
@@ -95,8 +96,8 @@ public class DataReader {
 			int rooms = Integer.valueOf(col2);
 			int numberOfSeats = Integer.valueOf(col3);
 			int numberOfAccessibleSeats = Integer.valueOf(col4);
-			
 			db.location.storeLocationInformation(buildings, rooms, numberOfSeats, numberOfAccessibleSeats);	
 		}
+		db.location.processData();
 	}
 }

@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.Random;
 
 import com.mysql.jdbc.Connection;
 
@@ -30,7 +31,14 @@ public class GUI {
 	private String examPeriodFrom;
 	private String examPeriodTo;
 	private DataReader dataReader = new DataReader();
-	private Exam exam;
+	int studentID = 0;
+	int moduleCode = 0;
+	String moduleTitle = null;
+	String day = null;
+	String date = null;
+	String duration = null;
+	String location = null;
+	private Schedule exam;
 	private String studentName = null;
 	private Connection conn;
 
@@ -72,12 +80,6 @@ public class GUI {
 				examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));				
 				stage.close();
 				try {
-					System.out.println("here.....................");
-					System.out.println(db);
-					System.out.println(db.getConnection(conn));
-					System.out.println(examPeriodFrom);
-					System.out.println(dataReader);
-					System.out.println("now here.............");
 					dataReader.createExamPeriod(db, db.getConnection(conn), examPeriodFrom, examPeriodTo);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -152,15 +154,12 @@ public class GUI {
 			public void handle(Event arg0) {
 				//A* algorithm to be called in here
 				try {
-					Exam exam = new Exam(dataReader);
-					exam.generateInformation();
+					Schedule exam = new Schedule(studentID, moduleCode, moduleTitle, day, date, duration, location);
+					exam.generateInformation(dataReader);
 					//dataReader.createNewExam(examPeriodFrom, examPeriodTo);
 					//db.createTableExam(examPeriodFrom, examPeriodTo);
 					System.out.printf("Generating an exam schedule for the period: " + examPeriodFrom + " - " + examPeriodTo);
 				} catch (SQLException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

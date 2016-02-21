@@ -92,7 +92,6 @@ public class Students {
 				stmt2.executeUpdate(insertSql);
 				counter++;
 			}
-			System.out.println("All->" + getAllModuleCodes());
 		}
 
 	private String fetchModuleCode(String moduleCode) {
