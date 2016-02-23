@@ -23,7 +23,8 @@ public class Schedule {
 	private int optimalBuildingNumber = 0;
 	private int optimalRoomNumber = 0;
 	private DataReader dataReader = null;
-	
+	private ArrayList<Integer> studentIDs;
+	private int numberOfStudents = 0;
 	public Schedule(int studentID, int moduleCode, String moduleTitle, String day, String date, String duration, String location) {
 		
 	}
@@ -46,8 +47,44 @@ public class Schedule {
 	}
 	
 	private int getNumberOfStudentsPerModuleCode(String moduleCode) throws SQLException {
-		int numberOfStudents = 0;
-		int id=0;
+		int id=0;		
+		studentIDs = new ArrayList<Integer>();
+		Connection mysqlConn = DriverManager.getConnection(DB_URL, USER, PASS);
+		try {
+			String query ="SELECT * FROM RegisteredStudents WHERE ModuleCode ='"+ moduleCode + "'";
+			Statement st = mysqlConn.prepareStatement(query);
+			ResultSet rs = st.executeQuery(query);
+			while (rs.next()) {
+				id = rs.getInt(1);
+				if(!studentIDs.contains(id)) {
+					studentIDs.add(id);
+					this.numberOfStudents++;		
+				}	
+			}
+		} catch (SQLException e) {
+			System.out.println(e);
+		}
+		
+		fetchAllInformation(moduleCode, this.numberOfStudents);
+		
+		return this.numberOfStudents;
+	}
+	
+	private void fetchAllInformation(String moduleCode, int numberOfStudents) throws SQLException {
+		int optimalBuilding = dataReader.db.location.getBuildingNumber(dataReader.db.location.findValue(dataReader.db.location.ts.ceiling(this.numberOfStudents)));
+		int optimalRoom = dataReader.db.location.getRoomNumber(optimalBuilding);
+		
+		System.out.println("----------------------------------------------------------------");
+		System.out.println("|Module Code - " + moduleCode + "|");
+		System.out.println("|Registered Students - " + numberOfStudents + "|");
+		System.out.println("|Student ids - " + studentIDs + "|");		
+		System.out.println("|Optimal Building - " + optimalBuilding + "|");
+		System.out.println("|Optimal room - " + optimalRoom + "|");
+		System.out.println("");
+		
+	}
+	
+	/*private int getStudentsPerModuleCode(int moduleCode) {
 		Connection mysqlConn = DriverManager.getConnection(DB_URL, USER, PASS);
 		try {
 			String query ="SELECT * FROM REGISTRATION WHERE ModuleCode ='"+ moduleCode + "'";
@@ -61,29 +98,5 @@ public class Schedule {
 			System.out.println(e);
 		}
 	
-		int optimalBuilding = dataReader.db.location.getBuildingNumber(dataReader.db.location.findValue(dataReader.db.location.ts.ceiling(numberOfStudents)));
-		int optimalRoom = dataReader.db.location.getRoomNumber(optimalBuilding);
-		System.out.println("Module Code - " + moduleCode + ", Registered Students - " + numberOfStudents + ", Optimal Building - " + optimalBuilding + ", Optimal room - " + optimalRoom);
-		return numberOfStudents;
-	}
-	
-	/*private int getAllStudentIDs() {
-		try {
-			conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
-			stmt = conn.createStatement();
-			String userID = "SELECT * FROM STUDENT";
-			rs = stmt.executeQuery(userID);
-
-			while (rs.next()) {
-				int id = rs.getInt("ID");
-				this.studentID = Integer.valueOf(id);
-				String name = rs.getString("studentName");
-				this.studentName = name;
-				temporary_studentList.put(studentID, studentName);
-			}
-			populateModules(moduleCode_moduleTitle);
-		} catch (SQLException e) {
-			System.out.println(e);
-		}
 	}*/
 }

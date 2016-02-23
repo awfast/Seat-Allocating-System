@@ -25,7 +25,6 @@ public class DB {
 	protected String moduleCode = null;
 	private int lastDayOfTheMonth = 0;
 	
-	
 	private int studentID;
 	private String studentName;
 	
@@ -85,25 +84,54 @@ public class DB {
 		
 		//----->>>>>>     populateLocationTable();
 	}
+	
+	protected void createTableCohort(Connection conn) throws SQLException, IOException {
+		// STEP 4: Execute a query
+		System.out.println("Creating table in given database...");
+		stmt = conn.createStatement();
+		String drop = "DROP TABLE IF EXISTS Cohorts ";
+		String table = "CREATE TABLE IF NOT EXISTS Cohorts " + "(Cohort varchar(255), "
+				+ "Size INTEGER not NULL)";
 
-	protected void populateLocationTable() throws SQLException, IOException {
-		//----->>>>>>     dataReader.readLocationData(buildingNumber, roomNumber, numberOfSeats, numberOfAccessibleSeats);
+		stmt.executeUpdate(drop);
+		stmt.executeUpdate(table);
+		System.out.println("Created table 'Cohort' in given database...");
+		
+		//----->>>>>>     populateLocationTable();
 	}
+	
+	protected void createTableExam(Connection conn) throws SQLException, IOException {
+		// STEP 4: Execute a query
+		System.out.println("Creating table in given database...");
+		stmt = conn.createStatement();
+		String drop = "DROP TABLE IF EXISTS Exam";
+		String table = "CREATE TABLE IF NOT EXISTS Exam" + "(ModuleCode varchar(255), "
+				+ "Duration INTEGER not NULL)";
 
-	// registeredStudents table
+		stmt.executeUpdate(drop);
+		stmt.executeUpdate(table);
+		System.out.println("Created table 'Cohort' in given database...");
+		
+		//----->>>>>>     populateLocationTable();
+	}
+	
 	protected void createTableRegisteredStudents(Connection conn) throws SQLException, IOException {
 		// STEP 4: Execute a query
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
-		String drop = "DROP TABLE IF EXISTS REGISTRATION ";
-		String table = "CREATE TABLE IF NOT EXISTS REGISTRATION " + "(StudentID INTEGER not NULL, "
-				+ "ModuleCode varchar(255), " + "Title VARCHAR(255))";
+		String drop = "DROP TABLE IF EXISTS RegisteredStudents";
+		String table = "CREATE TABLE IF NOT EXISTS RegisteredStudents" + "(ID INTEGER not NULL, "
+				+ "ModuleCode VARCHAR(255), " + "ModuleTitle VARCHAR(255))";
 
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
-		System.out.println("Created table 'REGISTRATION' in given database...");
+		System.out.println("Created table 'RegisteredStudents' in given database...");
 		
-		//----->>>>>>     dataReader.readRegisteredStudentsData();
+		//----->>>>>>     populateLocationTable();
+	}
+
+	protected void populateLocationTable() throws SQLException, IOException {
+		//----->>>>>>     dataReader.readLocationData(buildingNumber, roomNumber, numberOfSeats, numberOfAccessibleSeats);
 	}
 
 	// table SESSION
@@ -122,22 +150,6 @@ public class DB {
 	
 	protected void pushSessionData(Connection conn, String dateFrom, String dateTo) {
 		System.out.println(dateFrom + "<--->" + dateTo);
-	}
-	
-	// table EXAM
-	protected void createTableExam(String examPeriodFrom, String examPeriodTo) throws SQLException, IOException {
-		// STEP 4: Execute a query
-		System.out.println("Creating table in given database...");
-		stmt = conn.createStatement();
-		String drop = "DROP TABLE IF EXISTS EXAM ";
-		String table = "CREATE TABLE IF NOT EXISTS EXAM " + "(Code varchar(255), " + "Title VARCHAR(255), "
-				+ "Day VARCHAR(255), "
-				+"Date VARCHAR(255), " + "Session VARCHAR(255), " + "Duration VARCHAR(255), " + "Location VARCHAR(255))";
-
-		stmt.executeUpdate(drop);
-		stmt.executeUpdate(table);
-		System.out.println("Created table 'EXAM' in given database...");
-		//----->>>>>>     dataReader.generateExam();
 	}
 	
 	private void getLastDayOfTheMonth(int month, int year) {

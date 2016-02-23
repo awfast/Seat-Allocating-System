@@ -127,7 +127,7 @@ public class GUI {
 			@Override
 			public void handle(Event arg0) {
 				try {
-					dataReader.readRegisteredStudentsData();
+					dataReader.generateRegisteredStudentsData();
 					//db.createTableRegisteredStudents();
 				} catch (SQLException | IOException e) {
 					e.printStackTrace();
