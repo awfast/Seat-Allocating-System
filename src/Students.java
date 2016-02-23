@@ -31,11 +31,9 @@ public class Students {
 	private ResultSet rs;
 	protected String moduleCode = null;
 	protected String moduleTitle = null;
-	private LinkedHashMap<Integer, String> temporary_studentList = new LinkedHashMap<Integer, String>();
 	private LinkedHashMap<Integer, String> student_ids = new LinkedHashMap<Integer, String>();
 	private List<String> list_moduleCodes = new LinkedList<String>();
 	private List<String> list_moduleTitles = new LinkedList<String>();
-	private String[] cohorts = new String[71];
 
 	protected void getConnection() throws SQLException {
 		this.conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
@@ -106,8 +104,8 @@ public class Students {
 					return;
 				}
 			}
+			System.out.println("Completed.");
 		}
-		System.out.println("Completed.");
 	}
 
 	protected void populateCohorts(String[] cohorts) throws SQLException {
@@ -153,10 +151,4 @@ public class Students {
 			student_ids.put(studentID, name);
 		}
 	}
-
-	/*
-	 * protected String getStudentName(String name) { return
-	 * student_ids.get(studentID); }
-	 */
-
 }

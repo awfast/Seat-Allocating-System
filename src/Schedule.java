@@ -83,20 +83,4 @@ public class Schedule {
 		System.out.println("");
 		
 	}
-	
-	/*private int getStudentsPerModuleCode(int moduleCode) {
-		Connection mysqlConn = DriverManager.getConnection(DB_URL, USER, PASS);
-		try {
-			String query ="SELECT * FROM REGISTRATION WHERE ModuleCode ='"+ moduleCode + "'";
-			Statement st = mysqlConn.prepareStatement(query);
-			ResultSet rs = st.executeQuery(query);
-			while (rs.next()) {
-				id = rs.getInt(1);
-				numberOfStudents++;
-			}
-		} catch (SQLException e) {
-			System.out.println(e);
-		}
-	
-	}*/
 }
