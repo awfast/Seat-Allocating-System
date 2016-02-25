@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -20,16 +21,13 @@ public class Session {
 
 	protected String moduleCode = null;
 	protected Connection conn = null;
-	private Statement stmt;
-	private ResultSet rs;
 	private Statement stmt2;
 	private Statement stmt3;
-	private int lastDayOfTheMonth = 0;
-	private ArrayList<Integer> arr = new ArrayList<Integer>();
 	private final String USER = "root";
 	private final String PASS = "";
 	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
-	private HashMap<Integer, String> sessionID_sessionDate = new HashMap<Integer, String>();
+	private LinkedHashMap<String, String> sessionDate_sessionOccurance = new LinkedHashMap<String, String>();
+	private LinkedHashMap<Integer, HashMap<String, String>> sessionID_sessionDate = new LinkedHashMap<Integer, HashMap<String, String>>();
 
 	protected Connection getConnection() {
 		try {
@@ -67,20 +65,20 @@ public class Session {
 	
 	private void insertIntoSessionAM(Connection conn, int id, String date) throws SQLException {
 		String am = "am";
-		String pm = "pm";
 		String insertSessionsAm = "INSERT INTO SESSION(ID, Date, MorningAfternoon) VALUES ('" + id + "', + '"
 				+ date + "', + '" + am + "')";
-
+		sessionDate_sessionOccurance.put(date, am);
+		sessionID_sessionDate.put(id, sessionDate_sessionOccurance);
 		stmt2 = conn.createStatement();
 		stmt2.executeUpdate(insertSessionsAm);
 	}
 	
 	private void insertIntoSessionPM(Connection conn, int id, String date) throws SQLException {
-		String am = "am";
 		String pm = "pm";
 		String insertSessionsPm = "INSERT INTO SESSION(ID, Date, MorningAfternoon) VALUES ('" + id + "', + '"
 				+ date + "', + '" + pm + "')";
-
+		sessionDate_sessionOccurance.put(date, pm);
+		sessionID_sessionDate.put(id, sessionDate_sessionOccurance);
 		stmt3 = conn.createStatement();
 		stmt3.executeUpdate(insertSessionsPm);
 	}
@@ -96,7 +94,10 @@ public class Session {
 		return format.format(calendar.getTime());
 	}
 
-	protected HashMap<Integer, String> getAllSessions() {
-		return this.sessionID_sessionDate;
+	protected void getAllSessions() {
+		for(Integer key: sessionID_sessionDate.keySet()) {
+			System.out.println(key);
+			System.out.println(sessionID_sessionDate.get(key));
+		}
 	}
 }

@@ -146,7 +146,7 @@ public class GUI {
 			public void handle(Event arg0) {
 				try {
 					Schedule exam = new Schedule(studentID, moduleCode, moduleTitle, day, date, duration, location);
-					exam.generateInformation(dataReader);
+					exam.generateInformation(db.getConnection(conn), dataReader);
 					System.out.printf(
 							"Generating an exam schedule for the period: " + examPeriodFrom + " - " + examPeriodTo);
 				} catch (SQLException e) {
