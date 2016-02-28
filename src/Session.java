@@ -28,6 +28,7 @@ public class Session {
 	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
 	private LinkedHashMap<String, String> sessionDate_sessionOccurance = new LinkedHashMap<String, String>();
 	private LinkedHashMap<Integer, HashMap<String, String>> sessionID_sessionDate = new LinkedHashMap<Integer, HashMap<String, String>>();
+	protected int numberOfSessions = 0;
 
 	protected Connection getConnection() {
 		try {
@@ -52,7 +53,7 @@ public class Session {
 
 		long diff = dt2.getTime() - dt1.getTime();
 		int diffDays = (int) (diff / (24 * 1000 * 60 * 60));
-
+		this.numberOfSessions = diffDays;
 		System.out.println(diffDays);
 		while(i<=diffDays*2) {
 			insertIntoSessionAM(conn, i, finalFromDate);

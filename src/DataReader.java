@@ -36,8 +36,8 @@ public class DataReader {
 		this.db = db;
 		this.conn = conn;
 		db.createTableSession(conn, examPeriodFrom, examPeriodTo);
+		db.createTableSchedule(conn);
 		db.session.testDate(conn, examPeriodFrom, examPeriodTo);
-		//db.session.printDate(conn, examPeriodFrom, examPeriodTo);
 		this.dateFrom = examPeriodFrom;
 		this.dateTo = examPeriodTo;
 		db.students.getConnection();

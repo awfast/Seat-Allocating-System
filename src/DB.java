@@ -148,20 +148,19 @@ public class DB {
 		pushSessionData(conn, dateFrom, dateTo);
 	}
 	
-	protected void pushSessionData(Connection conn, String dateFrom, String dateTo) {
-		System.out.println(dateFrom + "<--->" + dateTo);
+	protected void createTableSchedule(Connection conn) throws SQLException {
+		// STEP 4: Execute a query
+		System.out.println("Creating table in given database...");
+		stmt = conn.createStatement();
+		String drop = "DROP TABLE IF EXISTS Schedule ";
+		String table = "CREATE TABLE IF NOT EXISTS Schedule " + "(StudentID INTEGER not NULL, " + "ModuleCode VARCHAR(255), " + "SessionID INTEGER not NULL, " +"BuildingNumber INTEGER not NULL, " + "RoomNumber INTEGER not NULL)";
+
+		stmt.executeUpdate(drop);
+		stmt.executeUpdate(table);
+		System.out.println("Created table 'Schedule' in given database...");
 	}
 	
-	private void getLastDayOfTheMonth(int month, int year) {
-		   Calendar calendar = Calendar.getInstance();
-		    // passing month-1 because 0-->jan, 1-->feb... 11-->dec
-		    calendar.set(year, month - 1, 1);
-		    calendar.set(Calendar.DATE, calendar.getActualMaximum(Calendar.DATE));
-		    Date date = calendar.getTime();
-		    DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
-		    String[] splitDate = DATE_FORMAT.format(date).split("/");
-		    String lastDayStr = splitDate[0];
-		    int lastDayOfTheMonth = Integer.valueOf(lastDayStr);
-		    this.lastDayOfTheMonth = lastDayOfTheMonth;
+	protected void pushSessionData(Connection conn, String dateFrom, String dateTo) {
+		System.out.println(dateFrom + "<--->" + dateTo);
 	}
 }

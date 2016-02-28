@@ -33,9 +33,9 @@ public class GUI {
 	private String examPeriodTo;
 	private DataReader dataReader = new DataReader();
 	private int studentID;
-	private int moduleCode;
-	private String buildingNumber;
-	private String roomNumber;
+	private String moduleCode;
+	private int buildingNumber;
+	private int roomNumber;
 	private int sessionID;
 	private Schedule exam;
 	private String studentName = null;
