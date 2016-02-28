@@ -16,28 +16,24 @@ public class Schedule {
 	private DataReader dataReader = null;
 	private ArrayList<Integer> studentIDs;
 	private int numberOfStudents = 0;
+	private int studentID;
+	private int moduleCode;
+	private int sessionID;
+	private String buildingNumber;
+	private String roomNumber;
+	private HashMap<Integer, Integer> student_session;
 
-	public Schedule(int studentID, int moduleCode, String moduleTitle, String day, String date, String duration,
-			String location) {
-
+	public Schedule(int studentID, int moduleCode, int sessionID, String buildingNumber, String roomNumber) {
+		this.studentID = studentID;
+		this.moduleCode = moduleCode;
+		this.sessionID = sessionID;
+		this.buildingNumber = buildingNumber;
+		this.roomNumber = roomNumber;
 	}
 
 	protected void generateInformation(Connection conn, DataReader dataReader) throws SQLException {
 		this.dataReader = dataReader;
 		this.conn = conn;
-		// System.out.println("Number Of Students: " +
-		// dataReader.db.location.getNumberOfStudents());
-		/*
-		 * System.out.println("Optimal building number: " +
-		 * dataReader.db.location.getBuildingNumber(dataReader.db.location.
-		 * getNumberOfStudents())); System.out.println("Optimal room number: " +
-		 * dataReader.db.location.getRoomNumber(dataReader.db.location.
-		 * getNumberOfStudents(), roomNumber)); System.out.println(
-		 * "ModuleCodes: " + dataReader.db.students.getAllModuleCodes());
-		 * System.out.println("ModuleTitles: " +
-		 * dataReader.db.students.getAllModuleTitles()); System.out.println(
-		 * "Session ID and DATE: " + dataReader.db.session.getAllSessions());
-		 */
 		getModuleCode();
 	}
 
@@ -81,13 +77,13 @@ public class Schedule {
 			System.out.println("|Student ids - " + studentIDs + "|");
 			System.out.println("|Optimal Building - " + optimalBuilding + "|");
 			System.out.println("|Optimal room - " + optimalRoom + "|");
-			getSessions();
+			generateSchedule(moduleCode, numberOfStudents, studentIDs, optimalBuilding, optimalRoom);
 			this.numberOfStudents = 0;	
 			System.out.println("----------------------------------------------------------------");
 		}
 	}
 	
-	private void getSessions() {
+	private void generateSchedule(String moduleCode, int numberOfStudents, ArrayList<Integer> studentIDs, int optimalBuilding, int optimalRoom) {
 		if (!studentIDs.isEmpty()) {
 			try {
 				String query = "SELECT * FROM Session";
@@ -111,6 +107,7 @@ public class Schedule {
 			}
 			System.out.print("|Session IDs/dates - " + "[");
 			for(Integer key: sessionInfo.keySet()) {
+				//Generate a new schedule
 				System.out.print(key + ", " + sessionInfo.get(key) + ", ");
 			}
 			System.out.print("]");
@@ -118,4 +115,19 @@ public class Schedule {
 			return;
 		}
 	}
+	
+	private boolean createNewSchedule(String moduleCode, int numberOfStudents, ArrayList<Integer> studentIDs,int optimalBuilding, int optimalRoom, LinkedHashMap<Integer, HashMap<String, String>> sessionInfo) {
+		student_session = new HashMap<Integer, Integer>();
+		for (int i = 0; i < studentIDs.size(); i++) {
+			for (Integer key : sessionInfo.keySet()) {
+				if(!student_session.containsKey(student_session.get(key)) && !student_session.containsValue(studentIDs.get(i))) {
+					student_session.put(studentIDs.get(i), key);
+				} else {
+					
+				}
+			}
+		}
+		return false;
+	}
+	
 }

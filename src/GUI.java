@@ -32,13 +32,11 @@ public class GUI {
 	private String examPeriodFrom;
 	private String examPeriodTo;
 	private DataReader dataReader = new DataReader();
-	int studentID = 0;
-	int moduleCode = 0;
-	String moduleTitle = null;
-	String day = null;
-	String date = null;
-	String duration = null;
-	String location = null;
+	private int studentID;
+	private int moduleCode;
+	private String buildingNumber;
+	private String roomNumber;
+	private int sessionID;
 	private Schedule exam;
 	private String studentName = null;
 	private Connection conn;
@@ -145,7 +143,7 @@ public class GUI {
 			@Override
 			public void handle(Event arg0) {
 				try {
-					Schedule exam = new Schedule(studentID, moduleCode, moduleTitle, day, date, duration, location);
+					Schedule exam = new Schedule(studentID, moduleCode, sessionID, buildingNumber, roomNumber);
 					exam.generateInformation(db.getConnection(conn), dataReader);
 					System.out.printf(
 							"Generating an exam schedule for the period: " + examPeriodFrom + " - " + examPeriodTo);

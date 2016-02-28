@@ -49,8 +49,6 @@ public class Location {
 		for(int i: seats) {
 			ts.add(i);
 		}
-		
-		//System.out.println("For "+studentsNumber + " students, "+ "building number "+getBuildingNumber(findValue(ts.ceiling(studentsNumber))) + ", room number " + getRoomNumber(optimalSeats, 2) + ".");
 	}
 
 	protected void pushLocationData(int buildings, int rooms, int numberOfSeats, int numberOfAccessibleSeats) throws SQLException {
