@@ -1,3 +1,4 @@
+package Main;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -85,7 +86,7 @@ public class Students {
 					}
 				} else if (letter.equals("2")) {
 					return;
-					// System.out.println("Compulsory");
+					// System.out.println("Optional");
 				} else if (letter.equals("3")) {
 					return;
 					// System.out.println("Optional");
@@ -104,7 +105,6 @@ public class Students {
 					return;
 				}
 			}
-			System.out.println("Completed.");
 		}
 	}
 

@@ -1,3 +1,4 @@
+package Main;
 import java.awt.List;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,10 +46,11 @@ public class DataReader {
 
 	// student data reader
 	protected void getStudentID(int id, String studentName) throws SQLException, IOException {
-		File file = fileChooser.showOpenDialog(stage);
+		//File file = fileChooser.showOpenDialog(stage);
 		db.createTableStudents(conn);
-		if (file != null) {
-			String path = file.getAbsolutePath();
+		/*if (file != null) {
+			String path = file.getAbsolutePath();*/
+		String path = "F:\\ProjectData\\TestFiles\\BuildingUnavailable\\StudentData_test.csv";
 			try {
 				reader = new CsvReader(path);
 				reader.readHeaders();
@@ -65,17 +67,18 @@ public class DataReader {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
+		} 
+	/*else {
 			System.out.println("File's empty!");
-		}
-	}
+		}*/
+	//}
 
 	protected void generateRegisteredStudentsData() throws IOException, SQLException {
 		db.createTableCohort(conn);
 		db.createTableExam(conn);
 		db.createTableRegisteredStudents(conn);
 		db.students.populateCohorts(cohorts);
-		String path = "F:\\ProjectData\\RegistrationData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\BuildingUnavailable\\RegistrationData_test.csv";
 		System.out.println(path);
 		reader = new CsvReader(path);
 		reader.readHeaders();
@@ -86,6 +89,7 @@ public class DataReader {
 			int valCol3 = Integer.valueOf(col3);
 			db.students.pushModuleCodes(col1, col2, valCol3);
 		}
+		System.out.println("Completed.");
 	}
 
 	protected void getLocations() throws IOException, SQLException {
@@ -94,7 +98,7 @@ public class DataReader {
 	}
 
 	protected void getAvailableBuildings() throws IOException, SQLException {
-		String path = "F:\\ProjectData\\LocationData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\BuildingUnavailable\\LocationData_test.csv";
 		reader = new CsvReader(path);
 		reader.readHeaders();
 		while (reader.readRecord()) {

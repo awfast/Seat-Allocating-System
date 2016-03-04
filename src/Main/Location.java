@@ -1,3 +1,4 @@
+package Main;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -41,11 +42,6 @@ public class Location {
 		pushLocationData(buildings, rooms, numberOfSeats, numberOfAccessibleSeats);
 	}
 	
-	protected int findAlternativeBuilding() {
-		
-		return 0;
-	}
-
 	protected void processData() throws SQLException {		
 		for (Integer key : map2.keySet()) {
 			seats.add(key);
