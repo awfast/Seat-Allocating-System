@@ -13,4 +13,9 @@ public class Node {
 		value = val;
 		h_scores = hVal;
 	}
+	
+	public Schedule getSchedule() {
+		return value;
+	}
+	
 }

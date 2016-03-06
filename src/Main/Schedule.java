@@ -21,10 +21,7 @@ public class Schedule {
 	private Statement stmt2 = null;
 	private Statement stmt3 = null;
 	private Node node = null;
-	private int testCounter = 0;
-	private LinkedHashMap<Integer, HashMap<String, String>> sessionInfo = new LinkedHashMap<Integer, HashMap<String, String>>();
 	private HashMap<Integer, String> oneSessionMap = new HashMap<Integer, String>();
-	private LinkedHashMap<String, String> date_morningAfternoon;
 	private DataReader dataReader = null;
 	private ArrayList<Integer> studentIDs = new ArrayList<Integer>();
 	private HashMap<Integer, String> checkedStudents = new HashMap<Integer, String>();
@@ -51,7 +48,6 @@ public class Schedule {
 	private HashMap<Integer, Integer> student_session = new HashMap<Integer, Integer>();
 	private HashMap<Integer, Integer> building_room = new HashMap<Integer, Integer>();
 	private HashMap<HashMap<Integer, Integer>, Integer> occupiedSessions = new HashMap<HashMap<Integer, Integer>, Integer>();
-	private TreeSet<Integer> costSet = new TreeSet<Integer>();
 	private Map<Node,Integer> ts = new LinkedHashMap<Node, Integer>();
 
 	public Schedule(int studentID, String moduleCode, Integer sessionID, int buildingNumber, int roomNumber) {
@@ -98,7 +94,6 @@ public class Schedule {
 			}
 			browseStudents(optimalBuilding, optimalRoom, modules.get(i), 0);	
 		}
-	
 	}
 
 	private boolean areAvailable() {
@@ -133,25 +128,21 @@ public class Schedule {
 	//A* checks
 	//pass an initial schedule	
 	private void triggerSearch(Map<Node, Integer> ts2) {
-		/*if(testCounter == 0 ) {
-			Node initial = null;
-			Node goal = null;
+		Node initial = null;
+		Node goal = null;
 
-			for (Node key2 : ts2.keySet()) {
-				key2.adjacencies = new Edge[] { new Edge(key2, ts2.get(key2))};
-				initial = key2;
-				
-				key2.adjacencies = new Edge[] { new Edge(key2, ts2.get(key2)) };
-				goal = key2;
-				
-				search.AstarSearch(initial, goal);
-				List<Node> path = search.printPath(goal);
-				for (int i = 0; i < path.size(); i++) {
-					System.out.println("Path: " + path.get(i));
-				}
-			}
-		}*/
-		System.out.println("ts: " + ts2);
+		for (Node key2 : ts2.keySet()) {
+			key2.adjacencies = new Edge[] { new Edge(key2, ts2.get(key2))};
+			initial = key2;
+			
+			key2.adjacencies = new Edge[] { new Edge(key2, ts2.get(key2)) };
+			goal = key2;
+			
+			search.AstarSearch(initial, goal);
+			//List<Node> path = search.printPath(goal);
+			search.printPathTest(goal);
+			
+		}
 	}
 
 	private boolean getStudentsAvailability(int studentID, Integer session, String moduleCode) throws SQLException {
@@ -184,7 +175,7 @@ public class Schedule {
 		stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(query);
 		while (rs.next()) {
-			boolean isFilled = false;
+			isFilled = false;
 			int sessionID = rs.getInt(1);
 			sessions.add(sessionID);
 		}
@@ -198,8 +189,8 @@ public class Schedule {
 					for (Integer stud : oneSessionMap.keySet()) {
 						schedule = new Schedule(stud, moduleCode, sessions.get(counter), optimalBuilding, optimalRoom);
 						node = new Node(schedule, optimalCost);
+						System.out.println("->" + schedule + " + optCost -> " +optimalCost);
 						ts.put(node, nonOptimalCost);
-						System.out.println(ts.size());
 						System.out.println(optimalBuilding + "Seats: " + numberOfSeats);
 					}
 				}
@@ -207,11 +198,12 @@ public class Schedule {
 					for (Integer stud : oneSessionMap.keySet()) {
 						schedule = new Schedule(stud, moduleCode, sessions.get(counter), optimalBuilding, optimalRoom);
 						node = new Node(schedule, optimalCost);
+						System.out.println("->" + schedule + " + optCost -> " +optimalCost);
 						ts.put(node, optimalCost);
-						System.out.println(ts.size());
 						System.out.println(optimalBuilding + "Seats: " + numberOfSeats);
 					}
 					sessions.remove(counter);
+					counter = 0;
 					counter++;
 					isFilled = true;
 					break;
@@ -220,10 +212,11 @@ public class Schedule {
 					for (Integer stud : oneSessionMap.keySet()) {
 						schedule = new Schedule(stud, moduleCode, sessions.get(counter), optimalBuilding, optimalRoom);
 						node = new Node(schedule, nonOptimalCost);
+						System.out.println("->" + schedule + " + nonOptCost -> " +nonOptimalCost);
 						ts.put(node, nonOptimalCost);
-						System.out.println(ts.size());
 					}
 					sessions.remove(counter);
+					counter = 0;
 					counter++;
 				}
 				returned_false = 0;
@@ -242,7 +235,7 @@ public class Schedule {
 		}		
 		System.out.println(ts);
 		System.out.println(ts.size());
-		// triggerSearch(ts);
+		triggerSearch(ts);
 	}
 	
 	private boolean checkLastSession(int nonOptimalCost) throws SQLException {
@@ -256,9 +249,9 @@ public class Schedule {
 			if (lastSession == sessionID) {
 				nonOptimalCost++;
 				for (Integer student_id : student_session.keySet()) {
-					schedule = new Schedule(student_id, moduleCode, student_session.get(student_id),
-							optimalBuilding, optimalRoom);
+					schedule = new Schedule(student_id, moduleCode, student_session.get(student_id),optimalBuilding, optimalRoom);
 					node = new Node(schedule, nonOptimalCost);
+					System.out.println("->" + schedule + " + nonOptCost -> " + nonOptimalCost);
 					ts.put(node, nonOptimalCost);
 					System.out.println(ts.size());
 				}
@@ -341,128 +334,31 @@ public class Schedule {
 		}
 	}
 	
-	/*private void fetchAllInformation(String moduleCode, int numberOfStudents) throws SQLException {
-
-		int optimalBuilding = dataReader.db.location.getBuildingNumber(
-				dataReader.db.location.findValue(dataReader.db.location.ts.ceiling(numberOfStudents)));
-		int optimalRoom = dataReader.db.location.getRoomNumber(optimalBuilding);
-
-		if (numberOfStudents == 0) {
-			return;
-		} else {
-			System.out.println("----------------------------------------------------------------");
-			System.out.println("|Module Code - " + moduleCode + "|");
-			System.out.println("|Registered Students - " + numberOfStudents + "|");
-			System.out.println("|Student ids - " + studentIDs + "|");
-			System.out.println("|Optimal Building - " + optimalBuilding + "|");
-			System.out.println("|Optimal room - " + optimalRoom + "|");
-			generateSchedule(moduleCode, numberOfStudents, studentIDs, optimalBuilding, optimalRoom);
-			this.student_session = new HashMap<Integer, Integer>();
-			this.numberOfStudents = 0;
-			System.out.println("----------------------------------------------------------------");
-		}
+	//public Schedule(int studentID, String moduleCode, Integer sessionID, int buildingNumber, int roomNumber) {
+	/*this.studentID = studentID;
+	this.moduleCode = moduleCode;
+	this.sessionID = sessionID;
+	this.buildingNumber = buildingNumber;
+	this.roomNumber = roomNumber;
+	*/
+	
+	public int getStudentID(Schedule schedule) {
+		return schedule.studentID;
 	}
-
-	private void generateSchedule(String moduleCode, int numberOfStudents, ArrayList<Integer> studentIDs,
-			int optimalBuilding, int optimalRoom) throws SQLException {
-		if (!studentIDs.isEmpty()) {
-			try {
-				int count = 0;
-				String query = "SELECT * FROM Session";
-				stmt = conn.createStatement();
-				ResultSet rs = stmt.executeQuery(query);
-				while (rs.next()) {
-					int sessionID = rs.getInt(1);
-					String query2 = "SELECT * FROM RegisteredStudents";
-					stmt2 = conn.createStatement();
-					ResultSet rs2 = stmt2.executeQuery(query2);
-					while (rs2.next()) {
-						if (isRoomAvailable(optimalBuilding, optimalRoom, sessionID, moduleCode)) {
-							int studentID = rs2.getInt(1);
-							if (isStudentAvailable(studentID, sessionID)) {
-								createNewSchedule(studentID, moduleCode, sessionID, optimalBuilding, optimalRoom);
-							} else {
-								counter2--;
-								return;
-							}
-						} else {
-							if (count < (dataReader.db.session.numberOfSessions * 2)) {
-								System.out.println("Building not available.");
-								System.out.println("Searching for another session");
-								count++;
-								return;
-							} else {
-								count = 0;
-								System.out.println("Searching for an alternative room.");
-							}
-						}
-					}
-					break;
-				}
-			} catch (SQLException e) {
-				System.out.println(e);
-			}
-		} else {
-			return;
-		}
+	
+	public String getModuleCode(Schedule schedule) {
+		return schedule.moduleCode;
 	}
-
-	private void createNewSchedule(int studentID, String moduleCode, Integer sessionID, int optimalBuilding,
-			int roomNumber) throws SQLException {
-		String insertSql = "INSERT INTO Schedule(StudentID, ModuleCode, SessionID, BuildingNumber, RoomNumber) VALUES ('"
-				+ studentID + "', + '" + moduleCode + "', + '" + sessionID + "', + '" + optimalBuilding + "', + '"
-				+ roomNumber + "')";
-		System.out.println("Inserting into Schedule.. [" + studentID + "]" + "[" + moduleCode + "]" + "[" + sessionID
-				+ "]" + "[" + optimalBuilding + "]" + "[" + roomNumber + "]");
-		stmt3 = conn.createStatement();
-		stmt3.executeUpdate(insertSql);
-		// Schedule schedule = new Schedule(studentID, moduleCode, sessionID,
-		// optimalBuilding, roomNumber);
+	
+	public int getSessionID(Schedule schedule) {
+		return schedule.sessionID;
 	}
-
-	private boolean isRoomAvailable(int buildingNumber, int roomNumber, Integer session, String moduleCode) throws SQLException {
-		if (building_room.isEmpty()) {
-			building_room.put(buildingNumber, roomNumber);
-			if (occupiedSessions.isEmpty()) {
-				occupiedSessions.put(building_room, session);
-				System.out.println("available");
-				return true;
-			}
-		} else {
-			building_room.put(buildingNumber, roomNumber);
-			if (occupiedSessions.containsKey(building_room) && occupiedSessions.containsValue(session)) {
-				return false;
-			} else {
-				occupiedSessions.put(building_room, session);
-				System.out.println("->" + "building_room " + building_room + ", occupied" + occupiedSessions);
-				return true;
-			}
-		}
-		return false;
+	
+	public int getBuildingNumber(Schedule schedule) {
+		return schedule.buildingNumber;
 	}
-
-	private boolean isStudentAvailable(int studentID, Integer session) {
-		if (student_session.isEmpty()) {
-			counter1++;
-			student_session.put(studentID, session);
-			return true;
-		} else {
-			for (Integer s_s : student_session.keySet()) {
-				if (s_s != studentID || student_session.get(s_s) != session) {
-					counter1++;
-					student_session.put(studentID, session);
-					return true;
-				} else {
-					counter2++;
-					float unavailableStudents = (counter2 * 100.0f) / counter1;
-					System.out.println(unavailableStudents + "%");
-					if (unavailableStudents > 90.0) {
-						session++;
-					}
-					return false;
-				}
-			}
-		}
-		return false;
-	}*/
+	
+	public int getRoomNumber(Schedule schedule) {
+		return schedule.roomNumber;
+	}
 }

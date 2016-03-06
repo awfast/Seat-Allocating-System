@@ -3,13 +3,18 @@ package TreeWithNodesAndSearch;
 import java.util.PriorityQueue;
 import java.util.HashSet;
 import java.util.Set;
+
+import Main.Schedule;
+
 import java.util.List;
 import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class AstarSearchAlgo {
-
+	int studentID = 0;
+	String moduleCode = null;
+	
 	public List<Node> printPath(Node target) {
 		List<Node> path = new ArrayList<Node>();
 		for (Node node = target; node != null; node = node.parent) {
@@ -17,6 +22,26 @@ public class AstarSearchAlgo {
 		}
 		Collections.reverse(path);
 		return path;
+	}
+	
+	public void printPathTest(Node target) {
+		List<Node> path = new ArrayList<Node>();
+		Schedule schedule = null;
+
+		for (Node node = target; node != null; node = node.parent) {
+			path.add(node);
+		}
+		Collections.reverse(path);
+		
+		for(int i=0; i<path.size(); i++) {
+			schedule = path.get(i).getSchedule();
+			studentID = schedule.getStudentID(schedule);
+			moduleCode = schedule.getModuleCode(schedule);
+			int sessionID = schedule.getSessionID(schedule);
+			int buildingNumber = schedule.getBuildingNumber(schedule);
+			int roomNumber = schedule.getRoomNumber(schedule);
+			System.out.println("Path: -> (Student ID: " + studentID + ", ModuleCode: " + moduleCode + ", sessionID: " + sessionID + ", Building Number: " + buildingNumber + ", Room Number: " + roomNumber + ")");
+		}
 	}
 
 	public void AstarSearch(Node source, Node goal) {
