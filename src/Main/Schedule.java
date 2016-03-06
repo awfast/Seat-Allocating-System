@@ -32,6 +32,8 @@ public class Schedule {
 	private int studentID;
 	private String moduleCode = null;
 	private int sessionID;
+	private int optimalCost = 0;
+	private int nonOptimalCost = 0;
 	private int buildingNumber;
 	private int roomNumber;
 	private int optimalBuilding = 0;
@@ -39,10 +41,12 @@ public class Schedule {
 	private Schedule schedule;
 	private int returned_true = 0;
 	private int returned_false = 0;
-	private String moduleCodeCheck = null;
+	private int counter = 0;
+	ArrayList<Integer> sessions;
 	private float availableStudents = 0f;
 	private int lastSession = 0;
 	private int numberOfSeats = 0;
+	private boolean isFilled = false;
 	private AstarSearchAlgo search = new AstarSearchAlgo();
 	private HashMap<Integer, Integer> student_session = new HashMap<Integer, Integer>();
 	private HashMap<Integer, Integer> building_room = new HashMap<Integer, Integer>();
@@ -73,6 +77,7 @@ public class Schedule {
 		optimalBuilding = dataReader.db.location.getBuildingNumber(
 				dataReader.db.location.findValue(dataReader.db.location.ts.ceiling(numberOfStudents)));
 		optimalRoom = dataReader.db.location.getRoomNumber(optimalBuilding);
+		sessions =  getAllSessions();
 		
 		String query = "SELECT * FROM Location WHERE RoomNumber ='" + optimalRoom + "'";
 		stmt = conn.createStatement();
@@ -82,8 +87,18 @@ public class Schedule {
 		}
 		
 		for(int i=0; i<modules.size(); i++) {
+			String query2 = "SELECT * FROM RegisteredStudents WHERE ModuleCode ='" + modules.get(i) + "'";
+			stmt2 = conn.createStatement();
+			ResultSet rs2 = stmt2.executeQuery(query2);
+			while (rs2.next()) {
+				int stud = rs2.getInt(1);
+				checkedStudents.put(stud, modules.get(i));
+				System.out.println(stud + modules.get(i));
+				getStudentsAvailability(stud, sessions.get(i), modules.get(i));
+			}
 			browseStudents(optimalBuilding, optimalRoom, modules.get(i), 0);	
 		}
+	
 	}
 
 	private boolean areAvailable() {
@@ -163,74 +178,95 @@ public class Schedule {
 		return false;
 	}
 	//end
-	
-	private void browseStudents(int optimalBuilding, int optimalRoom, String moduleCode, int session) throws SQLException {
-		int optimalCost = 0;
-		int nonOptimalCost = 0;
+	private ArrayList<Integer> getAllSessions() throws SQLException {
+		ArrayList<Integer> sessions = new ArrayList<Integer>();
 		String query = "SELECT * FROM Session";
 		stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(query);
 		while (rs.next()) {
+			boolean isFilled = false;
 			int sessionID = rs.getInt(1);
-			
-			System.out.println("Here-> " + sessionID);
-			// Step 1. if more than 90% of the students are available to that
-			// session, proceed to Step 2.
-			String query2 = "SELECT * FROM RegisteredStudents WHERE ModuleCode ='" + moduleCode + "'";
-			stmt2 = conn.createStatement();
-			ResultSet rs2 = stmt2.executeQuery(query2);
-			while (rs2.next()) {
-				int stud = rs2.getInt(1);
-				checkedStudents.put(stud, moduleCode);
-				System.out.println(stud + moduleCode);
-				getStudentsAvailability(stud, sessionID, moduleCode);
-			}
-			
-			while(roomNotOccupied(sessionID, optimalBuilding, optimalRoom, optimalCost)) {
-				if (areAvailable()) { 
-					for(Integer stud: oneSessionMap.keySet()) {
-						schedule = new Schedule(stud, moduleCode, sessionID, optimalBuilding, optimalRoom);
+			sessions.add(sessionID);
+		}
+		return sessions;
+	}
+	private void browseStudents(int optimalBuilding, int optimalRoom, String moduleCode, int session) throws SQLException {	
+		int tempSize = ts.size();
+		while (!sessions.isEmpty()) {
+			while (roomNotOccupied(sessions.get(counter), optimalBuilding, optimalRoom, optimalCost)) {
+				if(ts.size() != tempSize) {
+					for (Integer stud : oneSessionMap.keySet()) {
+						schedule = new Schedule(stud, moduleCode, sessions.get(counter), optimalBuilding, optimalRoom);
+						node = new Node(schedule, optimalCost);
+						ts.put(node, nonOptimalCost);
+						System.out.println(ts.size());
+						System.out.println(optimalBuilding + "Seats: " + numberOfSeats);
+					}
+				}
+				if (areAvailable()) {
+					for (Integer stud : oneSessionMap.keySet()) {
+						schedule = new Schedule(stud, moduleCode, sessions.get(counter), optimalBuilding, optimalRoom);
 						node = new Node(schedule, optimalCost);
 						ts.put(node, optimalCost);
+						System.out.println(ts.size());
 						System.out.println(optimalBuilding + "Seats: " + numberOfSeats);
-					} 
-				} 
-				else {
-					nonOptimalCost++;
-					for(Integer stud: oneSessionMap.keySet()) {
-					schedule = new Schedule(stud, moduleCode, sessionID, optimalBuilding, optimalRoom);
-					node = new Node(schedule, nonOptimalCost);
-					ts.put(node, nonOptimalCost);
-					continue;
 					}
+					sessions.remove(counter);
+					counter++;
+					isFilled = true;
+					break;
+				} else {
+					nonOptimalCost++;
+					for (Integer stud : oneSessionMap.keySet()) {
+						schedule = new Schedule(stud, moduleCode, sessions.get(counter), optimalBuilding, optimalRoom);
+						node = new Node(schedule, nonOptimalCost);
+						ts.put(node, nonOptimalCost);
+						System.out.println(ts.size());
+					}
+					sessions.remove(counter);
+					counter++;
 				}
 				returned_false = 0;
 				returned_true = 0;
 				System.out.println("Student session: " + student_session);
 			}
-			rs.afterLast();
-			if(rs.previous()) {			
-				lastSession = rs.getInt(1);
-				System.out.println("Last session: " + lastSession);
-				// last row
-				if (lastSession == sessionID) {
-					nonOptimalCost++;
-					for (Integer student_id : student_session.keySet()) {
-						schedule = new Schedule(student_id, moduleCode, student_session.get(student_id),
-								optimalBuilding, optimalRoom);
-						node = new Node(schedule, nonOptimalCost);
-						ts.put(node, nonOptimalCost);
-					}
-					// last row
-				} else {
-					// find another room and repeat
-					optimalBuilding = getCorrespondingBuildingNumber(findAnotherRoom(numberOfSeats));
-					optimalRoom = getCorrespondingRoomNumber(findAnotherRoom(numberOfSeats));
-					continue;
+			if (isFilled) {
+				break;
+			} else if(checkLastSession(nonOptimalCost)){
+				break;
+			}
+			// find another room and repeat
+			optimalBuilding = getCorrespondingBuildingNumber(findAnotherRoom(numberOfSeats));
+			optimalRoom = getCorrespondingRoomNumber(findAnotherRoom(numberOfSeats));
+			continue;	
+		}		
+		System.out.println(ts);
+		System.out.println(ts.size());
+		// triggerSearch(ts);
+	}
+	
+	private boolean checkLastSession(int nonOptimalCost) throws SQLException {
+		String query = "SELECT * FROM Session";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		rs.afterLast();
+		if (rs.previous()) {
+			lastSession = rs.getInt(1);
+			System.out.println("Last session: " + lastSession);
+			if (lastSession == sessionID) {
+				nonOptimalCost++;
+				for (Integer student_id : student_session.keySet()) {
+					schedule = new Schedule(student_id, moduleCode, student_session.get(student_id),
+							optimalBuilding, optimalRoom);
+					node = new Node(schedule, nonOptimalCost);
+					ts.put(node, nonOptimalCost);
+					System.out.println(ts.size());
 				}
+				// last row
+				return true;
 			}
 		}
-		triggerSearch(ts);
+		return false;
 	}
 	
 	private int findAnotherRoom(int seats) throws SQLException {
@@ -289,6 +325,7 @@ public class Schedule {
 		} else {
 			building_room = new HashMap<Integer, Integer>();
 			building_room.put(optimalBuilding, optimalRoom);
+			System.out.println(optimalBuilding + ", " + optimalRoom + ", " + session);
 			System.out.println(occupiedSessions.containsKey(building_room));
 			System.out.println(occupiedSessions.containsValue(session));
 			System.out.println("\n\n"+occupiedSessions.get(building_room));
@@ -297,13 +334,8 @@ public class Schedule {
 			if (occupiedSessions.containsKey(building_room) && occupiedSessions.containsValue(session)) {
 				return false;
 			} else {
-				cost++;
-				for (Integer student_id : student_session.keySet()) {
-					schedule = new Schedule(student_id, moduleCode, student_session.get(student_id), optimalBuilding, optimalRoom);
-					node = new Node(schedule, cost);
-					ts.put(node, cost);
-				}
 				occupiedSessions.put(building_room, session);
+				nonOptimalCost++;
 				return true;
 			}
 		}
