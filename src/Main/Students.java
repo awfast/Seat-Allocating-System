@@ -35,6 +35,8 @@ public class Students {
 	private LinkedHashMap<Integer, String> student_ids = new LinkedHashMap<Integer, String>();
 	private List<String> list_moduleCodes = new LinkedList<String>();
 	private List<String> list_moduleTitles = new LinkedList<String>();
+	private List<String> list_moduleCodes_test = new LinkedList<String>();
+	
 
 	protected void getConnection() throws SQLException {
 		this.conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
@@ -82,6 +84,9 @@ public class Students {
 							stmt2 = conn.createStatement();
 							stmt2.executeUpdate(insertSql);
 							counter++;
+							if(!list_moduleCodes_test.contains(moduleCode)) {
+								list_moduleCodes_test.add(moduleCode);								
+							}
 						}
 					}
 				} else if (letter.equals("2")) {
@@ -139,7 +144,8 @@ public class Students {
 	}
 
 	protected List<String> getAllModuleCodes() {
-		return this.list_moduleCodes;
+		System.out.println(this.list_moduleCodes_test);
+		return this.list_moduleCodes_test;
 	}
 
 	protected List<String> getAllModuleTitles() {

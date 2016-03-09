@@ -40,7 +40,7 @@ public class AstarSearchAlgo {
 			int sessionID = schedule.getSessionID(schedule);
 			int buildingNumber = schedule.getBuildingNumber(schedule);
 			int roomNumber = schedule.getRoomNumber(schedule);
-			System.out.println("Path: -> (Student ID: " + studentID + ", ModuleCode: " + moduleCode + ", sessionID: " + sessionID + ", Building Number: " + buildingNumber + ", Room Number: " + roomNumber + ")");
+			System.out.println("(Student ID: " + studentID + ", ModuleCode: " + moduleCode + ", sessionID: " + sessionID + ", Building Number: " + buildingNumber + ", Room Number: " + roomNumber + ")");
 		}
 	}
 
