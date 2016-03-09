@@ -44,7 +44,7 @@ public class Schedule {
 	private int lastSession = 0;
 	private int numberOfSeats = 0;
 	private boolean isFilled;
-	boolean roomOccupied;
+	boolean roomOccupied = false;
 	boolean buildingUnavailable = false;
 	private AstarSearchAlgo search = new AstarSearchAlgo();
 	private HashMap<Integer, Integer> student_session = new HashMap<Integer, Integer>();
@@ -52,8 +52,6 @@ public class Schedule {
 	private HashMap<HashMap<Integer, Integer>, Integer> occupiedSessions = new HashMap<HashMap<Integer, Integer>, Integer>();
 	private Map<Node,Integer> ts = new LinkedHashMap<Node, Integer>();
 	private Map<Integer, Boolean> roomAvailability = new HashMap<Integer, Boolean>();
-	BinaryTree bt = new BinaryTree();
-	
 
 	public Schedule(int studentID, String moduleCode, Integer sessionID, int buildingNumber, int roomNumber) {
 		this.studentID = studentID;
@@ -66,15 +64,22 @@ public class Schedule {
 	protected void generateInformation(Connection conn, DataReader dataReader) throws SQLException {
 		this.dataReader = dataReader;
 		this.conn = conn;
-		getModuleCode();
+		browseStudents();
 		triggerSearch(ts);
 	}
 
-	private void getModuleCode() throws SQLException {
+	/*private void getModuleCode() throws SQLException {
 		List<String> modules = dataReader.db.students.getAllModuleCodes();
 		sessions = getAllSessions();
-		
-		for(int j=0; j<sessions.size(); j++) {				
+		String tempModule = null;
+		int tempOptimalBuilding = 0;
+		int tempOptimalRoom = 0;
+		for(int j=0; j<sessions.size(); j++) {	
+			if(roomOccupied) {
+				browseStudents(tempOptimalBuilding, tempOptimalRoom, tempModule, sessions.get(j));
+			} else {
+				roomOccupied = false;
+			}
 			for (int i = 0; i < modules.size(); i++) {
 				getNumberOfStudentsPerModuleCode(modules.get(i));
 				optimalBuilding = dataReader.db.location.getBuildingNumber(dataReader.db.location.findValue(dataReader.db.location.ts.ceiling(numberOfStudents)));
@@ -89,14 +94,13 @@ public class Schedule {
 				
 				System.out.println("Sessions->" + sessions + sessions.get(j));
 				browseStudents(optimalBuilding, optimalRoom, modules.get(i), sessions.get(j));
+				tempModule = modules.get(i);
 			}
-			if(isFilled == true && j == modules.size()-1) {
+			if(j == modules.size()-1 || (isFilled == true && j == modules.size()-1)) {
 				break;
-			} else {
-				continue;
 			}
 		}
-	}
+	}*/
 
 	private boolean areAvailable() {
 		availableStudents = ((returned_false + returned_true) * 100.f) / numberOfStudents;
@@ -158,6 +162,9 @@ public class Schedule {
 					if(i == studentID && oneSessionMap.get(i).equals(moduleCode)) {
 						returned_false++;
 						return false;
+					} else {
+						returned_true++;
+						return true;
 					}
 				}		
 			} else {
@@ -183,48 +190,81 @@ public class Schedule {
 		return sessions;
 	}
 
-	private void browseStudents(int optimalBuilding, int optimalRoom, String moduleCode, int session)
+	private void browseStudents()
 			throws SQLException {
-		if(!buildingUnavailable) {
-			while (roomNotOccupied(session, optimalBuilding, optimalRoom, optimalCost)) {
-				String query2 = "SELECT * FROM RegisteredStudents WHERE ModuleCode ='" + moduleCode + "'";
-				stmt2 = conn.createStatement();
-				ResultSet rs2 = stmt2.executeQuery(query2);
-				while (rs2.next()) {
-					int stud = rs2.getInt(1);
-					checkedStudents.put(stud, moduleCode);
-					System.out.println(stud + moduleCode);
-					getStudentsAvailability(stud, session, moduleCode);
+		List<String> modules = dataReader.db.students.getAllModuleCodes();
+		sessions = getAllSessions();
+		for (int j = 0; j < sessions.size(); j++) {
+			for (int i = 0; i < modules.size(); i++) {
+				getNumberOfStudentsPerModuleCode(modules.get(i));
+				optimalBuilding = dataReader.db.location.getBuildingNumber(
+						dataReader.db.location.findValue(dataReader.db.location.ts.ceiling(numberOfStudents)));
+				optimalRoom = dataReader.db.location.getRoomNumber(optimalBuilding);
+
+				String query = "SELECT * FROM Location WHERE RoomNumber ='" + optimalRoom + "'";
+				stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery(query);
+				while (rs.next()) {
+					numberOfSeats = rs.getInt(3);
 				}
-				
-				if (areAvailable()) {
-					if(isNotFilled(optimalRoom, isFilled)) {
-						for (Integer stud : oneSessionMap.keySet()) {
-							schedule = new Schedule(stud, moduleCode, session, optimalBuilding, optimalRoom);
-							node = new Node(schedule, optimalCost);
-							ts.put(node, optimalCost);
-							System.out.println("Building Number: " + optimalBuilding + ", Seats: " + numberOfSeats);
-						}
-						isFilled = true;
-						break;							
+
+				System.out.println("Sessions->" + sessions + sessions.get(j));
+
+				if (j == sessions.size() - 1 || (isFilled == true && j == sessions.size() - 1)) {
+					optimalBuilding = getCorrespondingBuildingNumber(findAnotherRoom(numberOfSeats));
+					optimalRoom = getCorrespondingRoomNumber(findAnotherRoom(numberOfSeats));
+					continue;
+				}
+
+				if (roomNotOccupied(sessions.get(i), optimalBuilding, optimalRoom, optimalCost)) {
+					String query2 = "SELECT * FROM RegisteredStudents WHERE ModuleCode ='" + modules.get(i) + "'";
+					stmt2 = conn.createStatement();
+					ResultSet rs2 = stmt2.executeQuery(query2);
+					while (rs2.next()) {
+						int stud = rs2.getInt(1);
+						checkedStudents.put(stud, modules.get(i));
+						System.out.println(stud + modules.get(i));
+						getStudentsAvailability(stud, sessions.get(i), modules.get(i));
 					}
-					else {
-						isFilled = false;
-						optimalBuilding = getCorrespondingBuildingNumber(findAnotherRoom(numberOfSeats));
-						optimalRoom = getCorrespondingRoomNumber(findAnotherRoom(numberOfSeats));
-						this.roomNumber = optimalRoom;
-						continue;
+
+					if (areAvailable()) {
+						if (isNotFilled(optimalRoom, isFilled)) {
+							for (Integer stud : oneSessionMap.keySet()) {
+								schedule = new Schedule(stud, modules.get(i), sessions.get(i), optimalBuilding, optimalRoom);
+								node = new Node(schedule, optimalCost);
+								ts.put(node, optimalCost);
+								System.out.println("Building Number: " + optimalBuilding + ", Seats: " + numberOfSeats);
+							}
+
+							isFilled = true;
+							returned_false = 0;
+							returned_true = 0;
+							continue;
+						} else {
+							isFilled = false;
+							optimalBuilding = getCorrespondingBuildingNumber(findAnotherRoom(numberOfSeats));
+							optimalRoom = getCorrespondingRoomNumber(findAnotherRoom(numberOfSeats));
+							this.roomNumber = optimalRoom;
+							continue;
+						}
+					} else {
+						j--;
+						System.out.println(ts.size());
+						break;
 					}
 				} else {
-					break;
+					if(roomOccupied) {
+						roomOccupied = false;
+						continue;
+					} else {
+						roomOccupied = true;
+						j--;
+						System.out.println(ts.size());
+						break;						
+					}
 				}
-			}			
-			System.out.println(ts.size());
-		} else {
-			buildingUnavailable = false;
-			optimalBuilding = getCorrespondingBuildingNumber(findAnotherRoom(numberOfSeats));
-			optimalRoom = getCorrespondingRoomNumber(findAnotherRoom(numberOfSeats));
-			browseStudents(optimalBuilding, optimalRoom, moduleCode, session);
+			}
+			break;
 		}
 	}
 	
@@ -322,14 +362,17 @@ public class Schedule {
 		} else {
 			building_room = new HashMap<Integer, Integer>();
 			building_room.put(optimalBuilding, optimalRoom);
-			if (occupiedSessions.containsKey(building_room) && occupiedSessions.containsValue(session)) {
-				return false;
-			} else {
-				occupiedSessions.put(building_room, session);
-				nonOptimalCost++;
-				return true;
+			for(HashMap<Integer, Integer> key : occupiedSessions.keySet()) {
+				if(key == building_room && occupiedSessions.get(key) == session) {
+					return false;
+				} else {
+					occupiedSessions.put(building_room, session);
+					nonOptimalCost++;
+					return true;
+				}
 			}
 		}
+		return false;
 	}
 	
 	public int getStudentID(Schedule schedule) {
