@@ -51,6 +51,7 @@ public class Students {
 	}
 
 	protected void pushModuleCodes(String moduleCode, String moduleTitle, Integer duration) throws SQLException {
+		System.out.println("Please wait..");
 		fetchModuleCode(moduleCode);
 		fetchModuleTitle(moduleTitle);
 		String insertExam = "INSERT INTO Exam(ModuleCode, Duration) VALUES ('" + moduleCode + "', + '" + duration
@@ -66,7 +67,6 @@ public class Students {
 			if (!Character.isLetter(c)) {
 				String letter = Character.toString(c);
 				if (letter.equals("1")) {
-					System.out.println("Compulsory");
 					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
 					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
 					rs = stmt.executeQuery(query);
@@ -89,8 +89,8 @@ public class Students {
 							}
 						}
 					}
-				} else if (letter.equals("2")) {
 					return;
+				} else if (letter.equals("2")) {
 					// System.out.println("Optional");
 				} else if (letter.equals("3")) {
 					return;

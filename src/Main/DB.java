@@ -39,7 +39,7 @@ public class DB {
 		session = new Session();
 	}
 	
-	protected Connection getConnection(Connection conn) {
+	public Connection getConnection(Connection conn) {
 		try {
 			System.out.println("Connecting to database...");
 			conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
