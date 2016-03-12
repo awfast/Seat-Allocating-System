@@ -144,7 +144,7 @@ public class GUI {
 			@Override
 			public void handle(Event arg0) {
 				try {
-					Schedule exam = new Schedule(studentID, moduleCode, buildingNumber, roomNumber);
+					Schedule exam = new Schedule(studentID, moduleCode, sessionID, buildingNumber, roomNumber);
 					exam.generateInformation(db.getConnection(conn), dataReader);
 					System.out.printf(
 							"Generating an exam schedule for the period: " + examPeriodFrom + " - " + examPeriodTo);

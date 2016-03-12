@@ -34,13 +34,13 @@ public class AstarSearchAlgo {
 		Collections.reverse(path);
 		
 		for(int i=0; i<path.size(); i++) {
-			schedule = path.get(i).getSchedule();
+		/*	schedule = path.get(i).getSchedule();
 			studentID = schedule.getStudentID(schedule);
 			moduleCode = schedule.getModuleCode(schedule);
 			int sessionID = schedule.getSessionID(schedule);
 			int buildingNumber = schedule.getBuildingNumber(schedule);
-			int roomNumber = schedule.getRoomNumber(schedule);
-			System.out.println("(Student ID: " + studentID + ", ModuleCode: " + moduleCode + ", sessionID: " + sessionID + ", Building Number: " + buildingNumber + ", Room Number: " + roomNumber + ")");
+			int roomNumber = schedule.getRoomNumber(schedule);*/
+		//	System.out.println("(Student ID: " + studentID + ", ModuleCode: " + moduleCode + ", sessionID: " + sessionID + ", Building Number: " + buildingNumber + ", Room Number: " + roomNumber + ")");
 		}
 	}
 

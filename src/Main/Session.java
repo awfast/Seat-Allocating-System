@@ -46,7 +46,7 @@ public class Session {
 	}
 
 	public void testDate(Connection conn, String dateFrom, String dateTo) throws ParseException, SQLException {
-		int i=0;
+		int i=1;
 		SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yyyy");
 		Date dt1 = format1.parse(dateFrom);
 		Date dt2 = format1.parse(dateTo);
@@ -56,7 +56,7 @@ public class Session {
 		int diffDays = (int) (diff / (24 * 1000 * 60 * 60));
 		this.numberOfSessions = diffDays;
 		System.out.println(diffDays);
-		while(i<=diffDays*2) {
+		while(i<=(diffDays*2) + 1) {
 			insertIntoSessionAM(conn, i, finalFromDate);
 			i++;
 			insertIntoSessionPM(conn, i, finalFromDate);
