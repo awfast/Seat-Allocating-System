@@ -39,6 +39,7 @@ public class Schedule {
 	private int returned_true = 0;
 	private int returned_false = 0;
 	private int counter = 0;
+	private String date = null;
 	ArrayList<Integer> sessions = new ArrayList<Integer>();
 	boolean roomOccupied = false;
 	private List<String> modules = new ArrayList<String>();
@@ -55,12 +56,13 @@ public class Schedule {
 	HashMap<Schedule, String> uncompletedSchedules = new HashMap<Schedule, String>();
 	ArrayList<Schedule> completedSchedules = new ArrayList<Schedule>();
 
-	public Schedule(int studentID, String moduleCode, int sessionID, int buildingNumber, int roomNumber) {
+	public Schedule(int studentID, String moduleCode, int sessionID, String date, int buildingNumber, int roomNumber) {
 		this.studentID = studentID;
 		this.moduleCode = moduleCode;
 		this.sessionID = sessionID;
 		this.buildingNumber = buildingNumber;
 		this.roomNumber = roomNumber;
+		this.date = date;
 	}
 
 	public void generateInformation(Connection conn, DataReader dataReader) throws SQLException {
@@ -69,23 +71,19 @@ public class Schedule {
 		getAllSessions();
 		populateModules();
 		getAllStudentsPerModules();
-		System.out.println(students_total);
 		getLocations();
-		System.out.println(students_total.size());
 		for (HashMap<Integer, String> students : students_total.keySet()) {
 			for (Integer student : students.keySet()) {
 				String moduleCode = students.get(student);
 				int session = assignSession(student, moduleCode);
+				String date = getDatePerSessionID(session);
 				int building = getOptimalBuilding(students.get(student));
 				int room = getRoomNumber(moduleCode);
-				Schedule s = new Schedule(student, moduleCode, session, building, room);
+				Schedule s = new Schedule(student, moduleCode, session, date, building, room);
 				uncompletedSchedules.put(s, "");
 				counter++;
 			}
-		}
-
-		System.out.println(counter);
-		
+		}		
 		assign(uncompletedSchedules);
 		printSchedules(uncompletedSchedules);
 		System.out.println("Completed.");
@@ -133,22 +131,16 @@ public class Schedule {
 		return uncompletedSchedules;
 	}
 	
-	private boolean moduleCodeIsNull() {
-		return false;
-	}
-	
-	/*private int getOptimalRoom(int numberOfStudents) {
-		if (isBigEnough(numberOfStudents, closest(numberOfStudents, locations_roomCapacity))) {
-			if (closest == false) {
-				return closest(numberOfStudents, locations_roomCapacity);
-			} else {
-				closest = true;
-				locations_roomCapacity.remove(locations_roomCapacity.get(closest(numberOfStudents, locations_roomCapacity)));
-				return closest(numberOfStudents, locations_roomCapacity);
-			}
+	public String getDatePerSessionID(int sessionID) throws SQLException {
+		String query = "SELECT * FROM Session WHERE date=" + sessionID;
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		String date = null;
+		while (rs.next()) {
+			 date = rs.getString("date");
 		}
-		return 0;
-	}*/
+		return date;
+	}
 
 	public boolean goal(HashMap<Schedule, String> schedules) throws SQLException {
 		for (Schedule i : schedules.keySet()) {
@@ -166,7 +158,6 @@ public class Schedule {
 			for (Integer students : map.keySet()) {
 				if (map.get(students).equals(moduleCode)) {
 					for (Integer building : locations_buildingRoom.keySet()) {
-						System.out.println(students_total + " - " + map.get(students) + "-" + students_total.get(map));
 						for (Integer room : locations_roomCapacity.keySet()) {
 							if (locations_roomCapacity.get(room) == closest(students_total.get(map),locations_roomCapacity)) {
 								if (locations_buildingRoom.get(building) == room) {
@@ -279,8 +270,6 @@ public class Schedule {
 			for (int i = 0; i < sessions.size(); i++) {
 				if (moduleCode_sessionID.isEmpty()) {
 					moduleCode_sessionID.put(modules.get(j), sessions.get(i));
-					System.out.println(sessions.get(i));
-					System.out.println("->>>"+sessions.get(i));
 					return sessions.get(i);
 				}
 			}
@@ -289,13 +278,11 @@ public class Schedule {
 			for (int i = 0; i < sessions.size(); i++) {
 				for (String mc : moduleCode_sessionID.keySet()) {
 					if(mc == moduleCode) {
-						System.out.println("->>>>>>"+moduleCode_sessionID.get(mc));
 						return moduleCode_sessionID.get(mc);
 					}
 					else {
 						if(!moduleCode_sessionID.containsKey(moduleCode) && !moduleCode_sessionID.containsValue(sessions.get(i))) {
 							moduleCode_sessionID.put(moduleCode, sessions.get(i));
-							System.out.println("->>>>>>>>>>>>>>"+sessions.get(i));
 							return sessions.get(i);
 						}
 						continue;
@@ -358,9 +345,7 @@ public class Schedule {
 				students_moduleCode.put(stud, modules.get(i));
 				numberOfStudents++;
 			}
-			System.out.println(students_moduleCode);
 			students_total.put(students_moduleCode, numberOfStudents);
-			System.out.println(students_moduleCode);
 		}
 	}
 	
@@ -379,20 +364,32 @@ public class Schedule {
 	}
 
 	public int closest(int of, Map<Integer, Integer> room_capacity) {
-		int min = Integer.MAX_VALUE;
-		int closest = of;
-
+		ArrayList<Integer> list = new ArrayList<Integer>();
 		for (int v : room_capacity.keySet()) {
-			final int diff = Math.abs(room_capacity.get(v) - of);
+			list.add(room_capacity.get(v));
+		}
+		int min = Integer.MAX_VALUE;
+		int closest = 0;
+		int secondClosest = of;
+		
+		for(int i=0; i<list.size(); i++) {
+		final int diff = Math.abs(list.get(i) - of);
 			if (diff < min) {
-				closest = room_capacity.get(v);
-				if(closest > of) {
-					min = closest;
+				secondClosest = list.get(i);
+				if(secondClosest > of) {
+					if(closest == 0) {
+						closest = secondClosest;
+						min = secondClosest;
+					} else {
+						if(secondClosest < closest) {
+							closest = secondClosest;
+						}
+					}
+					
 				}
 			}
 		}
-
-		return min;
+		return closest;
 	}
 
 
