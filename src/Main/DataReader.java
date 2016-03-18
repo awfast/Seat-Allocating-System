@@ -50,7 +50,7 @@ public class DataReader {
 		db.createTableStudents(conn);
 		/*if (file != null) {
 			String path = file.getAbsolutePath();*/
-		String path = "F:\\ProjectData\\StudentData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\BuildingUnavailable\\StudentData_test.csv";
 			try {
 				reader = new CsvReader(path);
 				reader.readHeaders();
@@ -78,7 +78,7 @@ public class DataReader {
 		db.createTableExam(conn);
 		db.createTableRegisteredStudents(conn);
 		db.students.populateCohorts(cohorts);
-		String path = "F:\\ProjectData\\RegistrationData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\BuildingUnavailable\\RegistrationData_test.csv";
 		System.out.println(path);
 		reader = new CsvReader(path);
 		reader.readHeaders();
@@ -98,7 +98,7 @@ public class DataReader {
 	}
 
 	protected void getAvailableBuildings() throws IOException, SQLException {
-		String path = "F:\\ProjectData\\LocationData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\BuildingUnavailable\\LocationData_test.csv";
 		reader = new CsvReader(path);
 		reader.readHeaders();
 		while (reader.readRecord()) {
