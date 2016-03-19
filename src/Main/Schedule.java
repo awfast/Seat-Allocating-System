@@ -49,6 +49,7 @@ public class Schedule {
 	private HashMap<Schedule, String> uncompletedSchedules = new HashMap<Schedule, String>();
 	private ArrayList<Schedule> completedSchedules = new ArrayList<Schedule>();
 	private HashMap<String, Integer> dates_students;
+	private ArrayList<Integer> list = new ArrayList<Integer>();
 	private Map<Integer, HashMap<String, Integer>> students_dates_map = new HashMap<Integer, HashMap<String, Integer>>();
 
 	public Schedule(int studentID, String moduleCode, int sessionID, String date, int buildingNumber, int roomNumber) {
@@ -84,7 +85,6 @@ public class Schedule {
 				counter++;
 			}
 		}
-		System.out.println(students_dates_map.size());
 		assign(uncompletedSchedules);
 		printSchedules(uncompletedSchedules);
 		System.out.println("Completed.");
@@ -148,6 +148,8 @@ public class Schedule {
 				for (String date : students_dates_map.get(studentDate).keySet()) {
 					if (students_dates_map.get(studentDate).get(date) == i.getStudentID()) {
 						System.out.println("Found: " + students_dates_map.get(studentDate).get(date));
+						System.out.println("0." + students_dates_map);
+						System.out.println("+1." + i);
 						System.out.println("1."+ i.getDate());
 						System.out.println("2." + date);
 						if (tempDate.equals(date) && occurance > 0) {
@@ -174,21 +176,15 @@ public class Schedule {
 		}
 	}
 
-	private int getOptimalBuilding(String moduleCode) {
+	private int getOptimalBuilding(String moduleCode) throws SQLException {
 		for (HashMap<Integer, String> map : students_total.keySet()) {
 			for (Integer students : map.keySet()) {
 				if (map.get(students).equals(moduleCode)) {
 					for (Integer building : locations_buildingRoom.keySet()) {
-						for (Integer room : locations_roomCapacity.keySet()) {
-							if (locations_roomCapacity.get(room) == closest(students_total.get(map),
-									locations_roomCapacity)) {
-								if (locations_buildingRoom.get(building) == room) {
-									return building;
-								} else {
-									continue;
-								}
-							}
-						}
+						System.out.println(getBuilding(closest(students_total.get(map), locations_roomCapacity)));
+						building = getBuilding(closest(students_total.get(map), locations_roomCapacity));
+						return building;
+						
 					}
 				}
 			}
@@ -253,10 +249,12 @@ public class Schedule {
 			for (int i = 0; i < sessions.size(); i++) {
 				if (moduleCode_sessionID.isEmpty()) {
 					moduleCode_sessionID.put(modules.get(j), sessions.get(i));
+					System.out.println(sessions.get(i));
 					return sessions.get(i);
 				} else {
 					for (String mc : moduleCode_sessionID.keySet()) {
 						if (mc.equals(moduleCode)) {
+							System.out.println(moduleCode_sessionID.get(mc));
 							System.out.println(moduleCode_sessionID.get(mc));
 							return moduleCode_sessionID.get(mc);
 						} else {
@@ -283,6 +281,9 @@ public class Schedule {
 					if (schedule.getModuleCode().equals(moduleCode)) {
 						return true;
 					} else {
+						if(schedule.getDate() == null) {
+							return true;
+						}
 						if (schedule.getDate().equals(date)) {
 							return false;
 						} else {
@@ -290,9 +291,10 @@ public class Schedule {
 						}
 					}
 				}
+				continue;
 			}
+			return true;
 		}
-		return false;
 	}
 
 	// function to check if the room is available inside the getRoomNumber
@@ -361,14 +363,22 @@ public class Schedule {
 			int capacity = rs2.getInt(3);
 			locations_buildingRoom.put(building, room);
 			locations_roomCapacity.put(room, capacity);
+			list.add(capacity);
 		}
+	}
+	
+	private int getBuilding(int capacity) throws SQLException {
+		String query2 = "SELECT * FROM Location WHERE SeatNumber=" + capacity;;
+		stmt2 = conn.createStatement();
+		ResultSet rs2 = stmt2.executeQuery(query2);
+		while (rs2.next()) {
+			int r = rs2.getInt(1);
+			return r;
+		}
+		return 0;
 	}
 
 	public int closest(int of, Map<Integer, Integer> room_capacity) {
-		ArrayList<Integer> list = new ArrayList<Integer>();
-		for (int v : room_capacity.keySet()) {
-			list.add(room_capacity.get(v));
-		}
 		int min = Integer.MAX_VALUE;
 		int closest = 0;
 		int secondClosest = of;
@@ -377,7 +387,10 @@ public class Schedule {
 			final int diff = Math.abs(list.get(i) - of);
 			if (diff < min) {
 				secondClosest = list.get(i);
-				if (secondClosest > of) {
+				if(secondClosest == of) {
+					return secondClosest;
+				}
+				else if (secondClosest > of) {
 					if (closest == 0) {
 						closest = secondClosest;
 						min = secondClosest;
