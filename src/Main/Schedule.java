@@ -256,14 +256,19 @@ public class Schedule {
 					return sessions.get(i);
 				} else {
 					for (String mc : moduleCode_sessionID.keySet()) {
-						if (!doesNotHaveOtherExamsScheduledForTheSameDay(studentID,getDatePerSessionID(sessions.get(i)), moduleCode)) {
+						if (mc.equals(moduleCode)) {
 							System.out.println(moduleCode_sessionID.get(mc));
 							return moduleCode_sessionID.get(mc);
 						} else {
-							break;
+							if(doesNotHaveOtherExamsScheduledForTheSameDay(studentID,moduleCode ,getDatePerSessionID(sessions.get(i)))) {
+								return sessions.get(i);
+							} else {								
+								break;
+							}
 						}
 					}
 				}
+				continue;
 			}
 		}
 		return 0;
@@ -276,11 +281,7 @@ public class Schedule {
 			for (Schedule schedule : uncompletedSchedules.keySet()) {
 				if (schedule.getStudentID() == studentID) {
 					if (schedule.getModuleCode().equals(moduleCode)) {
-						if (schedule.getDate().equals(date)) {
-							return true;
-						} else {
-
-						}
+						return true;
 					} else {
 						if (schedule.getDate().equals(date)) {
 							return false;
