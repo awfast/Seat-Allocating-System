@@ -29,25 +29,23 @@ public class Schedule {
 	private int sessionID;
 	private int buildingNumber;
 	private int roomNumber;
-	private Schedule schedule;
+	private int capacity = 0;
 	private int counter = 0;
 	private float availableStudents = 0;
 	private String date;
 	private ArrayList<Integer> sessions = new ArrayList<Integer>();
-	private boolean roomOccupied = false;
 	private List<String> modules = new ArrayList<String>();
-	private boolean buildingUnavailable = false;
 	private RejectedGoal rg = new RejectedGoal();
 	public Map<HashMap<Integer, String>, Integer> students_total = new HashMap<HashMap<Integer, String>, Integer>();
 	private HashMap<Integer, String> students_moduleCode;
-	private Map<HashMap<Integer, String>, Boolean> students_alreadyChecked = new HashMap<HashMap<Integer, String>, Boolean>();
+	private HashMap<Integer, String> student_date = new HashMap<Integer, String>();
+	private HashMap<HashMap<Integer, String>, Integer> assigned_sessions = new HashMap<HashMap<Integer, String>, Integer>();
 	private Map<String, Integer> moduleCode_sessionID = new HashMap<String, Integer>();
 	private Map<Integer, Integer> locations_buildingRoom = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> locations_roomCapacity = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> building_sessionID = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> room_sessionID = new HashMap<Integer, Integer>();
 	private HashMap<Schedule, String> uncompletedSchedules = new HashMap<Schedule, String>();
-	private ArrayList<Schedule> completedSchedules = new ArrayList<Schedule>();
 	private HashMap<String, Integer> dates_students;
 	private ArrayList<Integer> list = new ArrayList<Integer>();
 	private Map<Integer, HashMap<String, Integer>> students_dates_map = new HashMap<Integer, HashMap<String, Integer>>();
@@ -75,7 +73,7 @@ public class Schedule {
 				int session = assignSession(student, moduleCode);
 				String date = getDatePerSessionID(session);
 				int building = getOptimalBuilding(students.get(student));
-				int room = getRoomNumber(moduleCode);
+				int room = getRoomNumber(building, capacity);
 				dates_students = new HashMap<String, Integer>();
 				dates_students.put(date, student);
 				students_dates_map.put(fakeCounter, dates_students);
@@ -258,7 +256,7 @@ public class Schedule {
 							System.out.println(moduleCode_sessionID.get(mc));
 							return moduleCode_sessionID.get(mc);
 						} else {
-							if(doesNotHaveOtherExamsScheduledForTheSameDay(studentID,moduleCode ,getDatePerSessionID(sessions.get(i)))) {
+							if(doesNotHaveOtherExamsScheduledForTheSameDay(sessions.get(i), studentID,moduleCode ,getDatePerSessionID(sessions.get(i)))) {
 								return sessions.get(i);
 							} else {								
 								break;
@@ -272,7 +270,7 @@ public class Schedule {
 		return 0;
 	}
 
-	private boolean doesNotHaveOtherExamsScheduledForTheSameDay(int studentID, String moduleCode, String date) {
+	private boolean doesNotHaveOtherExamsScheduledForTheSameDay(int sessionID, int studentID, String moduleCode, String date) {
 		if (uncompletedSchedules.isEmpty()) {
 			return true;
 		} else {
@@ -282,11 +280,27 @@ public class Schedule {
 						return true;
 					} else {
 						if(schedule.getDate() == null) {
+							student_date.put(studentID, date);
+							assigned_sessions.put(student_date, sessionID);
 							return true;
 						}
 						if (schedule.getDate().equals(date)) {
 							return false;
-						} else {
+						} 
+						else if(assigned_sessions.containsKey(student_date) || !assigned_sessions.containsKey(student_date)) {
+							for(HashMap<Integer, String> key: assigned_sessions.keySet()) {
+								for(Integer i: key.keySet()) {
+									if(i == studentID && key.get(i).equals(date)) {
+										return false;
+									} else {
+										student_date.put(studentID, date);
+										assigned_sessions.put(student_date, sessionID);
+										return true;
+									}
+								}
+							}
+						}
+						else {
 							return true;							
 						}
 					}
@@ -299,19 +313,15 @@ public class Schedule {
 
 	// function to check if the room is available inside the getRoomNumber
 	// method
-	private int getRoomNumber(String moduleCode) {
-		for (HashMap<Integer, String> key : students_total.keySet()) {
-			for (Integer student : key.keySet()) {
-				if (moduleCode.equals(key.get(student))) {
-					for (Integer room : locations_roomCapacity.keySet()) {
-						if (locations_roomCapacity.get(room) == closest(students_total.get(key),
-								locations_roomCapacity)) {
-							return room;
-						}
-					}
-				}
-			}
+	private int getRoomNumber(int building, int capacity) throws SQLException {
+		String query = "SELECT * FROM Location WHERE BuildingNumber="+building+ " AND SeatNumber="+capacity;
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		while (rs.next()) {
+			int room = rs.getInt(2);
+			return room;
 		}
+		
 		return 0;
 	}
 
@@ -368,6 +378,7 @@ public class Schedule {
 	}
 	
 	private int getBuilding(int capacity) throws SQLException {
+		this.capacity = capacity;
 		String query2 = "SELECT * FROM Location WHERE SeatNumber=" + capacity;;
 		stmt2 = conn.createStatement();
 		ResultSet rs2 = stmt2.executeQuery(query2);

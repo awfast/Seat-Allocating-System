@@ -90,9 +90,51 @@ public class Students {
 						}
 					}
 				} else if (letter.equals("2")) {
-					return;
+					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
+					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
+					rs = stmt.executeQuery(query);
+					while (rs.next()) {
+						this.size = rs.getInt(2);
+					}
+					String query2 = "SELECT * FROM STUDENT";
+					rs2 = stmt.executeQuery(query2);
+					int counter = 0;
+					while (rs2.next()) {
+						if (counter < size) {
+							int student = rs2.getInt(1);
+							String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+									+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+							stmt2 = conn.createStatement();
+							stmt2.executeUpdate(insertSql);
+							counter++;
+							if(!list_moduleCodes_test.contains(moduleCode)) {
+								list_moduleCodes_test.add(moduleCode);								
+							}
+						}
+					}
 				} else if (letter.equals("3")) {
-					
+					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
+					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
+					rs = stmt.executeQuery(query);
+					while (rs.next()) {
+						this.size = rs.getInt(2);
+					}
+					String query2 = "SELECT * FROM STUDENT";
+					rs2 = stmt.executeQuery(query2);
+					int counter = 0;
+					while (rs2.next()) {
+						if (counter < size) {
+							int student = rs2.getInt(1);
+							String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+									+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+							stmt2 = conn.createStatement();
+							stmt2.executeUpdate(insertSql);
+							counter++;
+							if(!list_moduleCodes_test.contains(moduleCode)) {
+								list_moduleCodes_test.add(moduleCode);								
+							}
+						}
+					}
 					// System.out.println("Optional");
 					// System.out.println("get size of the cohort and module and
 					// arbitrary assign students to it");
