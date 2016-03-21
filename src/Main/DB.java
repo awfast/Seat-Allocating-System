@@ -154,7 +154,7 @@ public class DB {
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
 		String drop = "DROP TABLE IF EXISTS Schedule ";
-		String table = "CREATE TABLE IF NOT EXISTS Schedule " + "(StudentID INTEGER not NULL, " + "ModuleCode VARCHAR(255), " + "SessionID INTEGER not NULL, " +"BuildingNumber INTEGER not NULL, " + "RoomNumber INTEGER not NULL)";
+		String table = "CREATE TABLE IF NOT EXISTS Schedule " + "(StudentID INTEGER not NULL, " + "ModuleCode VARCHAR(255), " + "SessionID INTEGER not NULL, " + "Date VARCHAR(255), "+ "BuildingNumber INTEGER not NULL, " + "RoomNumber INTEGER not NULL)";
 
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);

@@ -91,6 +91,7 @@ public class Schedule {
 	private void printSchedules(HashMap<Schedule, String> s) throws SQLException {
 		int j = 1;
 		for (Schedule i : s.keySet()) {
+			insertIntoTableSchedule(i.getStudentID(), i.getModuleCode(), i.getSessionID(), i.getDate(), i.getBuildingNumber(), i.getRoomNumber());
 			System.out.println(j + ".(Student ID: " + i.getStudentID() + ", Module Code: " + i.getModuleCode()
 					+ ", Session ID: " + i.getSessionID() + ", Date: " + i.getDate() + ", Building Number: "
 					+ i.getBuildingNumber() + ", Room Number:" + i.getRoomNumber() + ")");
@@ -205,38 +206,6 @@ public class Schedule {
 					return false;
 				}
 
-			}
-		}
-		return false;
-	}
-
-	private boolean isBuildingAvailable(int building, int session) {
-		if (building_sessionID.isEmpty()) {
-			building_sessionID.put(building, session);
-			return true;
-		} else {
-			for (Integer key : building_sessionID.keySet()) {
-				if (key == building && building_sessionID.get(key) == session) {
-					return false;
-				} else {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private boolean isRoomAvailable(int room, int session) {
-		if (room_sessionID.isEmpty()) {
-			room_sessionID.put(room, session);
-			return true;
-		} else {
-			for (Integer key : room_sessionID.keySet()) {
-				if (key == room && room_sessionID.get(key) == session) {
-					return false;
-				} else {
-					return true;
-				}
 			}
 		}
 		return false;
@@ -387,6 +356,18 @@ public class Schedule {
 			return r;
 		}
 		return 0;
+	}
+	
+	private void insertIntoTableSchedule(int studentID, String moduleCode, int sesssionID, String date, int buildingNumber, int roomNumber) throws SQLException {
+		//String table = "CREATE TABLE IF NOT EXISTS Schedule " + "(StudentID INTEGER not NULL, " + "ModuleCode VARCHAR(255), " + "SessionID INTEGER not NULL, " + "ModuleCode VARCHAR(255), "+ "BuildingNumber INTEGER not NULL, " + "RoomNumber INTEGER not NULL)";
+
+		String query = "INSERT INTO Schedule(StudentID, ModuleCode, SessionID, Date, BuildingNumber, RoomNumber) VALUES ('" + studentID + "', + '"
+				+ moduleCode + "', + '" + sessionID + "', + '"
+				+ date + "', + '"
+				+ buildingNumber + "', + '"
+				+ roomNumber + "')";
+		stmt = conn.createStatement();
+		stmt.executeUpdate(query);
 	}
 
 	public int closest(int of, Map<Integer, Integer> room_capacity) {
