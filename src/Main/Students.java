@@ -89,6 +89,7 @@ public class Students {
 							}
 						}
 					}
+					break;
 				} else if (letter.equals("2")) {
 					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
 					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
@@ -99,8 +100,10 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
+					boolean doIt = false;
+					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
-						if (counter < size) {
+						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
 							String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
 									+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
@@ -109,10 +112,14 @@ public class Students {
 							counter++;
 							if(!list_moduleCodes_test.contains(moduleCode)) {
 								list_moduleCodes_test.add(moduleCode);								
+							} else {
+								continue;
 							}
 						}
 					}
+					break;
 				} else if (letter.equals("3")) {
+					// System.out.println("Optional");
 					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
 					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
 					rs = stmt.executeQuery(query);
@@ -122,8 +129,10 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
+					boolean doIt = false;
+					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
-						if (counter < size) {
+						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
 							String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
 									+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
@@ -132,15 +141,13 @@ public class Students {
 							counter++;
 							if(!list_moduleCodes_test.contains(moduleCode)) {
 								list_moduleCodes_test.add(moduleCode);								
+							} else {
+								continue;
 							}
 						}
 					}
-					// System.out.println("Optional");
-					// System.out.println("get size of the cohort and module and
-					// arbitrary assign students to it");
-					return;
+					break;
 				} else if (letter.equals("6")) {
-					
 					return;
 					// System.out.println("Optional");
 				} else if (letter.equals("8")) {
@@ -171,6 +178,11 @@ public class Students {
 		int randomNum = rand.nextInt((max - min) + 1) + min;
 
 		return randomNum;
+	}
+	
+	public int randomizeOptinalModulesNumber() {
+		int rand = (new Random()).nextInt((11 - 4) + 1) + 4;
+		return rand;
 	}
 
 	private String fetchModuleCode(String moduleCode) {
