@@ -40,11 +40,9 @@ public class Schedule {
 	private HashMap<Integer, String> students_moduleCode;
 	private HashMap<Integer, String> student_date = new HashMap<Integer, String>();
 	private HashMap<HashMap<Integer, String>, Integer> assigned_sessions = new HashMap<HashMap<Integer, String>, Integer>();
-	private Map<String, Integer> moduleCode_sessionID = new HashMap<String, Integer>();
+	private Map<Integer, String> sessionID_moduleCode = new HashMap<Integer, String>();
 	private Map<Integer, Integer> locations_buildingRoom = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> locations_roomCapacity = new HashMap<Integer, Integer>();
-	private Map<Integer, Integer> building_sessionID = new HashMap<Integer, Integer>();
-	private Map<Integer, Integer> room_sessionID = new HashMap<Integer, Integer>();
 	private HashMap<Schedule, String> uncompletedSchedules = new HashMap<Schedule, String>();
 	private HashMap<String, Integer> dates_students;
 	private ArrayList<Integer> list = new ArrayList<Integer>();
@@ -214,18 +212,19 @@ public class Schedule {
 	private int assignSession(int studentID, String moduleCode) throws SQLException {
 		for (int j = 0; j < modules.size(); j++) {
 			for (int i = 0; i < sessions.size(); i++) {
-				if (moduleCode_sessionID.isEmpty()) {
-					moduleCode_sessionID.put(modules.get(j), sessions.get(i));
+				if (sessionID_moduleCode.isEmpty()) {
+					sessionID_moduleCode.put(sessions.get(i), modules.get(j));
 					System.out.println(sessions.get(i));
 					return sessions.get(i);
 				} else {
-					for (String mc : moduleCode_sessionID.keySet()) {
-						if (mc.equals(moduleCode)) {
-							System.out.println(moduleCode_sessionID.get(mc));
-							System.out.println(moduleCode_sessionID.get(mc));
-							return moduleCode_sessionID.get(mc);
+					for (Integer mc : sessionID_moduleCode.keySet()) {
+						if (sessionID_moduleCode.containsKey(sessions.get(i))) {
+							System.out.println(sessionID_moduleCode.get(mc));
+							System.out.println(sessionID_moduleCode.get(mc));
+							return mc;
 						} else {
 							if(doesNotHaveOtherExamsScheduledForTheSameDay(sessions.get(i), studentID,moduleCode ,getDatePerSessionID(sessions.get(i)))) {
+								sessionID_moduleCode.put(sessions.get(i), moduleCode);
 								return sessions.get(i);
 							} else {								
 								break;
@@ -358,7 +357,7 @@ public class Schedule {
 		return 0;
 	}
 	
-	private void insertIntoTableSchedule(int studentID, String moduleCode, int sesssionID, String date, int buildingNumber, int roomNumber) throws SQLException {
+	private void insertIntoTableSchedule(int studentID, String moduleCode, int sessionID, String date, int buildingNumber, int roomNumber) throws SQLException {
 		//String table = "CREATE TABLE IF NOT EXISTS Schedule " + "(StudentID INTEGER not NULL, " + "ModuleCode VARCHAR(255), " + "SessionID INTEGER not NULL, " + "ModuleCode VARCHAR(255), "+ "BuildingNumber INTEGER not NULL, " + "RoomNumber INTEGER not NULL)";
 
 		String query = "INSERT INTO Schedule(StudentID, ModuleCode, SessionID, Date, BuildingNumber, RoomNumber) VALUES ('" + studentID + "', + '"
