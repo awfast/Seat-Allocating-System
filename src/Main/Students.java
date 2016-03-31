@@ -148,7 +148,16 @@ public class Students {
 					}
 					break;
 				} else if (letter.equals("6")) {
-					return;
+					String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+							+ 1234567 + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+					stmt2 = conn.createStatement();
+					stmt2.executeUpdate(insertSql);
+					if(!list_moduleCodes_test.contains(moduleCode)) {
+						list_moduleCodes_test.add(moduleCode);								
+					} else {
+						continue;
+					}
+					break;
 					// System.out.println("Optional");
 				} else if (letter.equals("8")) {
 					

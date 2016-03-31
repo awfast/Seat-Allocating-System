@@ -15,6 +15,8 @@ import java.util.Map.Entry;
 import javax.swing.JComboBox.KeySelectionManager;
 
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import TreeWithNodesAndSearch.*;
 
@@ -30,23 +32,27 @@ public class Schedule {
 	private int buildingNumber;
 	private int roomNumber;
 	private int capacity = 0;
+	private boolean goalReached = false;
 	private int counter = 0;
-	private float availableStudents = 0;
+	private int totalNumberOfSchedules = 0;
 	private String date;
 	private ArrayList<Integer> sessions = new ArrayList<Integer>();
 	private List<String> modules = new ArrayList<String>();
-	private RejectedGoal rg = new RejectedGoal();
 	public Map<HashMap<Integer, String>, Integer> students_total = new HashMap<HashMap<Integer, String>, Integer>();
 	private HashMap<Integer, String> students_moduleCode;
-	private HashMap<Integer, String> student_date = new HashMap<Integer, String>();
-	private HashMap<HashMap<Integer, String>, Integer> assigned_sessions = new HashMap<HashMap<Integer, String>, Integer>();
-	private Map<Integer, String> sessionID_moduleCode = new HashMap<Integer, String>();
 	private Map<Integer, Integer> locations_buildingRoom = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> locations_roomCapacity = new HashMap<Integer, Integer>();
-	private HashMap<Schedule, String> uncompletedSchedules = new HashMap<Schedule, String>();
-	private HashMap<String, Integer> dates_students;
-	private ArrayList<Integer> list = new ArrayList<Integer>();
-	private Map<Integer, HashMap<String, Integer>> students_dates_map = new HashMap<Integer, HashMap<String, Integer>>();
+	private ArrayList<Schedule> schedules = new ArrayList<Schedule>();
+	private ArrayList<Integer> list_Capacity_Buildings = new ArrayList<Integer>();
+	// all modules, and students registered for them.
+	private HashMap<String, ArrayList<Integer>> moduleVstudents = new HashMap<String, ArrayList<Integer>>();
+	private HashMap<String, Integer> moduleVsession = new HashMap<String, Integer>();
+	// assigned students
+	ArrayList<Integer> assignedStudents;
+	// checked modules
+	private ArrayList<String> assignedModules = new ArrayList<String>();
+	private ArrayList<String> assignedModules_accessOnly = new ArrayList<String>();
+	private ArrayList<String> modulesToCheck = new ArrayList<String>();
 
 	public Schedule(int studentID, String moduleCode, int sessionID, String date, int buildingNumber, int roomNumber) {
 		this.studentID = studentID;
@@ -60,69 +66,109 @@ public class Schedule {
 	public void generateInformation(Connection conn, DataReader dataReader) throws SQLException {
 		this.dataReader = dataReader;
 		this.conn = conn;
+		this.totalNumberOfSchedules = findTotalSchedulesToBeMade();
 		getAllSessions();
 		populateModules();
 		getAllStudentsPerModules();
 		getLocations();
-		int fakeCounter = 0;
-		for (HashMap<Integer, String> students : students_total.keySet()) {
-			for (Integer student : students.keySet()) {
-				String moduleCode = students.get(student);
-				int session = assignSession(student, moduleCode);
-				String date = getDatePerSessionID(session);
-				int building = getOptimalBuilding(students.get(student));
-				int room = getRoomNumber(building, capacity);
-				dates_students = new HashMap<String, Integer>();
-				dates_students.put(date, student);
-				students_dates_map.put(fakeCounter, dates_students);
-				fakeCounter++;
-				Schedule s = new Schedule(student, moduleCode, session, date, building, room);
-				uncompletedSchedules.put(s, "");
-				counter++;
-			}
-		}
-		assign(uncompletedSchedules);
-		printSchedules(uncompletedSchedules);
-		System.out.println("Completed.");
+		test();
+		printTest();
+		// initializeScheduling();
+		// assign(schedules);
+		// printSchedules(schedules);
+
 	}
 
-	private void printSchedules(HashMap<Schedule, String> s) throws SQLException {
+	private void test() throws SQLException {
+		for (int i = 0; i < modulesToCheck.size(); i++) {
+			ArrayList<Integer> module = moduleVstudents.get(modulesToCheck.get(i));
+			System.out.println("-> " + modulesToCheck.get(i));
+			modulesToCheckLoop: for (int j = 0; j < sessions.size(); j++) {
+				sessionLoop: 
+					if (assignedModules.isEmpty()) {
+					assignedModules.add(modulesToCheck.get(i));
+					moduleVsession.put(modulesToCheck.get(i), sessions.get(j));
+					break modulesToCheckLoop;
+				} else {
+					for (int x = 0; x < assignedModules.size(); x++) {
+						printAssignedModules();
+						ArrayList<Integer> assignedModule = moduleVstudents.get(assignedModules.get(x));
+						for (int y = 0; y < module.size(); y++) {
+							int currentSession = moduleVsession.get(assignedModules.get(x));
+							if (assignedModule.contains(module.get(y)) && getDatePerSessionID(currentSession).equals(getDatePerSessionID(sessions.get(j)))) {
+								System.out.println(module.get(y));
+								break sessionLoop;
+							}
+
+						}
+						if (x == assignedModules.size()-1) {
+							assignedModules.add(modulesToCheck.get(i));
+							moduleVsession.put(modulesToCheck.get(i), sessions.get(j));
+							System.out.println("size: " + moduleVsession.size());
+							break modulesToCheckLoop;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private void printAssignedModules() {
+		for(int i=0; i<assignedModules.size(); i++) {
+			System.out.println(i + ". [ " + assignedModules.get(i) + "]");
+		}
+	}
+
+	private void printTest() {
+		for (String module : moduleVsession.keySet()) {
+			System.out.println(module + ", Session: " + moduleVsession.get(module));
+		}
+	}
+
+	private int findTotalSchedulesToBeMade() throws SQLException {
+		int count = 0;
+		String query = "SELECT COUNT(*) FROM RegisteredStudents";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		while (rs.next()) {
+			count = rs.getInt(1);
+		}
+		return count;
+	}
+
+	private void printSchedules(ArrayList<Schedule> s) throws SQLException {
 		int j = 1;
-		for (Schedule i : s.keySet()) {
-			insertIntoTableSchedule(i.getStudentID(), i.getModuleCode(), i.getSessionID(), i.getDate(), i.getBuildingNumber(), i.getRoomNumber());
-			System.out.println(j + ".(Student ID: " + i.getStudentID() + ", Module Code: " + i.getModuleCode()
-					+ ", Session ID: " + i.getSessionID() + ", Date: " + i.getDate() + ", Building Number: "
-					+ i.getBuildingNumber() + ", Room Number:" + i.getRoomNumber() + ")");
+		for (int i = 0; i < schedules.size(); i++) {
+			insertIntoTableSchedule(schedules.get(i).getStudentID(), schedules.get(i).getModuleCode(),
+					schedules.get(i).getSessionID(), schedules.get(i).getDate(), schedules.get(i).getBuildingNumber(),
+					schedules.get(i).getRoomNumber());
+			System.out.println(j + ".(Student ID: " + schedules.get(i).getStudentID() + ", Module Code: "
+					+ schedules.get(i).getModuleCode() + ", Session ID: " + schedules.get(i).getSessionID() + ", Date: "
+					+ schedules.get(i).getDate() + ", Building Number: " + schedules.get(i).getBuildingNumber()
+					+ ", Room Number:" + schedules.get(i).getRoomNumber() + ")");
 			j++;
 		}
 	}
 
-	public HashMap<Schedule, String> assign(HashMap<Schedule, String> uncompletedSchedules) throws SQLException {
-		if (goal(uncompletedSchedules)) {
-			return uncompletedSchedules;
+	public ArrayList<Schedule> assign(ArrayList<Schedule> schedules) throws SQLException {
+		if (goal(schedules)) {
+			return schedules;
 		} else {
+			for (int i = 0; i < schedules.size(); i++) {
+				if (schedules.get(i).getBuildingNumber() == 0) {
+					int building = getOptimalBuilding(schedules.get(i).getModuleCode());
+					schedules.get(i).setBuildingNumber(building);
+				}
 
-			/*
-			 * if (i.getRoomNumber() == 0) { for (Integer k :
-			 * locations_buildingRoom.keySet()) { i.roomNumber =
-			 * getRoomNumber(i.getStudentID());
-			 * System.out.println(i.roomNumber); System.out.println(
-			 * "------------------------------------------------------------");
-			 * //return assign(uncompletedSchedules); } }
-			 */
-
-			/*
-			 * if (i.sessionID == 0) { for (HashMap<Integer, String>
-			 * stud_modules : students_total.keySet()) { for (Integer key :
-			 * stud_modules.keySet()) { if (i.studentID == key) {
-			 * System.out.println(i.sessionID); i.sessionID =
-			 * assignSession(i.getStudentID(), i.moduleCode);
-			 * System.out.println(i.sessionID); return
-			 * assign(uncompletedSchedules); } } } }
-			 */
-
+				if (schedules.get(i).getRoomNumber() == 0) {
+					int room = getOptimalRoomNumber(schedules.get(i).getModuleCode());
+					schedules.get(i).setRoomNumber(room);
+				}
+			}
+			return assign(schedules);
 		}
-		return uncompletedSchedules;
 	}
 
 	public String getDatePerSessionID(int sessionID) throws SQLException {
@@ -137,40 +183,32 @@ public class Schedule {
 		return date;
 	}
 
-	public boolean goal(HashMap<Schedule, String> schedules) throws SQLException {
-		for (Schedule i : schedules.keySet()) {
-			String tempDate = i.getDate();
-			int occurance = 0;
-			for (Integer studentDate : students_dates_map.keySet()) {
-				for (String date : students_dates_map.get(studentDate).keySet()) {
-					if (students_dates_map.get(studentDate).get(date) == i.getStudentID()) {
-						System.out.println("Found: " + students_dates_map.get(studentDate).get(date));
-						System.out.println("0." + students_dates_map);
-						System.out.println("+1." + i);
-						System.out.println("1."+ i.getDate());
-						System.out.println("2." + date);
-						if (tempDate.equals(date) && occurance > 0) {
-							occurance = 0;
-							System.out.println("Goal failed.");
-							rg.multipleSessionsOnTheSameDay = true;
-							rg.studentID_sessionID = new HashMap<Integer, Integer>();
-							rg.studentID_sessionID.put(i.getStudentID(), i.getSessionID());
-							rg.rejectedStudents.put(rg.studentID_sessionID, i.getModuleCode());
-							rg.rejectedSchedules.add(i);
-						} else {
-							tempDate = date;
-							occurance++;
-						}
-					}
-				}
+	public int getSessionIDPerDate(String date) throws SQLException {
+		String query = "SELECT * FROM Session WHERE date='" + date + "'";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		while (rs.next()) {
+			int sessionID = rs.getInt(1);
+			return sessionID;
+		}
+		return 0;
+	}
+
+	public boolean goal(ArrayList<Schedule> schedules) throws SQLException {
+		boolean isWrong = false;
+		for (int i = 0; i < schedules.size(); i++) {
+			if (schedules.get(i).getBuildingNumber() == 0 || schedules.get(i).getRoomNumber() == 0) {
+				isWrong = true;
+			} else {
+				isWrong = false;
 			}
 		}
-		if (rg.multipleSessionsOnTheSameDay == true) {
+		if (isWrong == true) {
 			return false;
 		} else {
-			System.out.println("Everything has been checked. -> TRUE");
 			return true;
 		}
+
 	}
 
 	private int getOptimalBuilding(String moduleCode) throws SQLException {
@@ -181,115 +219,28 @@ public class Schedule {
 						System.out.println(getBuilding(closest(students_total.get(map), locations_roomCapacity)));
 						building = getBuilding(closest(students_total.get(map), locations_roomCapacity));
 						return building;
-						
+
 					}
 				}
 			}
 		}
 		return 0;
-	}
-
-	public boolean areAvailable(String moduleCode) {
-		for (HashMap<Integer, String> key : students_total.keySet()) {
-			for (Integer i : key.keySet()) {
-				if (key.get(i).equals(moduleCode)) {
-					return true;
-				}
-				availableStudents = ((rg.returned_false + rg.returned_true) * 100.f) / students_total.get(key);
-				if (availableStudents > 90.0) {
-					System.out.println("Available students: " + availableStudents + "%");
-					return true;
-				} else {
-					System.out.println("Available students: " + availableStudents + "%");
-					return false;
-				}
-
-			}
-		}
-		return false;
-	}
-
-	private int assignSession(int studentID, String moduleCode) throws SQLException {
-		for (int j = 0; j < modules.size(); j++) {
-			for (int i = 0; i < sessions.size(); i++) {
-				if (sessionID_moduleCode.isEmpty()) {
-					sessionID_moduleCode.put(sessions.get(i), modules.get(j));
-					System.out.println(sessions.get(i));
-					return sessions.get(i);
-				} else {
-					for (Integer mc : sessionID_moduleCode.keySet()) {
-						if (sessionID_moduleCode.containsKey(sessions.get(i))) {
-							System.out.println(sessionID_moduleCode.get(mc));
-							System.out.println(sessionID_moduleCode.get(mc));
-							return mc;
-						} else {
-							if(doesNotHaveOtherExamsScheduledForTheSameDay(sessions.get(i), studentID,moduleCode ,getDatePerSessionID(sessions.get(i)))) {
-								sessionID_moduleCode.put(sessions.get(i), moduleCode);
-								return sessions.get(i);
-							} else {								
-								break;
-							}
-						}
-					}
-				}
-				continue;
-			}
-		}
-		return 0;
-	}
-
-	private boolean doesNotHaveOtherExamsScheduledForTheSameDay(int sessionID, int studentID, String moduleCode, String date) {
-		if (uncompletedSchedules.isEmpty()) {
-			return true;
-		} else {
-			for (Schedule schedule : uncompletedSchedules.keySet()) {
-				if (schedule.getStudentID() == studentID) {
-					if (schedule.getModuleCode().equals(moduleCode)) {
-						return true;
-					} else {
-						if(schedule.getDate() == null) {
-							student_date.put(studentID, date);
-							assigned_sessions.put(student_date, sessionID);
-							return true;
-						}
-						if (schedule.getDate().equals(date)) {
-							return false;
-						} 
-						else if(assigned_sessions.containsKey(student_date) || !assigned_sessions.containsKey(student_date)) {
-							for(HashMap<Integer, String> key: assigned_sessions.keySet()) {
-								for(Integer i: key.keySet()) {
-									if(i == studentID && key.get(i).equals(date)) {
-										return false;
-									} else {
-										student_date.put(studentID, date);
-										assigned_sessions.put(student_date, sessionID);
-										return true;
-									}
-								}
-							}
-						}
-						else {
-							return true;							
-						}
-					}
-				}
-				continue;
-			}
-			return true;
-		}
 	}
 
 	// function to check if the room is available inside the getRoomNumber
 	// method
-	private int getRoomNumber(int building, int capacity) throws SQLException {
-		String query = "SELECT * FROM Location WHERE BuildingNumber="+building+ " AND SeatNumber="+capacity;
-		stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(query);
-		while (rs.next()) {
-			int room = rs.getInt(2);
-			return room;
+	private int getOptimalRoomNumber(String moduleCode) throws SQLException {
+		for (HashMap<Integer, String> map : students_total.keySet()) {
+			for (Integer students : map.keySet()) {
+				if (map.get(students).equals(moduleCode)) {
+					for (Integer building : locations_buildingRoom.keySet()) {
+						System.out.println(getBuilding(closest(students_total.get(map), locations_roomCapacity)));
+						building = getRoom(closest(students_total.get(map), locations_roomCapacity));
+						return building;
+					}
+				}
+			}
 		}
-		
 		return 0;
 	}
 
@@ -316,18 +267,16 @@ public class Schedule {
 
 	private void getAllStudentsPerModules() throws SQLException {
 		for (int i = 0; i < modules.size(); i++) {
-			int numberOfStudents = 0;
-			System.out.println(modules.get(i));
 			String query2 = "SELECT * FROM RegisteredStudents WHERE ModuleCode ='" + modules.get(i) + "'";
 			stmt2 = conn.createStatement();
 			ResultSet rs2 = stmt2.executeQuery(query2);
-			students_moduleCode = new HashMap<Integer, String>();
+			assignedStudents = new ArrayList<Integer>();
 			while (rs2.next()) {
-				int stud = rs2.getInt(1);
-				students_moduleCode.put(stud, modules.get(i));
-				numberOfStudents++;
+				int studentID = rs2.getInt(1);
+				assignedStudents.add(studentID);
 			}
-			students_total.put(students_moduleCode, numberOfStudents);
+			modulesToCheck.add(modules.get(i));
+			moduleVstudents.put(modules.get(i), assignedStudents);
 		}
 	}
 
@@ -341,13 +290,14 @@ public class Schedule {
 			int capacity = rs2.getInt(3);
 			locations_buildingRoom.put(building, room);
 			locations_roomCapacity.put(room, capacity);
-			list.add(capacity);
+			list_Capacity_Buildings.add(capacity);
 		}
 	}
-	
+
 	private int getBuilding(int capacity) throws SQLException {
 		this.capacity = capacity;
-		String query2 = "SELECT * FROM Location WHERE SeatNumber=" + capacity;;
+		String query2 = "SELECT * FROM Location WHERE SeatNumber=" + capacity;
+		;
 		stmt2 = conn.createStatement();
 		ResultSet rs2 = stmt2.executeQuery(query2);
 		while (rs2.next()) {
@@ -356,15 +306,30 @@ public class Schedule {
 		}
 		return 0;
 	}
-	
-	private void insertIntoTableSchedule(int studentID, String moduleCode, int sessionID, String date, int buildingNumber, int roomNumber) throws SQLException {
-		//String table = "CREATE TABLE IF NOT EXISTS Schedule " + "(StudentID INTEGER not NULL, " + "ModuleCode VARCHAR(255), " + "SessionID INTEGER not NULL, " + "ModuleCode VARCHAR(255), "+ "BuildingNumber INTEGER not NULL, " + "RoomNumber INTEGER not NULL)";
 
-		String query = "INSERT INTO Schedule(StudentID, ModuleCode, SessionID, Date, BuildingNumber, RoomNumber) VALUES ('" + studentID + "', + '"
-				+ moduleCode + "', + '" + sessionID + "', + '"
-				+ date + "', + '"
-				+ buildingNumber + "', + '"
-				+ roomNumber + "')";
+	private int getRoom(int capacity) throws SQLException {
+		this.capacity = capacity;
+		String query2 = "SELECT * FROM Location WHERE SeatNumber=" + capacity;
+		;
+		stmt2 = conn.createStatement();
+		ResultSet rs2 = stmt2.executeQuery(query2);
+		while (rs2.next()) {
+			int room = rs2.getInt(2);
+			return room;
+		}
+		return 0;
+	}
+
+	private void insertIntoTableSchedule(int studentID, String moduleCode, int sessionID, String date,
+			int buildingNumber, int roomNumber) throws SQLException {
+		// String table = "CREATE TABLE IF NOT EXISTS Schedule " + "(StudentID
+		// INTEGER not NULL, " + "ModuleCode VARCHAR(255), " + "SessionID
+		// INTEGER not NULL, " + "ModuleCode VARCHAR(255), "+ "BuildingNumber
+		// INTEGER not NULL, " + "RoomNumber INTEGER not NULL)";
+
+		String query = "INSERT INTO Schedule(StudentID, ModuleCode, SessionID, Date, BuildingNumber, RoomNumber) VALUES ('"
+				+ studentID + "', + '" + moduleCode + "', + '" + sessionID + "', + '" + date + "', + '" + buildingNumber
+				+ "', + '" + roomNumber + "')";
 		stmt = conn.createStatement();
 		stmt.executeUpdate(query);
 	}
@@ -374,14 +339,13 @@ public class Schedule {
 		int closest = 0;
 		int secondClosest = of;
 
-		for (int i = 0; i < list.size(); i++) {
-			final int diff = Math.abs(list.get(i) - of);
+		for (int i = 0; i < list_Capacity_Buildings.size(); i++) {
+			final int diff = Math.abs(list_Capacity_Buildings.get(i) - of);
 			if (diff < min) {
-				secondClosest = list.get(i);
-				if(secondClosest == of) {
+				secondClosest = list_Capacity_Buildings.get(i);
+				if (secondClosest == of) {
 					return secondClosest;
-				}
-				else if (secondClosest > of) {
+				} else if (secondClosest > of) {
 					if (closest == 0) {
 						closest = secondClosest;
 						min = secondClosest;
@@ -423,5 +387,25 @@ public class Schedule {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+
+	public void setSessionID(int sessionID) {
+		this.sessionID = sessionID;
+	}
+
+	public boolean getGoalReached() {
+		return goalReached;
+	}
+
+	public void setGoalReached(boolean goalReached) {
+		this.goalReached = goalReached;
+	}
+
+	public void setBuildingNumber(int buildingNumber) {
+		this.buildingNumber = buildingNumber;
+	}
+
+	public void setRoomNumber(int roomNumber) {
+		this.roomNumber = roomNumber;
 	}
 }

@@ -78,7 +78,7 @@ public class DataReader {
 		db.createTableExam(conn);
 		db.createTableRegisteredStudents(conn);
 		db.students.populateCohorts(cohorts);
-		String path = "F:\\ProjectData\\RegistrationData.csv";
+		String path = "F:\\ProjectData\\RegistrationData2.csv";
 		System.out.println(path);
 		reader = new CsvReader(path);
 		reader.readHeaders();
