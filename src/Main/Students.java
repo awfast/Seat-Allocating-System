@@ -1,41 +1,35 @@
 package Main;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Random;
-import java.util.Set;
 
 public class Students {
 
+	public Random rand = new Random();
 	private Statement stmt = null;
 	private Statement stmt2 = null;
-	protected HashMap<String, String> moduleCode_moduleTitle;
 	private int size;
-	private int studentID;
-	private String studentName;
 	private final String USER = "root";
 	private final String PASS = "";
 	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
-	protected Connection conn;
 	private ResultSet rs;
-	protected String moduleCode = null;
-	protected String moduleTitle = null;
 	private LinkedHashMap<Integer, String> student_ids = new LinkedHashMap<Integer, String>();
 	private List<String> list_moduleCodes = new LinkedList<String>();
 	private List<String> list_moduleTitles = new LinkedList<String>();
 	private List<String> list_moduleCodes_test = new LinkedList<String>();
+	private Map<Integer, Integer> alreadyRegisteredStudent = new HashMap<Integer, Integer>();
+	protected HashMap<String, String> moduleCode_moduleTitle;
+	protected Connection conn;
+	protected String moduleCode = null;
+	protected String moduleTitle = null;
 	
 
 	protected void getConnection() throws SQLException {
@@ -46,12 +40,10 @@ public class Students {
 		stmt = conn.createStatement();
 
 		String insertSql = "INSERT INTO STUDENT(ID, StudentName) VALUES ('" + id + "', + '" + studentName + "')";
-		System.out.println("Inserting into student.. [" + id + "]" + "[" + studentName + "]");
 		stmt.executeUpdate(insertSql);
 	}
 
 	protected void pushModuleCodes(String moduleCode, String moduleTitle, Integer duration) throws SQLException {
-		System.out.println("Please wait..");
 		fetchModuleCode(moduleCode);
 		fetchModuleTitle(moduleTitle);
 		String insertExam = "INSERT INTO Exam(ModuleCode, Duration) VALUES ('" + moduleCode + "', + '" + duration
@@ -79,13 +71,29 @@ public class Students {
 					while (rs2.next()) {
 						if (counter < size) {
 							int student = rs2.getInt(1);
-							String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-									+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
-							stmt2 = conn.createStatement();
-							stmt2.executeUpdate(insertSql);
-							counter++;
-							if(!list_moduleCodes_test.contains(moduleCode)) {
-								list_moduleCodes_test.add(moduleCode);								
+							if(alreadyRegisteredStudent.containsKey(student)) {
+								if(alreadyRegisteredStudent.get(student) <= 4) {
+									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
+									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									stmt2 = conn.createStatement();
+									stmt2.executeUpdate(insertSql);
+									counter++;
+									if(!list_moduleCodes_test.contains(moduleCode)) {
+										list_moduleCodes_test.add(moduleCode);								
+									}
+								}
+							} else {
+								alreadyRegisteredStudent.put(student, 1);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								stmt2 = conn.createStatement();
+								stmt2.executeUpdate(insertSql);
+								counter++;
+								if(!list_moduleCodes_test.contains(moduleCode)) {
+									list_moduleCodes_test.add(moduleCode);								
+								}
 							}
 						}
 					}
@@ -100,20 +108,33 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
-					boolean doIt = false;
 					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
 						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
-							String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-									+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
-							stmt2 = conn.createStatement();
-							stmt2.executeUpdate(insertSql);
-							counter++;
-							if(!list_moduleCodes_test.contains(moduleCode)) {
-								list_moduleCodes_test.add(moduleCode);								
+							if(alreadyRegisteredStudent.containsKey(student)) {
+								if(alreadyRegisteredStudent.get(student) <= 4) {
+									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
+									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									stmt2 = conn.createStatement();
+									stmt2.executeUpdate(insertSql);
+									counter++;
+									if(!list_moduleCodes_test.contains(moduleCode)) {
+										list_moduleCodes_test.add(moduleCode);								
+									}
+								}
 							} else {
-								continue;
+								alreadyRegisteredStudent.put(student, 1);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								stmt2 = conn.createStatement();
+								stmt2.executeUpdate(insertSql);
+								counter++;
+								if(!list_moduleCodes_test.contains(moduleCode)) {
+									list_moduleCodes_test.add(moduleCode);								
+								}
 							}
 						}
 					}
@@ -129,45 +150,204 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
-					boolean doIt = false;
 					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
 						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
-							String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-									+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
-							stmt2 = conn.createStatement();
-							stmt2.executeUpdate(insertSql);
-							counter++;
-							if(!list_moduleCodes_test.contains(moduleCode)) {
-								list_moduleCodes_test.add(moduleCode);								
+							if(alreadyRegisteredStudent.containsKey(student)) {
+								if(alreadyRegisteredStudent.get(student) <= 4) {
+									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
+									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									stmt2 = conn.createStatement();
+									stmt2.executeUpdate(insertSql);
+									counter++;
+									if(!list_moduleCodes_test.contains(moduleCode)) {
+										list_moduleCodes_test.add(moduleCode);								
+									}
+								}
 							} else {
-								continue;
+								alreadyRegisteredStudent.put(student, 1);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								stmt2 = conn.createStatement();
+								stmt2.executeUpdate(insertSql);
+								counter++;
+								if(!list_moduleCodes_test.contains(moduleCode)) {
+									list_moduleCodes_test.add(moduleCode);								
+								}
 							}
 						}
 					}
 					break;
 				} else if (letter.equals("6")) {
-					String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-							+ 1234567 + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
-					stmt2 = conn.createStatement();
-					stmt2.executeUpdate(insertSql);
-					if(!list_moduleCodes_test.contains(moduleCode)) {
-						list_moduleCodes_test.add(moduleCode);								
-					} else {
-						continue;
+					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
+					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
+					rs = stmt.executeQuery(query);
+					while (rs.next()) {
+						this.size = rs.getInt(2);
+					}
+					String query2 = "SELECT * FROM STUDENT";
+					rs2 = stmt.executeQuery(query2);
+					int counter = 0;
+					int subtractedStudents = randomizeOptinalModulesNumber();
+					while (rs2.next()) {
+						if (counter < size - (subtractedStudents*3)) {
+							int student = rs2.getInt(1);
+							if(alreadyRegisteredStudent.containsKey(student)) {
+								if(alreadyRegisteredStudent.get(student) <= 4) {
+									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
+									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									stmt2 = conn.createStatement();
+									stmt2.executeUpdate(insertSql);
+									counter++;
+									if(!list_moduleCodes_test.contains(moduleCode)) {
+										list_moduleCodes_test.add(moduleCode);								
+									}
+								}
+							} else {
+								alreadyRegisteredStudent.put(student, 1);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								stmt2 = conn.createStatement();
+								stmt2.executeUpdate(insertSql);
+								counter++;
+								if(!list_moduleCodes_test.contains(moduleCode)) {
+									list_moduleCodes_test.add(moduleCode);								
+								}
+							}
+						}
 					}
 					break;
 					// System.out.println("Optional");
 				} else if (letter.equals("8")) {
-					
-					return;
+					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
+					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
+					rs = stmt.executeQuery(query);
+					while (rs.next()) {
+						this.size = rs.getInt(2);
+					}
+					String query2 = "SELECT * FROM STUDENT";
+					rs2 = stmt.executeQuery(query2);
+					int counter = 0;
+					int subtractedStudents = randomizeOptinalModulesNumber();
+					while (rs2.next()) {
+						if (counter < size - (subtractedStudents*3)) {
+							int student = rs2.getInt(1);
+							if(alreadyRegisteredStudent.containsKey(student)) {
+								if(alreadyRegisteredStudent.get(student) <= 4) {
+									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
+									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									stmt2 = conn.createStatement();
+									stmt2.executeUpdate(insertSql);
+									counter++;
+									if(!list_moduleCodes_test.contains(moduleCode)) {
+										list_moduleCodes_test.add(moduleCode);								
+									}
+								}
+							} else {
+								alreadyRegisteredStudent.put(student, 1);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								stmt2 = conn.createStatement();
+								stmt2.executeUpdate(insertSql);
+								counter++;
+								if(!list_moduleCodes_test.contains(moduleCode)) {
+									list_moduleCodes_test.add(moduleCode);								
+								}
+							}
+						}
+					}
+					break;
 					// System.out.println("Optional");
 				} else if (letter.equals("9")) {
-					return;
+					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
+					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
+					rs = stmt.executeQuery(query);
+					while (rs.next()) {
+						this.size = rs.getInt(2);
+					}
+					String query2 = "SELECT * FROM STUDENT";
+					rs2 = stmt.executeQuery(query2);
+					int counter = 0;
+					int subtractedStudents = randomizeOptinalModulesNumber();
+					while (rs2.next()) {
+						if (counter < size - (subtractedStudents*3)) {
+							int student = rs2.getInt(1);
+							if(alreadyRegisteredStudent.containsKey(student)) {
+								if(alreadyRegisteredStudent.get(student) <= 4) {
+									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
+									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									stmt2 = conn.createStatement();
+									stmt2.executeUpdate(insertSql);
+									counter++;
+									if(!list_moduleCodes_test.contains(moduleCode)) {
+										list_moduleCodes_test.add(moduleCode);								
+									}
+								}
+							} else {
+								alreadyRegisteredStudent.put(student, 1);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								stmt2 = conn.createStatement();
+								stmt2.executeUpdate(insertSql);
+								counter++;
+								if(!list_moduleCodes_test.contains(moduleCode)) {
+									list_moduleCodes_test.add(moduleCode);								
+								}
+							}
+						}
+					}
+					break;
 					// System.out.println("Optional");
 				} else {
-					return;
+					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
+					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
+					rs = stmt.executeQuery(query);
+					while (rs.next()) {
+						this.size = rs.getInt(2);
+					}
+					String query2 = "SELECT * FROM STUDENT";
+					rs2 = stmt.executeQuery(query2);
+					int counter = 0;
+					int subtractedStudents = randomizeOptinalModulesNumber();
+					while (rs2.next()) {
+						if (counter < size - (subtractedStudents*3)) {
+							int student = rs2.getInt(1);
+							if(alreadyRegisteredStudent.containsKey(student)) {
+								if(alreadyRegisteredStudent.get(student) <= 4) {
+									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
+									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									stmt2 = conn.createStatement();
+									stmt2.executeUpdate(insertSql);
+									counter++;
+									if(!list_moduleCodes_test.contains(moduleCode)) {
+										list_moduleCodes_test.add(moduleCode);								
+									}
+								}
+							} else {
+								alreadyRegisteredStudent.put(student, 1);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								stmt2 = conn.createStatement();
+								stmt2.executeUpdate(insertSql);
+								counter++;
+								if(!list_moduleCodes_test.contains(moduleCode)) {
+									list_moduleCodes_test.add(moduleCode);								
+								}
+							}
+						}
+					}
+					break;
 				}
 			}
 		}
@@ -182,16 +362,14 @@ public class Students {
 		}
 	}
 
-	public static int randInt(int min, int max) {
-		Random rand = new Random();
+	public int randInt(int min, int max) {
 		int randomNum = rand.nextInt((max - min) + 1) + min;
-
 		return randomNum;
 	}
 	
 	public int randomizeOptinalModulesNumber() {
-		int rand = (new Random()).nextInt((11 - 4) + 1) + 4;
-		return rand;
+		int randomNum = (rand.nextInt((11 - 4) + 1) + 4);
+		return randomNum;
 	}
 
 	private String fetchModuleCode(String moduleCode) {
@@ -209,7 +387,6 @@ public class Students {
 	}
 
 	protected List<String> getAllModuleCodes() {
-		System.out.println(this.list_moduleCodes_test);
 		return this.list_moduleCodes_test;
 	}
 

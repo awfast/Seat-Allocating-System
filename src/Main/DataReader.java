@@ -55,6 +55,7 @@ public class DataReader {
 				reader = new CsvReader(path);
 				reader.readHeaders();
 
+				System.out.println("Inserting into student data. Please wait..");
 				while (reader.readRecord()) {
 					String x = reader.get("STUDENT ID");
 					int studentID = Integer.valueOf(x);
@@ -63,6 +64,7 @@ public class DataReader {
 					studentName = name;
 					db.students.pushStudentData(id, name);
 				}
+				System.out.println("Completed.");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -78,10 +80,11 @@ public class DataReader {
 		db.createTableExam(conn);
 		db.createTableRegisteredStudents(conn);
 		db.students.populateCohorts(cohorts);
-		String path = "F:\\ProjectData\\RegistrationData2.csv";
+		String path = "F:\\ProjectData\\RegistrationData.csv";
 		System.out.println(path);
 		reader = new CsvReader(path);
 		reader.readHeaders();
+		System.out.println("Inserting into RegistrationData. Please wait..");
 		while (reader.readRecord()) {
 			String col1 = reader.get("ModuleCode");
 			String col2 = reader.get("Title");
