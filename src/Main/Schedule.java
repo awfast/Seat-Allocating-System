@@ -172,20 +172,30 @@ public class Schedule {
 			
 			for(Building buildingToFind: locations_buildingRoom.keySet()) {
 				if(locations_buildingRoom.get(buildingToFind).getRoomNumber() == room) {
-					System.out.println(locations_buildingRoom.get(buildingToFind).getRoomNumber());
-					System.out.println(room);
 					building = buildingToFind.getBuildingNumber();
 					break;
 				}
 			}
 			
-			if(checkIfAvailable(s.getModuleCode(), building, room,  s.getSessionID())) {
+			if(checkIfAvailable(s.getModuleCode(), building, room,  s.getSessionID()) && checkIfAccessible(building, room, s.getModuleCode())) {
 				s.setBuildingNumber(building);
 				s.setRoomNumber(room);
 				return;
 			} else {
 				for(int x=0; x<list_Capacity_Buildings.size(); x++) {
 					if(list_Capacity_Buildings.get(x) == tempCapacity) {
+						for(Room key: locations_roomCapacity.keySet()) {
+							if(key.getRoomNumber() == room) {
+								locations_roomCapacity.remove(key);
+								break;
+							}
+						}
+						for(Building key: locations_buildingRoom.keySet()) {
+							if(key.getBuildingNumber() == building) {
+								locations_buildingRoom.remove(key);		
+								break;
+							}
+						}
 						list_Capacity_Buildings.remove(list_Capacity_Buildings.get(x));						
 						break;
 					}
@@ -225,6 +235,13 @@ public class Schedule {
 			}
 		}
 		return true;
+	}
+	
+	private boolean checkIfAccessible(int buildingNumber, int roomNumber, String moduleCode) throws SQLException {
+		if(findNumberOfAccessibleSeatsAvailable(buildingNumber, roomNumber) >= findNumberOfAccessibleSeatsNeeded(moduleCode)) {
+			return true;
+		}
+		return false;
 	}
 
 	private void getAllSessions() throws SQLException {
