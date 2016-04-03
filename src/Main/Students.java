@@ -51,6 +51,8 @@ public class Students {
 		
 		return numb;
 	}
+	
+	//set a limit of 5 modules to every student, registered to take at least 1 module starting with 1(all modules must be starting with 1).
 	protected void pushModuleCodes(String moduleCode, String moduleTitle, Integer duration) throws SQLException {
 		fetchModuleCode(moduleCode);
 		fetchModuleTitle(moduleTitle);
