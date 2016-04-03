@@ -59,8 +59,7 @@ public class DB {
 		System.out.println("Creating table 'STUDENT' in the given database...");
 		stmt = conn.createStatement();
 		String drop = "DROP TABLE IF EXISTS STUDENT ";
-		String table = "CREATE TABLE IF NOT EXISTS STUDENT " + "(ID INTEGER not NULL, "
-				+ "StudentName varchar(255))";
+		String table = "CREATE TABLE IF NOT EXISTS STUDENT " + "(ID INTEGER not NULL, " + "StudentName VARCHAR(255), " + "AccessibleSeat VARCHAR(255))";
 
 		stmt.executeUpdate(drop);
 		stmt.executeUpdate(table);
@@ -121,7 +120,7 @@ public class DB {
 		System.out.println("Creating table in given database...");
 		stmt = conn.createStatement();
 		String drop = "DROP TABLE IF EXISTS RegisteredStudents";
-		String table = "CREATE TABLE IF NOT EXISTS RegisteredStudents" + "(ID INTEGER not NULL, "
+		String table = "CREATE TABLE IF NOT EXISTS RegisteredStudents" + "(ID INTEGER not NULL, " + "AccessibleSeat VARCHAR(255)," 
 				+ "ModuleCode VARCHAR(255), " + "ModuleTitle VARCHAR(255))";
 
 		stmt.executeUpdate(drop);

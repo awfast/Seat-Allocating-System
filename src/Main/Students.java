@@ -30,19 +30,27 @@ public class Students {
 	protected Connection conn;
 	protected String moduleCode = null;
 	protected String moduleTitle = null;
+	protected Random rand1 = new Random();
 	
 
 	protected void getConnection() throws SQLException {
 		this.conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
 	}
 
-	protected void pushStudentData(int id, String studentName) throws SQLException {
+	protected void pushStudentData(int id, String studentName, String accessible) throws SQLException {
 		stmt = conn.createStatement();
-
-		String insertSql = "INSERT INTO STUDENT(ID, StudentName) VALUES ('" + id + "', + '" + studentName + "')";
+		String insertSql = "INSERT INTO STUDENT(ID, StudentName, AccessibleSeat) VALUES ('" + id + "', + '" + studentName + "', + '" + accessible + "')";
 		stmt.executeUpdate(insertSql);
 	}
 
+	private int getRandomNumber() {
+		int numb = 0;
+		for(int i=0; i<=10; i++) {
+			numb = rand1.nextInt(6-2) + 2;
+		}
+		
+		return numb;
+	}
 	protected void pushModuleCodes(String moduleCode, String moduleTitle, Integer duration) throws SQLException {
 		fetchModuleCode(moduleCode);
 		fetchModuleTitle(moduleTitle);
@@ -75,8 +83,9 @@ public class Students {
 								if(alreadyRegisteredStudent.get(student) <= 4) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									String accessible = needsAccessibleSeat(student);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -86,8 +95,9 @@ public class Students {
 								}
 							} else {
 								alreadyRegisteredStudent.put(student, 1);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								String accessible = needsAccessibleSeat(student);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -113,11 +123,12 @@ public class Students {
 						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
 							if(alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if(alreadyRegisteredStudent.get(student) >= 1 && alreadyRegisteredStudent.get(student) <= getRandomNumber()) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									String accessible = needsAccessibleSeat(student);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -127,8 +138,9 @@ public class Students {
 								}
 							} else {
 								alreadyRegisteredStudent.put(student, 1);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								String accessible = needsAccessibleSeat(student);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -155,11 +167,12 @@ public class Students {
 						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
 							if(alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if(alreadyRegisteredStudent.get(student) >= 1 && alreadyRegisteredStudent.get(student) <= getRandomNumber()) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									String accessible = needsAccessibleSeat(student);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -169,8 +182,9 @@ public class Students {
 								}
 							} else {
 								alreadyRegisteredStudent.put(student, 1);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								String accessible = needsAccessibleSeat(student);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -196,11 +210,12 @@ public class Students {
 						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
 							if(alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if(alreadyRegisteredStudent.get(student) >= 1 && alreadyRegisteredStudent.get(student) <= getRandomNumber()) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									String accessible = needsAccessibleSeat(student);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -210,8 +225,9 @@ public class Students {
 								}
 							} else {
 								alreadyRegisteredStudent.put(student, 1);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								String accessible = needsAccessibleSeat(student);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -238,11 +254,12 @@ public class Students {
 						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
 							if(alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if(alreadyRegisteredStudent.get(student) >= 1 && alreadyRegisteredStudent.get(student) <= getRandomNumber()) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									String accessible = needsAccessibleSeat(student);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -252,8 +269,9 @@ public class Students {
 								}
 							} else {
 								alreadyRegisteredStudent.put(student, 1);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								String accessible = needsAccessibleSeat(student);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -280,11 +298,12 @@ public class Students {
 						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
 							if(alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if(alreadyRegisteredStudent.get(student) >= 1 && alreadyRegisteredStudent.get(student) <= getRandomNumber()) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									String accessible = needsAccessibleSeat(student);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -294,8 +313,9 @@ public class Students {
 								}
 							} else {
 								alreadyRegisteredStudent.put(student, 1);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								String accessible = needsAccessibleSeat(student);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -322,11 +342,12 @@ public class Students {
 						if (counter < size - (subtractedStudents*3)) {
 							int student = rs2.getInt(1);
 							if(alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if(alreadyRegisteredStudent.get(student) >= 1 && alreadyRegisteredStudent.get(student) <= getRandomNumber()) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student) + 1;
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+									String accessible = needsAccessibleSeat(student);
+									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -336,8 +357,9 @@ public class Students {
 								}
 							} else {
 								alreadyRegisteredStudent.put(student, 1);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
+								String accessible = needsAccessibleSeat(student);
+								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '" + moduleTitle + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -351,6 +373,18 @@ public class Students {
 				}
 			}
 		}
+	}
+	
+	private String needsAccessibleSeat(int studentID) throws SQLException {
+		String query2 = "SELECT * FROM STUDENT WHERE ID=" + studentID;
+		Statement st = conn.createStatement();
+		ResultSet rsSet = st.executeQuery(query2);
+		while (rsSet.next()) {
+			String accessible = rsSet.getString("AccessibleSeat");
+			rsSet.close();
+			return accessible;
+		}
+		return null;
 	}
 
 	protected void populateCohorts(String[] cohorts) throws SQLException {

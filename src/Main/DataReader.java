@@ -23,7 +23,6 @@ public class DataReader {
 	private CsvReader reader;
 	protected FileChooser fileChooser = new FileChooser();
 	protected DB db = null;
-	private Stage stage = new Stage();
 	private Connection conn = null;
 	private String[] cohorts = { "ADMN", "ANTH", "ARCH", "ARTD", "AUDI", "BIOL", "CENV", "CHEM", "CHIN", "CHIN", "COMP",
 			"CRIM", "CZEC", "DUTC", "ECON", "ECSG", "EDUC", "ELEC", "ENTR", "FEEG", "FILM", "FREN", "GEOG", "GERM",
@@ -45,12 +44,13 @@ public class DataReader {
 	}
 
 	// student data reader
-	public void getStudentID(int id, String studentName) throws SQLException, IOException {
+	public void getStudentID() throws SQLException, IOException {
 		//File file = fileChooser.showOpenDialog(stage);
 		db.createTableStudents(conn);
 		/*if (file != null) {
 			String path = file.getAbsolutePath();*/
-		String path = "F:\\ProjectData\\StudentData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\StudentData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\StudentData.csv";
 			try {
 				reader = new CsvReader(path);
 				reader.readHeaders();
@@ -59,10 +59,9 @@ public class DataReader {
 				while (reader.readRecord()) {
 					String x = reader.get("STUDENT ID");
 					int studentID = Integer.valueOf(x);
-					id = studentID;
 					String name = reader.get("STUDENT NAME");
-					studentName = name;
-					db.students.pushStudentData(id, name);
+					String accessible = reader.get("ACCESSIBLE");
+					db.students.pushStudentData(studentID, name, accessible);
 				}
 				System.out.println("Completed.");
 			} catch (IOException e) {
@@ -80,7 +79,8 @@ public class DataReader {
 		db.createTableExam(conn);
 		db.createTableRegisteredStudents(conn);
 		db.students.populateCohorts(cohorts);
-		String path = "F:\\ProjectData\\RegistrationData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\RegistrationData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\RegistrationData.csv";
 		System.out.println(path);
 		reader = new CsvReader(path);
 		reader.readHeaders();
@@ -101,7 +101,8 @@ public class DataReader {
 	}
 
 	protected void getAvailableBuildings() throws IOException, SQLException {
-		String path = "F:\\ProjectData\\LocationData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\LocationData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\LocationData.csv";
 		reader = new CsvReader(path);
 		reader.readHeaders();
 		while (reader.readRecord()) {

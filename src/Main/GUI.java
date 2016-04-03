@@ -38,8 +38,6 @@ public class GUI {
 	private int buildingNumber;
 	private int roomNumber;
 	private int sessionID;
-	private Schedule exam;
-	private String studentName = null;
 	private Connection conn;
 
 	protected void loadGUI(Scene appScene, BorderPane componentLayout, Stage stage) {
@@ -104,7 +102,7 @@ public class GUI {
 			@Override
 			public void handle(Event arg0) {
 				try {
-					dataReader.getStudentID(id, studentName);
+					dataReader.getStudentID();
 					// db.createTableStudents();
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -144,7 +142,7 @@ public class GUI {
 			@Override
 			public void handle(Event arg0) {
 				try {
-					Schedule exam = new Schedule(studentID, moduleCode, sessionID, " ", buildingNumber, roomNumber);
+					Schedule exam = new Schedule(studentID, moduleCode, sessionID, " ", "", buildingNumber, roomNumber);
 					exam.generateInformation(db.getConnection(conn), dataReader);
 					System.out.printf(
 							"Generating an exam schedule for the period: " + examPeriodFrom + " - " + examPeriodTo);
