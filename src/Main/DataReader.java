@@ -49,8 +49,9 @@ public class DataReader {
 		db.createTableStudents(conn);
 		/*if (file != null) {
 			String path = file.getAbsolutePath();*/
-		//String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\StudentData.csv";
-		String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\StudentData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\StudentData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\500students, 25modules\\StudentData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\StudentData.csv";
 		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\StudentData.csv";
 			try {
 				reader = new CsvReader(path);
@@ -80,8 +81,9 @@ public class DataReader {
 		db.createTableExam(conn);
 		db.createTableRegisteredStudents(conn);
 		db.students.populateCohorts(cohorts);
-		//String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\RegistrationData.csv";
-		String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\RegistrationData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\RegistrationData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\500students, 25modules\\RegistrationData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\RegistrationData.csv";
 		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\RegistrationData.csv";
 		System.out.println(path);
 		reader = new CsvReader(path);
@@ -103,8 +105,9 @@ public class DataReader {
 	}
 
 	protected void getAvailableBuildings() throws IOException, SQLException {
-		//String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\LocationData.csv";
-		String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\LocationData.csv";
+		String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\LocationData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\500students, 25modules\\LocationData.csv";
+		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\LocationData.csv";
 		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\LocationData.csv";
 		reader = new CsvReader(path);
 		reader.readHeaders();

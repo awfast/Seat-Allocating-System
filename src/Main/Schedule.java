@@ -59,6 +59,7 @@ public class Schedule {
 	public void generateInformation(Connection conn, DataReader dataReader) throws SQLException {
 		this.dataReader = dataReader;
 		this.conn = conn;
+		System.out.println("1000 students, 50 modules");
 		getAllSessions();
 	}
 	
@@ -102,10 +103,13 @@ public class Schedule {
 				if(schedules.get(moduleCode).get(i).getBuildingNumber() == 0 || schedules.get(moduleCode).get(i).getRoomNumber() == 0) {
 					getLocations();
 					findBuildingAndRoom(schedules.get(moduleCode).get(i));
+					int test = 0;
 					for(int j=0; j<schedules.get(moduleCode).size(); j++) {
+						test++;
 						schedules.get(moduleCode).get(j).setBuildingNumber(schedules.get(moduleCode).get(i).getBuildingNumber());
 						schedules.get(moduleCode).get(j).setRoomNumber(schedules.get(moduleCode).get(i).getRoomNumber());
 					}
+					System.out.println(test);
 					break;
 				}
 			}
