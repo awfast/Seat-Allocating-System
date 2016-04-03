@@ -25,7 +25,7 @@ public class Schedule {
 	private int sessionID;
 	private int buildingNumber;
 	private int roomNumber;
-	private int capacity = 0;
+	private int closestAccessibleSeats;
 	private boolean goalReached = false;
 	private List<String> modules = new ArrayList<String>();
 	public Map<HashMap<Integer, String>, Integer> students_total = new HashMap<HashMap<Integer, String>, Integer>();
@@ -41,9 +41,8 @@ public class Schedule {
 	private List<String> assignedModules = new ArrayList<String>();
 	private List<String> modulesToCheck = new ArrayList<String>();
 	private Map<String, ArrayList<Schedule>> schedules = new HashMap<String,ArrayList<Schedule>>();
-	private List<Integer> list_Capacity_Buildings = new ArrayList<Integer>();
+	private List<Capacity> list_Capacity_Buildings = new ArrayList<Capacity>();
 	private Map<String, Building> unavailableBuildings = new HashMap<String, Building>();
-	private Map<String, Building> unavailableRooms = new HashMap<String, Building>();
 	
 	private List<Schedule> unavailableSchedules = new ArrayList<Schedule>();
 	
@@ -161,29 +160,17 @@ public class Schedule {
 		int building = 0;
 		int tempCapacity = 0;
 		while(!list_Capacity_Buildings.isEmpty()) {
-			int capacity = closest(getStudentsForThisModuleCode(s.getModuleCode()));
-			for(Room rooms: locations_roomCapacity.keySet()) {
-				if(locations_roomCapacity.get(rooms) == capacity){
-					room = rooms.getRoomNumber();
-					tempCapacity = locations_roomCapacity.get(rooms);
-					break;
-				}
-			}
+			int capacity = closest(getStudentsForThisModuleCode(s.getModuleCode()),s.getModuleCode());
+			room = findRoomNumber(capacity, closestAccessibleSeats);
+			building = findBuildingNumber(room);
 			
-			for(Building buildingToFind: locations_buildingRoom.keySet()) {
-				if(locations_buildingRoom.get(buildingToFind).getRoomNumber() == room) {
-					building = buildingToFind.getBuildingNumber();
-					break;
-				}
-			}
-			
-			if(checkIfAvailable(s.getModuleCode(), building, room,  s.getSessionID()) && checkIfAccessible(building, room, s.getModuleCode())) {
+			if(checkIfAvailable(s.getModuleCode(), building, room,  s.getSessionID())) {
 				s.setBuildingNumber(building);
 				s.setRoomNumber(room);
 				return;
 			} else {
 				for(int x=0; x<list_Capacity_Buildings.size(); x++) {
-					if(list_Capacity_Buildings.get(x) == tempCapacity) {
+					if(list_Capacity_Buildings.get(x).getCapacity() == tempCapacity) {
 						for(Room key: locations_roomCapacity.keySet()) {
 							if(key.getRoomNumber() == room) {
 								locations_roomCapacity.remove(key);
@@ -218,6 +205,32 @@ public class Schedule {
 		return count;
 	}
 	
+	public int findRoomNumber(int capacity, int accessibleSeats) throws SQLException {
+		String query = "SELECT * FROM Location WHERE SeatNumber='"+capacity+ "' AND AccessibleSeatsNumber='"+accessibleSeats+"'";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+
+		while (rs.next()) {
+			int room = rs.getInt(2);
+			return room;
+		}
+	
+		return 0;
+	}
+	
+	public int findBuildingNumber(int roomNumber) throws SQLException {
+		String query = "SELECT * FROM Location WHERE RoomNumber='"+roomNumber+ "'";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+
+		while (rs.next()) {
+			int building = rs.getInt(1);
+			return building;
+		}
+	
+		return 0;
+	}
+	
 	private boolean checkIfAvailable(String moduleCode, int buildingNumber, int room, int sessionID) {
 		if(unavailableBuildings.isEmpty()) {
 			Building b = new Building(buildingNumber, room, sessionID, moduleCode);
@@ -235,13 +248,6 @@ public class Schedule {
 			}
 		}
 		return true;
-	}
-	
-	private boolean checkIfAccessible(int buildingNumber, int roomNumber, String moduleCode) throws SQLException {
-		if(findNumberOfAccessibleSeatsAvailable(buildingNumber, roomNumber) >= findNumberOfAccessibleSeatsNeeded(moduleCode)) {
-			return true;
-		}
-		return false;
 	}
 
 	private void getAllSessions() throws SQLException {
@@ -326,11 +332,13 @@ public class Schedule {
 			int building = rs2.getInt(1);
 			int room = rs2.getInt(2);
 			int capacity = rs2.getInt(3);
+			int accSeats = rs2.getInt(4);
 			Building b = new Building(building);
 			Room r = new Room(room);
+			Capacity c = new Capacity(capacity, accSeats);
 			locations_buildingRoom.put(b, r);
 			locations_roomCapacity.put(r, capacity);
-			list_Capacity_Buildings.add(capacity);
+			list_Capacity_Buildings.add(c);
 		}
 	}
 
@@ -343,30 +351,35 @@ public class Schedule {
 		stmt.executeUpdate(query);
 	}
 
-	public int closest(int of) throws SQLException {
+	public int closest(int of, String moduleCode) throws SQLException {
 		int min = Integer.MAX_VALUE;
-		int closest = 0;
-		int secondClosest = of;
+		int closesetCapacity = 0;
+		int secondClosestCapacity = of;
+		closestAccessibleSeats = 0;
 
 		for (int i = 0; i < list_Capacity_Buildings.size(); i++) {
-			final int diff = Math.abs(list_Capacity_Buildings.get(i) - of);
+			final int diff = Math.abs(list_Capacity_Buildings.get(i).getCapacity() - of);
 			if (diff < min) {
-				secondClosest = list_Capacity_Buildings.get(i);
-				if (secondClosest == of) {
-					return secondClosest;
-				} else if (secondClosest > of) {
-					if (closest == 0) {
-						closest = secondClosest;
-						min = secondClosest;
+				secondClosestCapacity = list_Capacity_Buildings.get(i).getCapacity();
+				if (secondClosestCapacity == of && list_Capacity_Buildings.get(i).getNumberOfAccessibleSeats() >= findNumberOfAccessibleSeatsNeeded(moduleCode)) {
+					closesetCapacity = secondClosestCapacity;
+					closestAccessibleSeats = list_Capacity_Buildings.get(i).getNumberOfAccessibleSeats();
+					return closesetCapacity;
+				} else if (secondClosestCapacity > of & list_Capacity_Buildings.get(i).getNumberOfAccessibleSeats() >= findNumberOfAccessibleSeatsNeeded(moduleCode)) {
+					if (closesetCapacity == 0) {
+						closesetCapacity = secondClosestCapacity;
+						min = secondClosestCapacity;
+						closestAccessibleSeats = list_Capacity_Buildings.get(i).getNumberOfAccessibleSeats();
 					} else {
-						if (secondClosest < closest) {
-							closest = secondClosest;
+						if (secondClosestCapacity < closesetCapacity) {
+							closesetCapacity = secondClosestCapacity;
+							closestAccessibleSeats = list_Capacity_Buildings.get(i).getNumberOfAccessibleSeats();
 						}
 					}
 				}
 			}
 		}
-		return closest;
+		return closesetCapacity;
 	}
 	
 	public int findNumberOfAccessibleSeatsNeeded(String moduleCode) throws SQLException {
