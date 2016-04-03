@@ -79,43 +79,36 @@ public class Students {
 						if (counter < size) {
 							int student = rs2.getInt(1);
 							if (alreadyRegisteredStudent.containsKey(student)) {
-								int modulesPerFresher = 0;
-								for (int i = 0; i < duplicateFreshers.size(); i++) {
-									String existingModuleCode = duplicateFreshers.get(i).getModuleCode().substring(4,
-											Math.min(moduleCode.length(), 5));
-									String compulsoryModuleCode = moduleCode.substring(4,
-											Math.min(moduleCode.length(), 5));
-									System.out.println(
-											existingModuleCode + "/" + compulsoryModuleCode + "/" + moduleCode);
-									if (!existingModuleCode.equals(compulsoryModuleCode)) {
-										isBroken = true;
-										break;
+								if (alreadyRegisteredStudent.get(student) <= 4) {
+									for (int i = 0; i < duplicateFreshers.size(); i++) {
+										String existingModuleCode = duplicateFreshers.get(i).getModuleCode()
+												.substring(4, Math.min(moduleCode.length(), 5));
+										String compulsoryModuleCode = moduleCode.substring(4,
+												Math.min(moduleCode.length(), 5));
+										if (!existingModuleCode.equals(compulsoryModuleCode)) {
+											duplicateFreshers.get(i).setModuleCode(moduleCode);
+											isBroken = true;
+											break;
+										}
+									}
+									if (isBroken) {
+										continue;
+									} else {
+										freshers.add(student);
+										int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
+										alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+										String accessible = needsAccessibleSeat(student);
+										String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
+												+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
+												+ moduleTitle + "')";
+										stmt2 = conn.createStatement();
+										stmt2.executeUpdate(insertSql);
+										counter++;
+										if (!list_moduleCodes_test.contains(moduleCode)) {
+											list_moduleCodes_test.add(moduleCode);
+										}
 									}
 								}
-								if (isBroken) {
-									continue;
-								}
-								for (int j = 0; j < freshers.size(); j++) {
-									if (freshers.get(j) == student) {
-										modulesPerFresher++;
-									}
-								}
-								if (modulesPerFresher <= 4) {
-									freshers.add(student);
-									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
-									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
-									String accessible = needsAccessibleSeat(student);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-											+ moduleTitle + "')";
-									stmt2 = conn.createStatement();
-									stmt2.executeUpdate(insertSql);
-									counter++;
-									if (!list_moduleCodes_test.contains(moduleCode)) {
-										list_moduleCodes_test.add(moduleCode);
-									}
-								}
-								break;
 							} else {
 								alreadyRegisteredStudent.put(student, 1);
 								freshers.add(student);
@@ -151,7 +144,7 @@ public class Students {
 								continue;
 							} else {
 								if (alreadyRegisteredStudent.containsKey(student)) {
-									if(alreadyRegisteredStudent.get(student) <= 4) {
+									if (alreadyRegisteredStudent.get(student) <= 4) {
 										int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
 										alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
 										Student duplicate = new Student(student, moduleCode, true, 0, "");
@@ -205,7 +198,7 @@ public class Students {
 								continue;
 							}
 							if (alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if (alreadyRegisteredStudent.get(student) <= 4) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
@@ -257,7 +250,7 @@ public class Students {
 								continue;
 							}
 							if (alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if (alreadyRegisteredStudent.get(student) <= 4) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
@@ -310,7 +303,7 @@ public class Students {
 								continue;
 							}
 							if (alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if (alreadyRegisteredStudent.get(student) <= 4) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
@@ -363,7 +356,7 @@ public class Students {
 								continue;
 							}
 							if (alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if (alreadyRegisteredStudent.get(student) <= 4) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
@@ -416,7 +409,7 @@ public class Students {
 								continue;
 							}
 							if (alreadyRegisteredStudent.containsKey(student)) {
-								if(alreadyRegisteredStudent.get(student) <= 4) {
+								if (alreadyRegisteredStudent.get(student) <= 4) {
 									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
 									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
