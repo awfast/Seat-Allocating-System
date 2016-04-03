@@ -93,7 +93,7 @@ public class Students {
 									}
 								}
 								if (isBroken) {
-									break;
+									continue;
 								}
 								for (int j = 0; j < freshers.size(); j++) {
 									if (freshers.get(j) == student) {
@@ -151,7 +151,7 @@ public class Students {
 								continue;
 							} else {
 								if (alreadyRegisteredStudent.containsKey(student)) {
-									if(alreadyRegisteredStudent.get(student) <= 4 && alreadyRegisteredStudent.get(student) > 1) {
+									if(alreadyRegisteredStudent.get(student) <= 4) {
 										int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
 										alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
 										Student duplicate = new Student(student, moduleCode, true, 0, "");

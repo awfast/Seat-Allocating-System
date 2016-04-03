@@ -263,8 +263,6 @@ public class Schedule {
 			sessions.add(sessionID);
 		}
 		populateModules();
-		getAllStudentsPerModules();
-		findSessions();
 		getSchedules();
 		printSchedules(assign(schedules));
 	}
@@ -311,6 +309,7 @@ public class Schedule {
 			String moduleCode = rs.getString("ModuleCode");
 			modules.add(moduleCode);
 		}
+		getAllStudentsPerModules();
 	}
 
 	private void getAllStudentsPerModules() throws SQLException {
@@ -326,6 +325,7 @@ public class Schedule {
 			modulesToCheck.add(modules.get(i));
 			moduleVstudents.put(modules.get(i), assignedStudents);
 		}
+		findSessions();
 	}
 
 	private void getLocations() throws SQLException {
