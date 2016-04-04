@@ -4,6 +4,23 @@
 	<classpathentry kind="lib" path="libs/javacsv.jar"/>
 	<classpathentry kind="lib" path="libs/mysql-connector-java-5.1.37-bin.jar"/>
 	<classpathentry kind="lib" path="libs/guava-19.0.jar"/>
+	<classpathentry kind="lib" path="libs/controlsfx-8.40.10.jar"/>
+	<classpathentry kind="lib" path="libs/controlsfx-samples-8.40.10.jar"/>
+	<classpathentry kind="lib" path="libs/fxsampler-1.0.9.jar"/>
+	<classpathentry kind="lib" path="libs/itext-pdfa-5.5.9-javadoc.jar"/>
+	<classpathentry kind="lib" path="libs/itext-pdfa-5.5.9-sources.jar"/>
+	<classpathentry kind="lib" path="libs/itext-pdfa-5.5.9.jar"/>
+	<classpathentry kind="lib" path="libs/itext-xtra-5.5.9-javadoc.jar"/>
+	<classpathentry kind="lib" path="libs/itext-xtra-5.5.9-sources.jar"/>
+	<classpathentry kind="lib" path="libs/itext-xtra-5.5.9.jar"/>
+	<classpathentry kind="lib" path="libs/itextpdf-5.5.9-javadoc.jar"/>
+	<classpathentry kind="lib" path="libs/itextpdf-5.5.9-sources.jar"/>
+	<classpathentry kind="lib" path="libs/itextpdf-5.5.9.jar"/>
+	<classpathentry kind="lib" path="libs/javafx-dialogs-0.0.4.jar"/>
+	<classpathentry kind="lib" path="libs/jfxmessagebox-1.1.0.jar"/>
+	<classpathentry kind="lib" path="libs/xmlworker-5.5.9-javadoc.jar"/>
+	<classpathentry kind="lib" path="libs/xmlworker-5.5.9-sources.jar"/>
+	<classpathentry kind="lib" path="libs/xmlworker-5.5.9.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="F:/Downloads/org.springframework.jdbc-3.0.0.M2.jar"/>
 	<classpathentry kind="output" path="bin"/>

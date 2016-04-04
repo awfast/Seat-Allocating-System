@@ -1,5 +1,4 @@
 package Main;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -98,9 +97,9 @@ public class Students {
 										int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
 										alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
 										String accessible = needsAccessibleSeat(student);
-										String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-												+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-												+ moduleTitle + "')";
+										String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+												+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+												+ accessible + "')";
 										stmt2 = conn.createStatement();
 										stmt2.executeUpdate(insertSql);
 										counter++;
@@ -113,9 +112,9 @@ public class Students {
 								alreadyRegisteredStudent.put(student, 1);
 								freshers.add(student);
 								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-										+ moduleTitle + "')";
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+										+ accessible + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -150,9 +149,9 @@ public class Students {
 										Student duplicate = new Student(student, moduleCode, true, 0, "");
 										duplicateFreshers.add(duplicate);
 										String accessible = needsAccessibleSeat(student);
-										String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-												+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-												+ moduleTitle + "')";
+										String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+												+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+												+ accessible + "')";;
 										stmt2 = conn.createStatement();
 										stmt2.executeUpdate(insertSql);
 										counter++;
@@ -165,9 +164,9 @@ public class Students {
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-											+ moduleTitle + "')";
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+											+ accessible + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -204,9 +203,9 @@ public class Students {
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-											+ moduleTitle + "')";
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+											+ accessible + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -219,9 +218,9 @@ public class Students {
 								Student duplicate = new Student(student, moduleCode, true, 0, "");
 								duplicateFreshers.add(duplicate);
 								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-										+ moduleTitle + "')";
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+										+ accessible + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -256,9 +255,9 @@ public class Students {
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-											+ moduleTitle + "')";
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+											+ accessible + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -271,9 +270,9 @@ public class Students {
 								Student duplicate = new Student(student, moduleCode, true, 0, "");
 								duplicateFreshers.add(duplicate);
 								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-										+ moduleTitle + "')";
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+										+ accessible + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -309,9 +308,9 @@ public class Students {
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-											+ moduleTitle + "')";
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+											+ accessible + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -324,9 +323,9 @@ public class Students {
 								Student duplicate = new Student(student, moduleCode, true, 0, "");
 								duplicateFreshers.add(duplicate);
 								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-										+ moduleTitle + "')";
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+										+ accessible + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -362,9 +361,9 @@ public class Students {
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-											+ moduleTitle + "')";
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+											+ accessible + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -377,9 +376,9 @@ public class Students {
 								Student duplicate = new Student(student, moduleCode, true, 0, "");
 								duplicateFreshers.add(duplicate);
 								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-										+ moduleTitle + "')";
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+										+ accessible + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
@@ -415,9 +414,9 @@ public class Students {
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
-									String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-											+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-											+ moduleTitle + "')";
+									String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+											+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+											+ accessible + "')";
 									stmt2 = conn.createStatement();
 									stmt2.executeUpdate(insertSql);
 									counter++;
@@ -430,9 +429,9 @@ public class Students {
 								Student duplicate = new Student(student, moduleCode, true, 0, "");
 								duplicateFreshers.add(duplicate);
 								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, AccessibleSeat, ModuleCode, ModuleTitle) VALUES ('"
-										+ student + "', + '" + accessible + "', + '" + moduleCode + "', + '"
-										+ moduleTitle + "')";
+								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+										+ accessible + "')";
 								stmt2 = conn.createStatement();
 								stmt2.executeUpdate(insertSql);
 								counter++;
