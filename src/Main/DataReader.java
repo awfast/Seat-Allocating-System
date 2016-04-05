@@ -40,12 +40,14 @@ public class DataReader {
 		db.session.testDate(conn, examPeriodFrom, examPeriodTo);
 		this.dateFrom = examPeriodFrom;
 		this.dateTo = examPeriodTo;
-		db.students.getConnection();
 	}
 
 	// student data reader
-	public void getStudentID() throws SQLException, IOException {
+	public void getStudentID(DB db, Connection conn) throws SQLException, IOException {
 		//File file = fileChooser.showOpenDialog(stage);
+		db.students.getConnection();
+		this.db = db;
+		this.conn = conn;
 		db.createTableStudents(conn);
 		/*if (file != null) {
 			String path = file.getAbsolutePath();*/

@@ -1,26 +1,30 @@
 package Main;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-public class Main extends Application{
-	Stage stage;
-	private BorderPane componentLayout = new BorderPane();
-	protected Scene appScene = new Scene(componentLayout, 150, 100);
+public class Main extends Application {
+
 	public static void main(String[] args) {
 		launch(args);
 	}
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
-		GUI gui = new GUI();
-		
-		this.stage = primaryStage;
-		primaryStage.setTitle("example Gui");
-		gui.loadGUI(appScene, componentLayout, primaryStage);
-
-		primaryStage.setScene(appScene);	
-		primaryStage.show();
+	public void start(Stage primaryStage) {
+		try {
+			Pane page = FXMLLoader.load(View.LocalConnection.class.getResource("MainInterface.fxml"));
+			Scene scene = new Scene(page);
+			primaryStage.setScene(scene);
+			primaryStage.setTitle("FXML");
+			primaryStage.show();
+		} catch (Exception ex) {
+			Logger.getLogger(View.LocalConnection.class.getName()).log(Level.SEVERE, null, ex);
+		}
 	}
 }

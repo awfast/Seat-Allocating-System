@@ -1,6 +1,9 @@
 package View;
 
+import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -20,9 +23,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class Controller implements Initializable {
+public class MainPanel implements Initializable {
 		
-	private IntegerProperty index = new SimpleIntegerProperty();
+	//BLOCK CAPITALS FOR EVERY NEW ENTRY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	LocalConnection local = new LocalConnection();
+	
 	//has been reset previously
 	boolean reset = false;
 	
@@ -55,8 +60,8 @@ public class Controller implements Initializable {
 	@FXML //fx:id="deleteButton"
 	private Button deleteButton;
 	
-	@FXML //fx:id="test"
-	private Button test;
+	@FXML //fx:id="goButton"
+	private Button goButton;
 	
 	@FXML //fx:id="resetButton"
 	private Button resetButton;
@@ -94,14 +99,20 @@ public class Controller implements Initializable {
 	@FXML //fx:id="fieldModuleCode"
 	private TextField fieldModuleCode;
 	
+	@FXML //fx:id="fieldModuleTitle"
+	private TextField fieldModuleTitle;
+	
+	@FXML //fx:id="fieldDay"
+	private TextField fieldDay;
+	
 	@FXML //fx:id="fieldDate"
 	private TextField fieldDate;
 	
-	@FXML //fx:id="fieldBuildingNumber"
-	private TextField fieldBuildingNumber;
+	@FXML //fx:id="fieldSession"
+	private TextField fieldSession;
 	
-	@FXML //fx:id="fieldRoomNumber"
-	private TextField fieldRoomNumber;
+	@FXML //fx:id="fieldLocation"
+	private TextField fieldLocation;
 	
 	@FXML //fx:id="dateFrom"
 	private DatePicker dateFrom;
@@ -110,13 +121,13 @@ public class Controller implements Initializable {
 	private DatePicker dateTo;
 	
 	@FXML //fx:id="columnCode"
+	private TableColumn<Test, String> columnStudent;
+	
+	@FXML //fx:id="columnCode"
 	private TableColumn<Test, String> columnCode;
 	
 	@FXML //fx:id="columnCode"
-	private TableColumn<Test, String> columnLastName;
-	
-	@FXML //fx:id="columnCode"
-	private TableColumn<Test, String> columnEmail;
+	private TableColumn<Test, String> columnTitle;
 	
 	@FXML //fx:id="treeTable"
 	private TableView<Test> tableView;
@@ -158,42 +169,19 @@ public class Controller implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		addButton.setOnAction(event -> {
 			//if has been reset, add new data to the table
-			if(reset == true) {
-				inputData.clear();
-				if(allFieldsAreFilledUp()) {
-					reset = false;
-					tableView.setLayoutX(214);
-					tableView.setLayoutY(14);
-					tableView.setPrefSize(1073, 371);
-					inputData.add(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldBuildingNumber.getText()));
-					bottomPane.getChildren().add(tableView);
-					organizeColumnCode();
-					this.tableView.setItems(inputData);	
-					fieldStudentID.clear();
-					fieldModuleCode.clear();
-					fieldBuildingNumber.clear();
-				} else {
-					//prompt blank fields
-					triggerPopUp();
-				}
-			} else {
-				if(allFieldsAreFilledUp()) {
-					bottomPane.getChildren().remove(tablePane);
-					organizeColumnCode();
-					//if tableview exists, add a new row to it.
-					inputData.add(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldBuildingNumber.getText()));
-					tableView.setItems(inputData);
-					fieldStudentID.clear();
-					fieldModuleCode.clear();
-					fieldBuildingNumber.clear();
-				} else {
-					//prompt blank fields
-					triggerPopUp();
-				}
+			addRow();
+		});	
+		
+		goButton.setOnAction(event -> {
+			//if has been reset, add new data to the table
+			try {
+				processExamPeriod();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});	
 		
-		test.setOnAction(event -> {
+		/*test.setOnAction(event -> {
 			examPeriodFrom = dateFrom.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 			examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 			System.out.println(examPeriodFrom +  " " + examPeriodTo); 
@@ -210,17 +198,21 @@ public class Controller implements Initializable {
 		
 		resetButton.setOnAction(event -> {
 			resetEverything();
-		});
+		});*/
 		
 		deleteButton.setOnAction(event -> {
         	//remove selected item from the table list
         	Test p = tableView.getSelectionModel().getSelectedItem();
-        	System.out.println(p.getFirstName());
-            inputData.remove(p);
-            tableView.setItems(inputData);
+        	if(p==null) {
+        		System.out.println("Nothing selected");
+        		return;
+        	} else {
+	            inputData.remove(p);
+	            tableView.setItems(inputData);
+        	}
 		});
 		
-		checkImports();
+		//checkImports();
 	}
 	
 	private void openProgressBar() {
@@ -235,9 +227,9 @@ public class Controller implements Initializable {
 	}
 	
 	private void organizeColumnCode() {
-		columnCode.setCellValueFactory(new PropertyValueFactory<Test, String>("firstName"));
-		columnLastName.setCellValueFactory(new PropertyValueFactory<Test, String>("lastName"));
-		columnEmail.setCellValueFactory(new PropertyValueFactory<Test, String>("email"));
+		columnStudent.setCellValueFactory(new PropertyValueFactory<Test, String>("firstName"));
+		columnCode.setCellValueFactory(new PropertyValueFactory<Test, String>("lastName"));
+		columnTitle.setCellValueFactory(new PropertyValueFactory<Test, String>("email"));
 	}
 	
 	private void checkFields() {
@@ -249,31 +241,31 @@ public class Controller implements Initializable {
 		});
 	}
 	
-	private void checkImports() {
-		
-		
-		importButton1.setOnAction(event -> {
-			flag1 = true;
-			importOptionSelected();		;
-		});
-		
-		importButton2.setOnAction(event -> {
-			flag2 = true;
-			importOptionSelected();		
-		});
-		
-		importButton3.setOnAction(event -> {
-			importOptionSelected();		
-			if(flag1 == true && flag2 == true) {
-				topPane.getChildren().remove(examPeriodPane);
-			}
-		});
-		
-	}
+//	private void checkImports() {
+//		
+//		
+//		importButton1.setOnAction(event -> {
+//			flag1 = true;
+//			//importOptionSelected();		;
+//		});
+//		
+//		importButton2.setOnAction(event -> {
+//			flag2 = true;
+//			//importOptionSelected();		
+//		});
+//		
+//		importButton3.setOnAction(event -> {
+//			//importOptionSelected();		
+//			if(flag1 == true && flag2 == true) {
+//				topPane.getChildren().remove(examPeriodPane);
+//			}
+//		});
+//		
+//	}
 	
 	//loading bar
 	private boolean allFieldsAreFilledUp() {
-		if(fieldStudentID.getText().trim().isEmpty() || fieldModuleCode.getText().trim().isEmpty() || fieldDate.getText().trim().isEmpty() || fieldBuildingNumber.getText().trim().isEmpty() || fieldRoomNumber.getText().trim().isEmpty()){
+		if(fieldStudentID.getText().trim().isEmpty() || fieldModuleCode.getText().trim().isEmpty() || fieldModuleTitle.getText().trim().isEmpty()){
 			return false;
 		} else {
 			return true;
@@ -281,7 +273,7 @@ public class Controller implements Initializable {
 	}
 	
 	private ObservableList<Test> populateTableWithManuallyInsertedData(ObservableList<Test> data) {
-		data = FXCollections.observableArrayList(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldBuildingNumber.getText()));
+		data = FXCollections.observableArrayList(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
 		return data;
 	}
 	
@@ -297,13 +289,13 @@ public class Controller implements Initializable {
 		if(oldValue.startsWith(" ") || oldValue.isEmpty() || newValue.isEmpty() || newValue.startsWith(" ")) {
 			resetEverything();
 		} else {
-			manualOptionSelected();	
+			//manualOptionSelected();	
 			oldValue = "";
 			newValue = "";
 		}
 	}
 	
-	private void importOptionSelected() {
+	/*private void importOptionSelected() {
 		labelStudentID.setDisable(true);
 		labelModuleCode.setDisable(true);
 		labelDate.setDisable(true);
@@ -313,8 +305,6 @@ public class Controller implements Initializable {
 		fieldStudentID.setDisable(true);
 		fieldModuleCode.setDisable(true);
 		fieldDate.setDisable(true);
-		fieldBuildingNumber.setDisable(true);
-		fieldRoomNumber.setDisable(true);
 		
 	}
 	
@@ -326,7 +316,7 @@ public class Controller implements Initializable {
 		importButton1.setDisable(true);
 		importButton2.setDisable(true);
 		importButton3.setDisable(true);
-	}
+	}*/
 	
 	private void resetEverything() {
 		reset = true;
@@ -339,8 +329,6 @@ public class Controller implements Initializable {
 		fieldStudentID.setDisable(false);
 		fieldModuleCode.setDisable(false);
 		fieldDate.setDisable(false);
-		fieldBuildingNumber.setDisable(false);
-		fieldRoomNumber.setDisable(false);
 		
 		importStudentData.setDisable(false);
 		importRegistrationData.setDisable(false);
@@ -352,6 +340,46 @@ public class Controller implements Initializable {
 		
 		//topPane.getChildren().add(examPeriodPane);
 		//bottomPane.getChildren().remove(tableView);
+	}
+	
+	private void addRow() {
+		if(reset == true) {
+			inputData.clear();
+			if(allFieldsAreFilledUp()) {
+				reset = false;
+				tableView.setLayoutX(214);
+				tableView.setLayoutY(14);
+				tableView.setPrefSize(1073, 371);
+				inputData.add(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
+				bottomPane.getChildren().add(tableView);
+				organizeColumnCode();
+				this.tableView.setItems(inputData);	
+				fieldStudentID.clear();
+				fieldModuleCode.clear();
+			} else {
+				//prompt blank fields
+				triggerPopUp();
+			}
+		} else {
+			if(allFieldsAreFilledUp()) {
+				organizeColumnCode();
+				//if tableview exists, add a new row to it.
+				inputData.add(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
+				tableView.setItems(inputData);
+				fieldStudentID.clear();
+				fieldModuleCode.clear();
+			} else {
+				//prompt blank fields
+				triggerPopUp();
+			}
+		}
+	}
+	
+	public void processExamPeriod() throws SQLException, ParseException, IOException {
+		local.processExamPeriod(dateFrom, dateTo);
+		local.browseForStudentData();
+		local.browseForRegistrationData();
+		local.browseForLocationData();
 	}
 	
 	//fill tableview

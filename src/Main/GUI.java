@@ -3,8 +3,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
-import java.util.Random;
-
 import com.mysql.jdbc.Connection;
 
 import javafx.event.Event;
@@ -18,7 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class GUI {
-
+		
 	private FlowPane pane = null;
 	private BorderPane flow = new BorderPane();
 	private Button browseBtn;
@@ -101,14 +99,14 @@ public class GUI {
 		studentBtn.setOnAction(new EventHandler() {
 			@Override
 			public void handle(Event arg0) {
-				try {
-					dataReader.getStudentID();
-					// db.createTableStudents();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+//				try {
+//					//dataReader.getStudentID();
+//					// db.createTableStudents();
+//				} catch (SQLException e) {
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
 			}
 		});
 
