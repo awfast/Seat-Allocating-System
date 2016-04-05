@@ -19,7 +19,10 @@ public class Schedule {
 	private Statement stmt2 = null;
 	private DataReader dataReader = null;
 	private String moduleCode = null;
+	private String moduleTitle = null;
 	private String accessible;
+	private String location;
+	private String day;
 	private String date;
 	private int studentID;
 	private int sessionID;
@@ -43,7 +46,7 @@ public class Schedule {
 	private Map<String, ArrayList<Schedule>> schedules = new HashMap<String,ArrayList<Schedule>>();
 	private List<Capacity> list_Capacity_Buildings = new ArrayList<Capacity>();
 	private Map<String, Building> unavailableBuildings = new HashMap<String, Building>();
-	
+	private ArrayList<Schedule> finalizedSchedules = new ArrayList<Schedule>();
 	private List<Schedule> unavailableSchedules = new ArrayList<Schedule>();
 	
 	public Schedule(int studentID, String moduleCode, int sessionID, String date, String accessible, int buildingNumber, int roomNumber) {
@@ -55,6 +58,17 @@ public class Schedule {
 		this.roomNumber = roomNumber;
 		this.date = date;
 	}
+	
+	public Schedule(int studentID, String moduleCode, String moduleTitle, String day, String date, int session, String location) {
+		this.studentID = studentID;
+		this.moduleCode = moduleCode;
+		this.moduleTitle = moduleTitle;
+		this.day = day;
+		this.date = date;
+		this.sessionID = session;
+		this.location = location;
+	}
+	
 
 	public void generateInformation(Connection conn, DataReader dataReader) throws SQLException {
 		this.dataReader = dataReader;
@@ -79,22 +93,32 @@ public class Schedule {
 			this.schedules.put(module, arr);
 		}
 	}
-
-	private void printSchedules(Map<String, ArrayList<Schedule>> s) throws SQLException {
+	
+	public ArrayList<Schedule> getFinalSchedules(Connection conn) {
+		this.conn = conn;
+		return finalizedSchedules;
+	}
+	
+	public Map<String, ArrayList<Schedule>> insertSchedulesIntoTable(Map<String, ArrayList<Schedule>> s) throws SQLException {
 		int j = 1;
 		for (String moduleCode: s.keySet()) {
 			for(int i=0; i<s.get(moduleCode).size(); i++) {
 				insertIntoTableSchedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode,
 						schedules.get(moduleCode).get(i).getSessionID(), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getBuildingNumber(),
 						schedules.get(moduleCode).get(i).getRoomNumber());
-				System.out.println(j + ".(Student ID: " + schedules.get(moduleCode).get(i).getStudentID() + ", Module Code: "
-						+ moduleCode + ", Session ID: " + schedules.get(moduleCode).get(i).getSessionID() + ", Date: "
-						+ schedules.get(moduleCode).get(i).getDate() + ", Building Number: " + schedules.get(moduleCode).get(i).getBuildingNumber()
-						+ ", Room Number:" + schedules.get(moduleCode).get(i).getRoomNumber() + ")");
+				//add seat for location
+				String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: " + schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: [To be added]";
+				Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode, getModuleTitle(moduleCode), "Day", schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(), location);
+				finalizedSchedules.add(finalSchedule);
+//				System.out.println(j + ".(Student ID: " + schedules.get(moduleCode).get(i).getStudentID() + ", Module Code: "
+//						+ moduleCode + ", Session ID: " + schedules.get(moduleCode).get(i).getSessionID() + ", Date: "
+//						+ schedules.get(moduleCode).get(i).getDate() + ", Building Number: " + schedules.get(moduleCode).get(i).getBuildingNumber()
+//						+ ", Room Number:" + schedules.get(moduleCode).get(i).getRoomNumber() + ")");
 				j++;				
 			}
 		}
 		System.out.println("Schedules not scheduled" + unavailableSchedules);
+		return s;
 	}
 
 	public Map<String, ArrayList<Schedule>> assign(Map<String, ArrayList<Schedule>> schedules) throws SQLException {
@@ -128,6 +152,19 @@ public class Schedule {
 		}
 		return date;
 	}
+	
+	public String getModuleTitle(String moduleCode) throws SQLException {
+		String query2 = "SELECT * FROM RegisteredStudents WHERE ModuleCode ='" + moduleCode + "'";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query2);
+		while (rs.next()) {
+			String title = rs.getString("ModuleTitle");
+			return title;
+		}
+		return null;
+	}
+	
+	
 
 	public int getSessionIDPerDate(String date) throws SQLException {
 		String query = "SELECT * FROM Session WHERE date='" + date + "'";
@@ -264,7 +301,7 @@ public class Schedule {
 		}
 		populateModules();
 		getSchedules();
-		printSchedules(assign(schedules));
+		insertSchedulesIntoTable(assign(schedules));
 	}
 	
 	private void findSessions() throws SQLException {
@@ -420,6 +457,10 @@ public class Schedule {
 	public String getModuleCode() {
 		return moduleCode;
 	}
+	
+	public String getModuleTitle() {
+		return moduleCode;
+	}
 
 	public int getSessionID() {
 		return sessionID;
@@ -459,5 +500,13 @@ public class Schedule {
 
 	public void setRoomNumber(int roomNumber) {
 		this.roomNumber = roomNumber;
+	}
+	
+	public String getDay() {
+		return this.day;
+	}
+	
+	public String getLocation() {
+		return this.location;
 	}
 }

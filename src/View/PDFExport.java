@@ -21,7 +21,7 @@ public class PDFExport {
 	
 	private static Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
 
-	public void export1(ObservableList<Test> data) {
+	public void export1(ObservableList<Schedule> data) {
 		try {
 			Document document = new Document();
 			com.itextpdf.text.Rectangle one = new Rectangle(700, 1000);
@@ -36,7 +36,7 @@ public class PDFExport {
 		}
 	}
 	
-	public void export2(ObservableList<Test> data) {
+	public void export2(ObservableList<Schedule> data) {
 		try {
 			Document document = new Document();
 			com.itextpdf.text.Rectangle one = new Rectangle(1000, 1000);
@@ -52,7 +52,7 @@ public class PDFExport {
 	}
 	
 
-	private void addTitlePageOnPreliminaryTable(Document document, ObservableList<Test> data) throws DocumentException {
+	private void addTitlePageOnPreliminaryTable(Document document, ObservableList<Schedule> data) throws DocumentException {
 		Paragraph preface = new Paragraph();
 		preface.setIndentationLeft(70);
 		preface.setAlignment(Element.ALIGN_CENTER);
@@ -70,7 +70,7 @@ public class PDFExport {
 		document.newPage();
 	}
 	
-	private void addTitleOnStudentsTable(Document document, ObservableList<Test> data) throws DocumentException {
+	private void addTitleOnStudentsTable(Document document, ObservableList<Schedule> data) throws DocumentException {
 		Paragraph preface = new Paragraph();
 		preface.setIndentationLeft(100);
 		preface.setAlignment(Element.ALIGN_CENTER);
@@ -88,7 +88,7 @@ public class PDFExport {
 		document.newPage();
 	}
 
-	private void createPreliminaryTable(Paragraph preface, ObservableList<Test> data, Document document)
+	private void createPreliminaryTable(Paragraph preface, ObservableList<Schedule> data, Document document)
 			throws DocumentException {
 		PdfPTable table = new PdfPTable(6);
 		table.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -124,9 +124,10 @@ public class PDFExport {
 		 * table.addCell(data.get(i).toString()); //get.add x 7 }
 		 */
 		for (int i = 0; i < data.size(); i++) {
-			table.addCell(data.get(i).getFirstName());
-			table.addCell(data.get(i).getLastName());
-			table.addCell(data.get(i).getEmail());
+			//TODO
+//			table.addCell(data.get(i).getFirstName());
+//			table.addCell(data.get(i).getLastName());
+//			table.addCell(data.get(i).getEmail());
 			
 		}
 		Paragraph p = new Paragraph();
@@ -137,7 +138,7 @@ public class PDFExport {
 		document.add(p);
 	}
 	
-	private void createTableWithStudents(Paragraph preface, ObservableList<Test> data, Document document)
+	private void createTableWithStudents(Paragraph preface, ObservableList<Schedule> data, Document document)
 			throws DocumentException {
 		PdfPTable table = new PdfPTable(7);
 		table.setHorizontalAlignment(Element.ALIGN_CENTER);

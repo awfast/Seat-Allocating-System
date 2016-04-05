@@ -5,10 +5,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
+import com.itextpdf.text.log.SysoCounter;
 
 import Main.DB;
 import Main.DataReader;
 import Main.Schedule;
+import javafx.collections.ObservableList;
 import javafx.scene.control.DatePicker;
 
 public class LocalConnection {
@@ -17,6 +21,7 @@ public class LocalConnection {
 	private DB db = new DB();
 	private DataReader dataReader = new DataReader();
 	private String examPeriodFrom, examPeriodTo;
+	private Schedule exam = new Schedule(1, "", 1, "", "", 0, 0);
 	
 	public Connection getConnection() {
 		return this.conn = db.getConnection(conn);
@@ -33,7 +38,6 @@ public class LocalConnection {
 	
 	public void browseForLocationData() throws SQLException, IOException {
 		dataReader.getLocations();
-		Schedule exam = new Schedule(1, "", 1, " ", "", 0, 0);
 		exam.generateInformation(db.getConnection(conn), dataReader);
 	}
 	
@@ -43,5 +47,8 @@ public class LocalConnection {
 		dataReader.createExamPeriod(db, db.getConnection(conn), examPeriodFrom, examPeriodTo);
 	}
 
-		
+	public ArrayList<Main.Schedule> getData() {
+		System.out.println(conn);
+		return exam.getFinalSchedules(conn);
+	}
 }

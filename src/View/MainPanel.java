@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
+
+import com.itextpdf.text.log.SysoCounter;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.beans.property.IntegerProperty;
@@ -121,16 +124,28 @@ public class MainPanel implements Initializable {
 	private DatePicker dateTo;
 	
 	@FXML //fx:id="columnCode"
-	private TableColumn<Test, String> columnStudent;
+	private TableColumn<Schedule, String> columnStudent;
 	
 	@FXML //fx:id="columnCode"
-	private TableColumn<Test, String> columnCode;
+	private TableColumn<Schedule, String> columnCode;
 	
 	@FXML //fx:id="columnCode"
-	private TableColumn<Test, String> columnTitle;
+	private TableColumn<Schedule, String> columnTitle;
+	
+	@FXML //fx:id="columnDay"
+	private TableColumn<Schedule, String> columnDay;
+	
+	@FXML //fx:id="columnDate"
+	private TableColumn<Schedule, String> columnDate;
+	
+	@FXML //fx:id="columnSession"
+	private TableColumn<Schedule, String> columnSession;
+	
+	@FXML //fx:id="columnLocation"
+	private TableColumn<Schedule, String> columnLocation;
 	
 	@FXML //fx:id="treeTable"
-	private TableView<Test> tableView;
+	private TableView<View.Schedule> tableView;
 	
 	@FXML //fx:id="mainPane"
 	private ChoiceBox importStudentData;
@@ -141,41 +156,43 @@ public class MainPanel implements Initializable {
 	@FXML //fx:id="mainPane"
 	private ChoiceBox importLocationData;
 	
-	private ObservableList<Test> inputData = FXCollections.observableArrayList();
+	private ObservableList<View.Schedule> inputData = FXCollections.observableArrayList();
 	
 	//list with values for column 1
-	 private ObservableList<Test> data =
+	 private ObservableList<View.Schedule> data =
 		        FXCollections.observableArrayList(
-		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
-		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
-		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
-		            new Test("Emma", "Jones", "emma.jones@example.com"),
-		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
-		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
-		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
-		            new Test("Emma", "Jones", "emma.jones@example.com"),
-		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
-		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
-		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
-		            new Test("Emma", "Jones", "emma.jones@example.com"),
-		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
-		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
-		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
-		            new Test("Emma", "Jones", "emma.jones@example.com"),
-		            new Test("Michael", "Brown", "michael.brown@example.com")
+//		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
+//		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
+//		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
+//		            new Test("Emma", "Jones", "emma.jones@example.com"),
+//		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
+//		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
+//		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
+//		            new Test("Emma", "Jones", "emma.jones@example.com"),
+//		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
+//		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
+//		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
+//		            new Test("Emma", "Jones", "emma.jones@example.com"),
+//		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
+//		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
+//		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
+//		            new Test("Emma", "Jones", "emma.jones@example.com"),
+//		            new Test("Michael", "Brown", "michael.brown@example.com")
 		        );
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		addButton.setOnAction(event -> {
 			//if has been reset, add new data to the table
-			addRow();
+			//addRow();
+			//TODO
 		});	
 		
 		goButton.setOnAction(event -> {
 			//if has been reset, add new data to the table
 			try {
 				processExamPeriod();
+				populateTable();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -200,17 +217,18 @@ public class MainPanel implements Initializable {
 			resetEverything();
 		});*/
 		
-		deleteButton.setOnAction(event -> {
-        	//remove selected item from the table list
-        	Test p = tableView.getSelectionModel().getSelectedItem();
-        	if(p==null) {
-        		System.out.println("Nothing selected");
-        		return;
-        	} else {
-	            inputData.remove(p);
-	            tableView.setItems(inputData);
-        	}
-		});
+		//TODO
+//		deleteButton.setOnAction(event -> {
+//        	//remove selected item from the table list
+//        	Schedule p = tableView.getSelectionModel().getSelectedItem();
+//        	if(p==null) {
+//        		System.out.println("Nothing selected");
+//        		return;
+//        	} else {
+//	            inputData.remove(p);
+//	            tableView.setItems(inputData);
+//        	}
+//		});
 		
 		//checkImports();
 	}
@@ -227,9 +245,13 @@ public class MainPanel implements Initializable {
 	}
 	
 	private void organizeColumnCode() {
-		columnStudent.setCellValueFactory(new PropertyValueFactory<Test, String>("firstName"));
-		columnCode.setCellValueFactory(new PropertyValueFactory<Test, String>("lastName"));
-		columnTitle.setCellValueFactory(new PropertyValueFactory<Test, String>("email"));
+		columnStudent.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("studentID"));
+		columnCode.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("moduleCode"));
+		columnTitle.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("moduleTitle"));
+		columnDay.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("day"));
+		columnDate.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("date"));
+		columnSession.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("session"));
+		columnLocation.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("location"));
 	}
 	
 	private void checkFields() {
@@ -270,11 +292,6 @@ public class MainPanel implements Initializable {
 		} else {
 			return true;
 		}
-	}
-	
-	private ObservableList<Test> populateTableWithManuallyInsertedData(ObservableList<Test> data) {
-		data = FXCollections.observableArrayList(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
-		return data;
 	}
 	
 	private void triggerPopUp() {		
@@ -342,44 +359,60 @@ public class MainPanel implements Initializable {
 		//bottomPane.getChildren().remove(tableView);
 	}
 	
-	private void addRow() {
-		if(reset == true) {
-			inputData.clear();
-			if(allFieldsAreFilledUp()) {
-				reset = false;
-				tableView.setLayoutX(214);
-				tableView.setLayoutY(14);
-				tableView.setPrefSize(1073, 371);
-				inputData.add(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
-				bottomPane.getChildren().add(tableView);
-				organizeColumnCode();
-				this.tableView.setItems(inputData);	
-				fieldStudentID.clear();
-				fieldModuleCode.clear();
-			} else {
-				//prompt blank fields
-				triggerPopUp();
-			}
-		} else {
-			if(allFieldsAreFilledUp()) {
-				organizeColumnCode();
-				//if tableview exists, add a new row to it.
-				inputData.add(new Test(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
-				tableView.setItems(inputData);
-				fieldStudentID.clear();
-				fieldModuleCode.clear();
-			} else {
-				//prompt blank fields
-				triggerPopUp();
-			}
-		}
-	}
+	//TODO
+//	private void addRow() {
+//		if(reset == true) {
+//			inputData.clear();
+//			if(allFieldsAreFilledUp()) {
+//				reset = false;
+//				tableView.setLayoutX(214);
+//				tableView.setLayoutY(14);
+//				tableView.setPrefSize(1073, 371);
+//				inputData.add(new Schedule(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
+//				bottomPane.getChildren().add(tableView);
+//				organizeColumnCode();
+//				this.tableView.setItems(inputData);	
+//				//fieldStudentID.clear();
+//				//fieldModuleCode.clear();
+//			} else {
+//				//prompt blank fields
+//				triggerPopUp();
+//			}
+//		} else {
+//			if(allFieldsAreFilledUp()) {
+//				organizeColumnCode();
+//				//if tableview exists, add a new row to it.
+//				inputData.add(new Schedule(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
+//				tableView.setItems(inputData);
+//				//fieldStudentID.clear();
+//				//fieldModuleCode.clear();
+//			} else {
+//				//prompt blank fields
+//				triggerPopUp();
+//			}
+//		}
+//	}
 	
 	public void processExamPeriod() throws SQLException, ParseException, IOException {
 		local.processExamPeriod(dateFrom, dateTo);
 		local.browseForStudentData();
 		local.browseForRegistrationData();
 		local.browseForLocationData();
+	}
+	
+	public void populateTable() throws SQLException {
+		for(int i=0; i<local.getData().size(); i++) {
+			Schedule s = new Schedule(local.getData().get(i).getStudentID(), local.getData().get(i).getModuleCode(), local.getData().get(i).getModuleTitle(), local.getData().get(i).getDay(), local.getData().get(i).getDate(), local.getData().get(i).getSessionID(), local.getData().get(i).getLocation());
+			data.add(s);
+			organizeColumnCode();
+			tableView.setItems(data);
+		}
+ //		for(int i=0; i<local.getData().size(); i++) {
+//			Schedule s = new Schedule(local.getData().get(i).getStudentID(), local.getData().get(i).getModuleCode(), local.getData().get(i).getModuleTitle(local.getData().get(i).getModuleCode()), local.getData().get(i).getDay(), local.getData().get(i).getDate(), local.getData().get(i).getSessionID(), local.getData().get(i).getLocation());
+//			data.add(s);
+//			organizeColumnCode();
+//			tableView.setItems(data);	
+//		}
 	}
 	
 	//fill tableview
