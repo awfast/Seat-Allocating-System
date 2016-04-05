@@ -4,13 +4,18 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.itextpdf.text.log.SysoCounter;
+import java.util.Arrays;
 
 public class Schedule {
 
@@ -29,6 +34,9 @@ public class Schedule {
 	private int buildingNumber;
 	private int roomNumber;
 	private int closestAccessibleSeats;
+	private int seatCounter = 0;
+	private String seatModule;
+	private char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 	private boolean goalReached = false;
 	private List<String> modules = new ArrayList<String>();
 	public Map<HashMap<Integer, String>, Integer> students_total = new HashMap<HashMap<Integer, String>, Integer>();
@@ -69,6 +77,65 @@ public class Schedule {
 		this.location = location;
 	}
 	
+	public int getStudentID() {
+		return studentID;
+	}
+
+	public String getModuleCode() {
+		return moduleCode;
+	}
+	
+	public String getModuleTitle() {
+		return moduleTitle;
+	}
+
+	public int getSessionID() {
+		return sessionID;
+	}
+
+	public int getBuildingNumber() {
+		return buildingNumber;
+	}
+
+	public int getRoomNumber() {
+		return roomNumber;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public void setSessionID(int sessionID) {
+		this.sessionID = sessionID;
+	}
+
+	public boolean getGoalReached() {
+		return goalReached;
+	}
+
+	public void setGoalReached(boolean goalReached) {
+		this.goalReached = goalReached;
+	}
+
+	public void setBuildingNumber(int buildingNumber) {
+		this.buildingNumber = buildingNumber;
+	}
+
+	public void setRoomNumber(int roomNumber) {
+		this.roomNumber = roomNumber;
+	}
+	
+	public String getDay() {
+		return this.day;
+	}
+	
+	public String getLocation() {
+		return this.location;
+	}
 
 	public void generateInformation(Connection conn, DataReader dataReader) throws SQLException {
 		this.dataReader = dataReader;
@@ -101,20 +168,33 @@ public class Schedule {
 	
 	public Map<String, ArrayList<Schedule>> insertSchedulesIntoTable(Map<String, ArrayList<Schedule>> s) throws SQLException {
 		int j = 1;
+		String tempModule = null;
 		for (String moduleCode: s.keySet()) {
 			for(int i=0; i<s.get(moduleCode).size(); i++) {
 				insertIntoTableSchedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode,
 						schedules.get(moduleCode).get(i).getSessionID(), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getBuildingNumber(),
 						schedules.get(moduleCode).get(i).getRoomNumber());
 				//add seat for location
-				String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: " + schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: [To be added]";
-				Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode, getModuleTitle(moduleCode), "Day", schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(), location);
-				finalizedSchedules.add(finalSchedule);
-//				System.out.println(j + ".(Student ID: " + schedules.get(moduleCode).get(i).getStudentID() + ", Module Code: "
-//						+ moduleCode + ", Session ID: " + schedules.get(moduleCode).get(i).getSessionID() + ", Date: "
-//						+ schedules.get(moduleCode).get(i).getDate() + ", Building Number: " + schedules.get(moduleCode).get(i).getBuildingNumber()
-//						+ ", Room Number:" + schedules.get(moduleCode).get(i).getRoomNumber() + ")");
-				j++;				
+				if(tempModule == null ) {
+					setSeat(true);
+					tempModule = moduleCode;
+					String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: " + schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + setSeat(true) + seatCounter;
+					Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode, getModuleTitle(moduleCode, conn), getDayOfTheWeek(schedules.get(moduleCode).get(i).getDate()), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(), location);
+					finalizedSchedules.add(finalSchedule);
+					j++;									
+				} else if(!moduleCode.equals(tempModule)) {
+					setSeat(false);
+					tempModule = moduleCode;
+					String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: " + schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + setSeat(false) + seatCounter;
+					Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode, getModuleTitle(moduleCode, conn), getDayOfTheWeek(schedules.get(moduleCode).get(i).getDate()), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(), location);
+					finalizedSchedules.add(finalSchedule);
+					j++;				
+				} else {					
+					String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: " + schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + setSeat(true) + seatCounter;
+					Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode, getModuleTitle(moduleCode, conn), getDayOfTheWeek(schedules.get(moduleCode).get(i).getDate()), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(), location);
+					finalizedSchedules.add(finalSchedule);
+					j++;
+				}
 			}
 		}
 		System.out.println("Schedules not scheduled" + unavailableSchedules);
@@ -153,8 +233,9 @@ public class Schedule {
 		return date;
 	}
 	
-	public String getModuleTitle(String moduleCode) throws SQLException {
+	public String getModuleTitle(String moduleCode, Connection conn) throws SQLException {
 		String query2 = "SELECT * FROM RegisteredStudents WHERE ModuleCode ='" + moduleCode + "'";
+		System.out.println(conn);
 		stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(query2);
 		while (rs.next()) {
@@ -449,64 +530,32 @@ public class Schedule {
 		
 		return availableSeats;
 	}
+	
+	public char setSeat(boolean differentModule) {
+		if (seatCounter == 10 || differentModule == false) {
+			seatCounter = 0;
+			setSeat(true);
+		} else if(seatCounter == 0 && differentModule == true){
+			return Character.toUpperCase(alphabet[seatCounter]);
+		} else {
+			seatCounter++;
+			return Character.toUpperCase(alphabet[seatCounter]);
+		}
 
-	public int getStudentID() {
-		return studentID;
-	}
-
-	public String getModuleCode() {
-		return moduleCode;
+		return 0;
 	}
 	
-	public String getModuleTitle() {
-		return moduleCode;
-	}
-
-	public int getSessionID() {
-		return sessionID;
-	}
-
-	public int getBuildingNumber() {
-		return buildingNumber;
-	}
-
-	public int getRoomNumber() {
-		return roomNumber;
-	}
-
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-
-	public void setSessionID(int sessionID) {
-		this.sessionID = sessionID;
-	}
-
-	public boolean getGoalReached() {
-		return goalReached;
-	}
-
-	public void setGoalReached(boolean goalReached) {
-		this.goalReached = goalReached;
-	}
-
-	public void setBuildingNumber(int buildingNumber) {
-		this.buildingNumber = buildingNumber;
-	}
-
-	public void setRoomNumber(int roomNumber) {
-		this.roomNumber = roomNumber;
-	}
-	
-	public String getDay() {
-		return this.day;
-	}
-	
-	public String getLocation() {
-		return this.location;
+	public String getDayOfTheWeek(String date) {
+		String x = date.substring(0, 2);
+		String y = date.substring(3, 5);
+		String z = date.substring(6, 10);
+		
+		int day = Integer.parseInt(x);
+		int month = Integer.parseInt(y);
+		int year = Integer.parseInt(z);
+		
+		System.out.println(day + "-" + month + "-" +year);
+		LocalDate a = LocalDate.of(year, month, day);
+		return a.getDayOfWeek().name();
 	}
 }

@@ -6,13 +6,9 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-
-import com.itextpdf.text.log.SysoCounter;
-
 import Main.DB;
 import Main.DataReader;
 import Main.Schedule;
-import javafx.collections.ObservableList;
 import javafx.scene.control.DatePicker;
 
 public class LocalConnection {

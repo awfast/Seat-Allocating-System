@@ -161,23 +161,6 @@ public class MainPanel implements Initializable {
 	//list with values for column 1
 	 private ObservableList<View.Schedule> data =
 		        FXCollections.observableArrayList(
-//		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
-//		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
-//		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
-//		            new Test("Emma", "Jones", "emma.jones@example.com"),
-//		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
-//		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
-//		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
-//		            new Test("Emma", "Jones", "emma.jones@example.com"),
-//		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
-//		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
-//		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
-//		            new Test("Emma", "Jones", "emma.jones@example.com"),
-//		            new Test("Jacob", "Smith", "jacob.smith@example.com"),
-//		            new Test("Isabella", "Johnson", "isabella.johnson@example.com"),
-//		            new Test("Ethan", "Williams", "ethan.williams@example.com"),
-//		            new Test("Emma", "Jones", "emma.jones@example.com"),
-//		            new Test("Michael", "Brown", "michael.brown@example.com")
 		        );
 	
 	@Override
@@ -402,6 +385,7 @@ public class MainPanel implements Initializable {
 	
 	public void populateTable() throws SQLException {
 		for(int i=0; i<local.getData().size(); i++) {
+			System.out.println(local.getData().get(i).getModuleTitle());
 			Schedule s = new Schedule(local.getData().get(i).getStudentID(), local.getData().get(i).getModuleCode(), local.getData().get(i).getModuleTitle(), local.getData().get(i).getDay(), local.getData().get(i).getDate(), local.getData().get(i).getSessionID(), local.getData().get(i).getLocation());
 			data.add(s);
 			organizeColumnCode();

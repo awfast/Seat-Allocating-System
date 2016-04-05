@@ -30,8 +30,8 @@ public class Schedule {
 		return studentID.get();
 	}
 
-	public void getModuleCode(String fName) {
-		moduleCode.set(fName);
+	public String getModuleCode() {
+		return moduleCode.get();
 	}
 
 	public String getModuleTitle() {
