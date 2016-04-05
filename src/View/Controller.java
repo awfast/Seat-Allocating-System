@@ -214,7 +214,10 @@ public class Controller implements Initializable {
 		
 		deleteButton.setOnAction(event -> {
         	//remove selected item from the table list
-        	data.remove(index.get());
+        	Test p = tableView.getSelectionModel().getSelectedItem();
+        	System.out.println(p.getFirstName());
+            inputData.remove(p);
+            tableView.setItems(inputData);
 		});
 		
 		checkImports();
