@@ -34,9 +34,11 @@ public class Schedule {
 	private int buildingNumber;
 	private int roomNumber;
 	private int closestAccessibleSeats;
-	private int seatCounter = 0;
-	private String seatModule;
-	private char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+	private ArrayList<String> alphabet = new ArrayList<String>();
+	private int seatCounter10 = 0;
+	private int seatCounter20 = 10;
+	private int seatCounter30 = 20;
+	private String tempModule = null;
 	private boolean goalReached = false;
 	private List<String> modules = new ArrayList<String>();
 	public Map<HashMap<Integer, String>, Integer> students_total = new HashMap<HashMap<Integer, String>, Integer>();
@@ -166,36 +168,28 @@ public class Schedule {
 		return finalizedSchedules;
 	}
 	
-	public Map<String, ArrayList<Schedule>> insertSchedulesIntoTable(Map<String, ArrayList<Schedule>> s) throws SQLException {
+	public Map<String, ArrayList<Schedule>> insertSchedulesIntoTable(Map<String, ArrayList<Schedule>> s)
+			throws SQLException {
 		int j = 1;
-		String tempModule = null;
-		for (String moduleCode: s.keySet()) {
-			for(int i=0; i<s.get(moduleCode).size(); i++) {
+	
+		for (String moduleCode : s.keySet()) {
+			for (int i = 0; i < s.get(moduleCode).size(); i++) {
 				insertIntoTableSchedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode,
-						schedules.get(moduleCode).get(i).getSessionID(), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getBuildingNumber(),
+						schedules.get(moduleCode).get(i).getSessionID(), schedules.get(moduleCode).get(i).getDate(),
+						schedules.get(moduleCode).get(i).getBuildingNumber(),
 						schedules.get(moduleCode).get(i).getRoomNumber());
-				//add seat for location
-				if(tempModule == null ) {
-					setSeat(true);
-					tempModule = moduleCode;
-					String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: " + schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + setSeat(true) + seatCounter;
-					Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode, getModuleTitle(moduleCode, conn), getDayOfTheWeek(schedules.get(moduleCode).get(i).getDate()), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(), location);
-					finalizedSchedules.add(finalSchedule);
-					j++;									
-				} else if(!moduleCode.equals(tempModule)) {
-					setSeat(false);
-					tempModule = moduleCode;
-					String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: " + schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + setSeat(false) + seatCounter;
-					Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode, getModuleTitle(moduleCode, conn), getDayOfTheWeek(schedules.get(moduleCode).get(i).getDate()), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(), location);
-					finalizedSchedules.add(finalSchedule);
-					j++;				
-				} else {					
-					String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: " + schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + setSeat(true) + seatCounter;
-					Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode, getModuleTitle(moduleCode, conn), getDayOfTheWeek(schedules.get(moduleCode).get(i).getDate()), schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(), location);
-					finalizedSchedules.add(finalSchedule);
-					j++;
-				}
+				// add seat for location
+				
+				String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: "
+						+ schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + checkSeat(moduleCode);
+				Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode,
+						getModuleTitle(moduleCode, conn), getDayOfTheWeek(schedules.get(moduleCode).get(i).getDate()),
+						schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(),
+						location);
+				finalizedSchedules.add(finalSchedule);
+				j++;
 			}
+
 		}
 		System.out.println("Schedules not scheduled" + unavailableSchedules);
 		return s;
@@ -531,18 +525,65 @@ public class Schedule {
 		return availableSeats;
 	}
 	
-	public char setSeat(boolean differentModule) {
-		if (seatCounter == 10 || differentModule == false) {
-			seatCounter = 0;
-			setSeat(true);
-		} else if(seatCounter == 0 && differentModule == true){
-			return Character.toUpperCase(alphabet[seatCounter]);
+	private void fillAlphabet() {
+		alphabet.add("a");
+		alphabet.add("b");
+		alphabet.add("c");
+		alphabet.add("d");
+		alphabet.add("e");
+		alphabet.add("f");
+		alphabet.add("g");
+		alphabet.add("h");
+		alphabet.add("i");
+		alphabet.add("j");
+		alphabet.add("k");
+		alphabet.add("l");
+		alphabet.add("m");
+		alphabet.add("n");
+		alphabet.add("o");
+		alphabet.add("p");
+		alphabet.add("q");
+		alphabet.add("r");
+		alphabet.add("s");
+		alphabet.add("t");
+		alphabet.add("u");
+		alphabet.add("v");
+		alphabet.add("w");
+		alphabet.add("x");
+		alphabet.add("y");
+		alphabet.add("z");
+	}
+	
+	private String checkSeat(String moduleCode) {
+		fillAlphabet();
+		if (tempModule == null) {
+			tempModule = moduleCode;
+			String str = alphabet.get(0).toUpperCase();
+			System.out.println(str);
+			return str + seatCounter10;
+		} else if (!tempModule.equals(moduleCode)) {
+			alphabet.clear();
+			fillAlphabet();
+			tempModule = moduleCode;
+			seatCounter10 = 0;
+			String str = alphabet.get(0).toUpperCase();
+			seatCounter10++;
+			System.out.println(str);
+			return str + 0;
 		} else {
-			seatCounter++;
-			return Character.toUpperCase(alphabet[seatCounter]);
+			seatCounter10++;
+			if (seatCounter10 == 10) {
+				alphabet.remove(0);
+				String str = alphabet.get(0).toUpperCase();
+				seatCounter10 = 0;
+				System.out.println(str);
+				return str + seatCounter10;
+			} else {
+				String str = alphabet.get(0).toUpperCase();
+				System.out.println(str);
+				return str + seatCounter10;
+			}
 		}
-
-		return 0;
 	}
 	
 	public String getDayOfTheWeek(String date) {

@@ -181,6 +181,12 @@ public class MainPanel implements Initializable {
 			}
 		});	
 		
+		exportButton.setOnAction(event -> {
+			PDFExport pdf = new PDFExport(); 
+			//pdf.export1(inputData);
+			pdf.export2(data);
+		});
+		
 		/*test.setOnAction(event -> {
 			examPeriodFrom = dateFrom.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 			examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -190,11 +196,7 @@ public class MainPanel implements Initializable {
 			tableView.setItems(data);
 		});	
 		
-		exportButton.setOnAction(event -> {
-			PDFExport pdf = new PDFExport(); 
-			pdf.export1(inputData);
-			pdf.export2(data);
-		});
+		
 		
 		resetButton.setOnAction(event -> {
 			resetEverything();

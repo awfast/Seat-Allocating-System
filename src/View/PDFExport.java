@@ -174,13 +174,10 @@ public class PDFExport {
 		table.addCell(c1);
 		table.setHeaderRows(1);
 
-		/*
-		 * for(int i=0; i<data.size(); i++) {
-		 * table.addCell(data.get(i).toString()); //get.add x 7 }
-		 */
-		for (int i = 0; i < 10000; i++) {
-			table.addCell(" " + i + " ");
+		for (int i = 0; i < data.size(); i++) {
+			table.addCell(" " + data.get(i) + " ");
 		}
+		
 		Paragraph p = new Paragraph();
 		p.add(table);
 
