@@ -167,9 +167,21 @@ public class MainPanel implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		addButton.setOnAction(event -> {
 			//if has been reset, add new data to the table
-			//addRow();
+			addRow();
 			//TODO
 		});	
+		
+		deleteButton.setOnAction(event -> {
+    	//remove selected item from the table list
+    	Schedule p = tableView.getSelectionModel().getSelectedItem();
+    	if(p==null) {
+    		System.out.println("Nothing selected");
+    		return;
+    	} else {
+            data.remove(p);
+            tableView.setItems(data);
+    	}
+	});
 		
 		goButton.setOnAction(event -> {
 			//if has been reset, add new data to the table
@@ -187,6 +199,7 @@ public class MainPanel implements Initializable {
 			pdf.export2(data);
 		});
 		
+		
 		/*test.setOnAction(event -> {
 			examPeriodFrom = dateFrom.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 			examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -201,19 +214,7 @@ public class MainPanel implements Initializable {
 		resetButton.setOnAction(event -> {
 			resetEverything();
 		});*/
-		
-		//TODO
-//		deleteButton.setOnAction(event -> {
-//        	//remove selected item from the table list
-//        	Schedule p = tableView.getSelectionModel().getSelectedItem();
-//        	if(p==null) {
-//        		System.out.println("Nothing selected");
-//        		return;
-//        	} else {
-//	            inputData.remove(p);
-//	            tableView.setItems(inputData);
-//        	}
-//		});
+
 		
 		//checkImports();
 	}
@@ -235,7 +236,7 @@ public class MainPanel implements Initializable {
 		columnTitle.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("moduleTitle"));
 		columnDay.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("day"));
 		columnDate.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("date"));
-		columnSession.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("session"));
+		columnSession.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("sessionName"));
 		columnLocation.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("location"));
 	}
 	
@@ -345,38 +346,41 @@ public class MainPanel implements Initializable {
 	}
 	
 	//TODO
-//	private void addRow() {
-//		if(reset == true) {
-//			inputData.clear();
-//			if(allFieldsAreFilledUp()) {
-//				reset = false;
-//				tableView.setLayoutX(214);
-//				tableView.setLayoutY(14);
-//				tableView.setPrefSize(1073, 371);
-//				inputData.add(new Schedule(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
-//				bottomPane.getChildren().add(tableView);
-//				organizeColumnCode();
-//				this.tableView.setItems(inputData);	
-//				//fieldStudentID.clear();
-//				//fieldModuleCode.clear();
-//			} else {
-//				//prompt blank fields
-//				triggerPopUp();
-//			}
-//		} else {
-//			if(allFieldsAreFilledUp()) {
-//				organizeColumnCode();
-//				//if tableview exists, add a new row to it.
-//				inputData.add(new Schedule(fieldStudentID.getText(), fieldModuleCode.getText(), fieldModuleTitle.getText()));
-//				tableView.setItems(inputData);
-//				//fieldStudentID.clear();
-//				//fieldModuleCode.clear();
-//			} else {
-//				//prompt blank fields
-//				triggerPopUp();
-//			}
-//		}
-//	}
+	private void addRow() {
+		if(reset == true) {
+			if(allFieldsAreFilledUp()) {
+				reset = false;
+				tableView.setLayoutX(14);
+				tableView.setLayoutY(58);
+				tableView.setPrefSize(1235, 584);
+				int studentID = Integer.getInteger(fieldStudentID.getText());
+				data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText(), fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
+				organizeColumnCode();
+				this.tableView.setItems(data);	
+				//fieldStudentID.clear();
+				//fieldModuleCode.clear();
+			} else {
+				triggerPopUp();
+			}
+		} else {
+			if(allFieldsAreFilledUp()) {
+				reset = false;
+				tableView.setLayoutX(14);
+				tableView.setLayoutY(58);
+				tableView.setPrefSize(1235, 584);
+				String str = fieldStudentID.getText();
+				System.out.println(str);
+				int studentID = Integer.parseInt(str);
+				data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText(), fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
+				organizeColumnCode();
+				this.tableView.setItems(data);	
+				//fieldStudentID.clear();
+				//fieldModuleCode.clear();
+			} else {
+				triggerPopUp();
+			}
+		}
+	}
 	
 	public void processExamPeriod() throws SQLException, ParseException, IOException {
 		local.processExamPeriod(dateFrom, dateTo);
@@ -387,8 +391,9 @@ public class MainPanel implements Initializable {
 	
 	public void populateTable() throws SQLException {
 		for(int i=0; i<local.getData().size(); i++) {
-			System.out.println(local.getData().get(i).getModuleTitle());
-			Schedule s = new Schedule(local.getData().get(i).getStudentID(), local.getData().get(i).getModuleCode(), local.getData().get(i).getModuleTitle(), local.getData().get(i).getDay(), local.getData().get(i).getDate(), local.getData().get(i).getSessionID(), local.getData().get(i).getLocation());
+			String session = local.getData().get(i).getSessionString();
+			System.out.println(session);
+			Schedule s = new Schedule(local.getData().get(i).getStudentID(), local.getData().get(i).getModuleCode(), local.getData().get(i).getModuleTitle(), local.getData().get(i).getDay().substring(0, 3), local.getData().get(i).getDate(), session , local.getData().get(i).getLocation());
 			data.add(s);
 			organizeColumnCode();
 			tableView.setItems(data);

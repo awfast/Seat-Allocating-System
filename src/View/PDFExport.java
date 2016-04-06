@@ -18,14 +18,15 @@ public class PDFExport {
 
 	private static String FILE1 = "F:/EclipseProjects/workspace/GUI/src/Main/Preliminary.pdf";
 	private static String FILE2 = "F:/EclipseProjects/workspace/GUI/src/Main/Students.pdf";
-	
+	private PdfWriter p;
 	private static Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
-
+	MyEvent event = new MyEvent();
+	
 	public void export1(ObservableList<Schedule> data) {
 		try {
 			Document document = new Document();
 			com.itextpdf.text.Rectangle one = new Rectangle(700, 1000);
-			PdfWriter.getInstance(document, new FileOutputStream(FILE1));
+			p = PdfWriter.getInstance(document, new FileOutputStream(FILE1));
 			document.setPageSize(one);
 			document.setMargins(2, 2, 2, 2);
 			document.open();
@@ -40,7 +41,7 @@ public class PDFExport {
 		try {
 			Document document = new Document();
 			com.itextpdf.text.Rectangle one = new Rectangle(1000, 1000);
-			PdfWriter.getInstance(document, new FileOutputStream(FILE2));
+			p = PdfWriter.getInstance(document, new FileOutputStream(FILE2));
 			document.setPageSize(one);
 			document.setMargins(2, 2, 2, 2);
 			document.open();
@@ -142,7 +143,7 @@ public class PDFExport {
 			throws DocumentException {
 		PdfPTable table = new PdfPTable(7);
 		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.setWidths(new int[] {250, 250, 500, 80, 170, 120, 400 });
+		table.setWidths(new int[] {250, 250, 500, 80, 170, 120, 410 });
 
 		
 		PdfPCell c1 = new PdfPCell(new Phrase("Student ID"));
@@ -175,7 +176,15 @@ public class PDFExport {
 		table.setHeaderRows(1);
 
 		for (int i = 0; i < data.size(); i++) {
-			table.addCell(" " + data.get(i) + " ");
+			table.addCell(" " + data.get(i).getStudentID() + " ");
+			table.addCell(" " + data.get(i).getModuleCode() + " ");
+			table.addCell(" " + data.get(i).getModuleTitle() + " ");
+			table.addCell(" " + data.get(i).getDay().substring(0, 3) + " ");
+			table.addCell(" " + data.get(i).getDate()+ " ");
+			table.addCell(" " + data.get(i).getSessionName());
+			table.addCell(" " + data.get(i).getLocation()+ " ");
+			p.setPageEvent(event);
+			
 		}
 		
 		Paragraph p = new Paragraph();

@@ -29,6 +29,7 @@ public class Schedule {
 	private String location;
 	private String day;
 	private String date;
+	private String session;
 	private int studentID;
 	private int sessionID;
 	private int buildingNumber;
@@ -69,13 +70,13 @@ public class Schedule {
 		this.date = date;
 	}
 	
-	public Schedule(int studentID, String moduleCode, String moduleTitle, String day, String date, int session, String location) {
+	public Schedule(int studentID, String moduleCode, String moduleTitle, String day, String date, String session, String location) {
 		this.studentID = studentID;
 		this.moduleCode = moduleCode;
 		this.moduleTitle = moduleTitle;
 		this.day = day;
 		this.date = date;
-		this.sessionID = session;
+		this.session = session;
 		this.location = location;
 	}
 	
@@ -93,6 +94,10 @@ public class Schedule {
 
 	public int getSessionID() {
 		return sessionID;
+	}
+	
+	public String getSessionString() {
+		return session;
 	}
 
 	public int getBuildingNumber() {
@@ -114,7 +119,7 @@ public class Schedule {
 	public void setSessionID(int sessionID) {
 		this.sessionID = sessionID;
 	}
-
+	
 	public boolean getGoalReached() {
 		return goalReached;
 	}
@@ -182,9 +187,10 @@ public class Schedule {
 				
 				String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: "
 						+ schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + checkSeat(moduleCode);
+				System.out.println(schedules.get(moduleCode).get(i).getSessionID() + " (" + schedules.get(moduleCode).get(i).getSessionName(sessionID, conn).toUpperCase() + ")");
 				Schedule finalSchedule = new Schedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode,
 						getModuleTitle(moduleCode, conn), getDayOfTheWeek(schedules.get(moduleCode).get(i).getDate()),
-						schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID(),
+						schedules.get(moduleCode).get(i).getDate(), schedules.get(moduleCode).get(i).getSessionID() + " (" + schedules.get(moduleCode).get(i).getSessionName(sessionID, conn).toUpperCase() + ")",
 						location);
 				finalizedSchedules.add(finalSchedule);
 				j++;
@@ -223,6 +229,18 @@ public class Schedule {
 		while (rs.next()) {
 			date = rs.getString("date");
 			return date;
+		}
+		return date;
+	}
+	
+	public String getSessionName(int sessionID, Connection conn) throws SQLException {
+		String query = "SELECT * FROM Session WHERE ID=" + sessionID;
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		String session = null;
+		while (rs.next()) {
+			session = rs.getString("MorningAfternoon");
+			return session;
 		}
 		return date;
 	}

@@ -44,7 +44,6 @@ public class LocalConnection {
 	}
 
 	public ArrayList<Main.Schedule> getData() {
-		System.out.println(conn);
 		return exam.getFinalSchedules(conn);
 	}
 }

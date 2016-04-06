@@ -30,7 +30,6 @@
                   <Font size="18.0" />
                </font>
             </Text>
-            <ChoiceBox fx:id="importStudentData" layoutX="1315.0" layoutY="131.0" prefWidth="150.0" />
             <ChoiceBox fx:id="importRegistrationData" layoutX="1315.0" layoutY="180.0" prefWidth="150.0" />
             <ChoiceBox fx:id="importLocationData" layoutX="1315.0" layoutY="229.0" prefWidth="150.0" />
             <Button fx:id="importButton1" layoutX="1498.0" layoutY="132.0" mnemonicParsing="false" text="IMPORT" />
@@ -86,6 +85,9 @@
                </font>
             </Text>
             <Button fx:id="exportButton" layoutX="840.0" layoutY="773.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="409.0" text="Export To Pdf" />
+            <TextField fx:id="importStudentData" layoutX="1260.0" layoutY="80.0" prefHeight="25.0" prefWidth="150.0" />
+            <TextField fx:id="importRegistrationData" layoutX="1315.0" layoutY="145.0" prefHeight="25.0" prefWidth="150.0" />
+            <TextField fx:id="importLocationData" layoutX="1301.0" layoutY="465.0" prefHeight="25.0" prefWidth="150.0" />
          </children>
       </Pane>
    </children>

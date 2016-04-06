@@ -460,12 +460,16 @@ public class Students {
 	}
 
 	protected void populateCohorts(String[] cohorts) throws SQLException {
+		int tempSum = 0;
 		for (int i = 0; i < cohorts.length; i++) {
-			String insertSql = "INSERT INTO Cohorts(Cohort, Size) VALUES ('" + cohorts[i] + "', + '" + randInt(25, 250)
+			int randInt = randInt(25, 250);
+			tempSum +=randInt;
+			String insertSql = "INSERT INTO Cohorts(Cohort, Size) VALUES ('" + cohorts[i] + "', + '" + randInt
 					+ "')";
 			stmt = conn.createStatement();
 			stmt.executeUpdate(insertSql);
 		}
+		System.out.println(tempSum);
 	}
 
 	public int randInt(int min, int max) {
