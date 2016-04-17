@@ -20,7 +20,7 @@ public class Students {
 	private int size;
 	private final String USER = "root";
 	private final String PASS = "";
-	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
+	private final String DB_URL = "jdbc:mysql://localhost:3306/db";
 	private ResultSet rs;
 	private LinkedHashMap<Integer, String> student_ids = new LinkedHashMap<Integer, String>();
 	private List<String> list_moduleCodes = new LinkedList<String>();
@@ -135,9 +135,8 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
-					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
-						if (counter < size - (subtractedStudents * 3)) {
+						if (counter < size) {
 							int student = rs2.getInt(1);
 							if (freshers.contains(student)) {
 								continue;
@@ -179,7 +178,6 @@ public class Students {
 					}
 					break;
 				} else if (letter.equals("3")) {
-					// System.out.println("Optional");
 					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
 					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
 					rs = stmt.executeQuery(query);
@@ -189,17 +187,31 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
-					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
-						if (counter < size - (subtractedStudents * 3)) {
+						if (counter < size) {
 							int student = rs2.getInt(1);
 							if (freshers.contains(student)) {
 								continue;
-							}
-							if (alreadyRegisteredStudent.containsKey(student)) {
-								if (alreadyRegisteredStudent.get(student) <= 4) {
-									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
-									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+							} else {
+								if (alreadyRegisteredStudent.containsKey(student)) {
+									if (alreadyRegisteredStudent.get(student) <= 4) {
+										int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
+										alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+										Student duplicate = new Student(student, moduleCode, true, 0, "");
+										duplicateFreshers.add(duplicate);
+										String accessible = needsAccessibleSeat(student);
+										String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+												+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+												+ accessible + "')";;
+										stmt2 = conn.createStatement();
+										stmt2.executeUpdate(insertSql);
+										counter++;
+										if (!list_moduleCodes_test.contains(moduleCode)) {
+											list_moduleCodes_test.add(moduleCode);
+										}
+									}
+								} else {
+									alreadyRegisteredStudent.put(student, 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
@@ -212,20 +224,6 @@ public class Students {
 									if (!list_moduleCodes_test.contains(moduleCode)) {
 										list_moduleCodes_test.add(moduleCode);
 									}
-								}
-							} else {
-								alreadyRegisteredStudent.put(student, 1);
-								Student duplicate = new Student(student, moduleCode, true, 0, "");
-								duplicateFreshers.add(duplicate);
-								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
-										+ accessible + "')";
-								stmt2 = conn.createStatement();
-								stmt2.executeUpdate(insertSql);
-								counter++;
-								if (!list_moduleCodes_test.contains(moduleCode)) {
-									list_moduleCodes_test.add(moduleCode);
 								}
 							}
 						}
@@ -241,17 +239,31 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
-					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
-						if (counter < size - (subtractedStudents * 3)) {
+						if (counter < size) {
 							int student = rs2.getInt(1);
 							if (freshers.contains(student)) {
 								continue;
-							}
-							if (alreadyRegisteredStudent.containsKey(student)) {
-								if (alreadyRegisteredStudent.get(student) <= 4) {
-									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
-									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+							} else {
+								if (alreadyRegisteredStudent.containsKey(student)) {
+									if (alreadyRegisteredStudent.get(student) <= 4) {
+										int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
+										alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+										Student duplicate = new Student(student, moduleCode, true, 0, "");
+										duplicateFreshers.add(duplicate);
+										String accessible = needsAccessibleSeat(student);
+										String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+												+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+												+ accessible + "')";;
+										stmt2 = conn.createStatement();
+										stmt2.executeUpdate(insertSql);
+										counter++;
+										if (!list_moduleCodes_test.contains(moduleCode)) {
+											list_moduleCodes_test.add(moduleCode);
+										}
+									}
+								} else {
+									alreadyRegisteredStudent.put(student, 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
@@ -265,25 +277,10 @@ public class Students {
 										list_moduleCodes_test.add(moduleCode);
 									}
 								}
-							} else {
-								alreadyRegisteredStudent.put(student, 1);
-								Student duplicate = new Student(student, moduleCode, true, 0, "");
-								duplicateFreshers.add(duplicate);
-								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
-										+ accessible + "')";
-								stmt2 = conn.createStatement();
-								stmt2.executeUpdate(insertSql);
-								counter++;
-								if (!list_moduleCodes_test.contains(moduleCode)) {
-									list_moduleCodes_test.add(moduleCode);
-								}
 							}
 						}
 					}
 					break;
-					// System.out.println("Optional");
 				} else if (letter.equals("8")) {
 					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
 					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
@@ -294,17 +291,31 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
-					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
-						if (counter < size - (subtractedStudents * 3)) {
+						if (counter < size) {
 							int student = rs2.getInt(1);
 							if (freshers.contains(student)) {
 								continue;
-							}
-							if (alreadyRegisteredStudent.containsKey(student)) {
-								if (alreadyRegisteredStudent.get(student) <= 4) {
-									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
-									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+							} else {
+								if (alreadyRegisteredStudent.containsKey(student)) {
+									if (alreadyRegisteredStudent.get(student) <= 4) {
+										int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
+										alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+										Student duplicate = new Student(student, moduleCode, true, 0, "");
+										duplicateFreshers.add(duplicate);
+										String accessible = needsAccessibleSeat(student);
+										String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+												+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+												+ accessible + "')";;
+										stmt2 = conn.createStatement();
+										stmt2.executeUpdate(insertSql);
+										counter++;
+										if (!list_moduleCodes_test.contains(moduleCode)) {
+											list_moduleCodes_test.add(moduleCode);
+										}
+									}
+								} else {
+									alreadyRegisteredStudent.put(student, 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
@@ -318,25 +329,10 @@ public class Students {
 										list_moduleCodes_test.add(moduleCode);
 									}
 								}
-							} else {
-								alreadyRegisteredStudent.put(student, 1);
-								Student duplicate = new Student(student, moduleCode, true, 0, "");
-								duplicateFreshers.add(duplicate);
-								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
-										+ accessible + "')";
-								stmt2 = conn.createStatement();
-								stmt2.executeUpdate(insertSql);
-								counter++;
-								if (!list_moduleCodes_test.contains(moduleCode)) {
-									list_moduleCodes_test.add(moduleCode);
-								}
 							}
 						}
 					}
 					break;
-					// System.out.println("Optional");
 				} else if (letter.equals("9")) {
 					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
 					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
@@ -347,17 +343,31 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
-					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
-						if (counter < size - (subtractedStudents * 3)) {
+						if (counter < size) {
 							int student = rs2.getInt(1);
 							if (freshers.contains(student)) {
 								continue;
-							}
-							if (alreadyRegisteredStudent.containsKey(student)) {
-								if (alreadyRegisteredStudent.get(student) <= 4) {
-									int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
-									alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+							} else {
+								if (alreadyRegisteredStudent.containsKey(student)) {
+									if (alreadyRegisteredStudent.get(student) <= 4) {
+										int numberOfModulesAssigned = alreadyRegisteredStudent.get(student);
+										alreadyRegisteredStudent.put(student, numberOfModulesAssigned + 1);
+										Student duplicate = new Student(student, moduleCode, true, 0, "");
+										duplicateFreshers.add(duplicate);
+										String accessible = needsAccessibleSeat(student);
+										String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
+												+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
+												+ accessible + "')";;
+										stmt2 = conn.createStatement();
+										stmt2.executeUpdate(insertSql);
+										counter++;
+										if (!list_moduleCodes_test.contains(moduleCode)) {
+											list_moduleCodes_test.add(moduleCode);
+										}
+									}
+								} else {
+									alreadyRegisteredStudent.put(student, 1);
 									Student duplicate = new Student(student, moduleCode, true, 0, "");
 									duplicateFreshers.add(duplicate);
 									String accessible = needsAccessibleSeat(student);
@@ -371,27 +381,12 @@ public class Students {
 										list_moduleCodes_test.add(moduleCode);
 									}
 								}
-							} else {
-								alreadyRegisteredStudent.put(student, 1);
-								Student duplicate = new Student(student, moduleCode, true, 0, "");
-								duplicateFreshers.add(duplicate);
-								String accessible = needsAccessibleSeat(student);
-								String insertSql = "INSERT INTO RegisteredStudents(ID, ModuleCode, ModuleTitle, AccessibleSeat) VALUES ('"
-										+ student + "', + '" + moduleCode + "', + '" + moduleTitle + "', + '"
-										+ accessible + "')";
-								stmt2 = conn.createStatement();
-								stmt2.executeUpdate(insertSql);
-								counter++;
-								if (!list_moduleCodes_test.contains(moduleCode)) {
-									list_moduleCodes_test.add(moduleCode);
-								}
 							}
 						}
 					}
 					break;
-					// System.out.println("Optional");
 				} else {
-					String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
+				/*	String upToNCharacters = moduleCode.substring(0, Math.min(moduleCode.length(), 4));
 					String query = "SELECT * FROM COHORTS WHERE Cohort='" + upToNCharacters + "'";
 					rs = stmt.executeQuery(query);
 					while (rs.next()) {
@@ -400,9 +395,8 @@ public class Students {
 					String query2 = "SELECT * FROM STUDENT";
 					rs2 = stmt.executeQuery(query2);
 					int counter = 0;
-					int subtractedStudents = randomizeOptinalModulesNumber();
 					while (rs2.next()) {
-						if (counter < size - (subtractedStudents * 3)) {
+						if (counter <= size) {
 							int student = rs2.getInt(1);
 							if (freshers.contains(student)) {
 								continue;
@@ -440,7 +434,7 @@ public class Students {
 								}
 							}
 						}
-					}
+					}*/
 					break;
 				}
 			}
@@ -460,16 +454,13 @@ public class Students {
 	}
 
 	protected void populateCohorts(String[] cohorts) throws SQLException {
-		int tempSum = 0;
 		for (int i = 0; i < cohorts.length; i++) {
 			int randInt = randInt(25, 250);
-			tempSum +=randInt;
 			String insertSql = "INSERT INTO Cohorts(Cohort, Size) VALUES ('" + cohorts[i] + "', + '" + randInt
 					+ "')";
 			stmt = conn.createStatement();
 			stmt.executeUpdate(insertSql);
 		}
-		System.out.println(tempSum);
 	}
 
 	public int randInt(int min, int max) {

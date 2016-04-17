@@ -23,24 +23,24 @@ public class LocalConnection {
 		return this.conn = db.getConnection(conn);
 	}
 	
-	public void browseForStudentData() throws SQLException, IOException {
+	public String browseForStudentData() throws SQLException, IOException {
 		getConnection();
-		dataReader.getStudentID(db, conn);
+		return dataReader.getStudentID(db, conn);
 	}
 	
-	public void browseForRegistrationData() throws SQLException, IOException {
-		dataReader.generateRegisteredStudentsData();
+	public String browseForRegistrationData() throws SQLException, IOException {
+		return dataReader.generateRegisteredStudentsData();
 	}
 	
-	public void browseForLocationData() throws SQLException, IOException {
-		dataReader.getLocations();
-		exam.generateInformation(db.getConnection(conn), dataReader);
+	public String browseForLocationData() throws SQLException, IOException {
+		return dataReader.getLocations();
 	}
 	
 	public void processExamPeriod(DatePicker dateFrom, DatePicker dateTo) throws SQLException, ParseException {
 		examPeriodFrom = dateFrom.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		dataReader.createExamPeriod(db, db.getConnection(conn), examPeriodFrom, examPeriodTo);
+		exam.generateInformation(db.getConnection(conn), dataReader);
 	}
 
 	public ArrayList<Main.Schedule> getData() {

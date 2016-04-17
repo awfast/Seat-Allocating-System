@@ -21,7 +21,7 @@ public class Main extends Application {
 			Pane page = FXMLLoader.load(View.LocalConnection.class.getResource("MainInterface.fxml"));
 			Scene scene = new Scene(page);
 			primaryStage.setScene(scene);
-			primaryStage.setTitle("FXML");
+			primaryStage.setTitle("Seat Allocating System.");
 			primaryStage.show();
 		} catch (Exception ex) {
 			Logger.getLogger(View.LocalConnection.class.getName()).log(Level.SEVERE, null, ex);

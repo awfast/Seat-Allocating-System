@@ -16,7 +16,7 @@ public class Location {
 	private final String PASS = "";
 	protected Connection conn = null;
 	private Statement stmt = null;
-	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
+	private final String DB_URL = "jdbc:mysql://localhost:3306/db";
 	protected int roomNumber = 0;
 	private int buildingNumber = 0;
 	private int numberOfSeats = 0;
@@ -57,8 +57,6 @@ public class Location {
 		String insertSql = "INSERT INTO LOCATION(BuildingNumber, RoomNumber, SeatNumber, AccessibleSeatsNumber) VALUES ('"
 				+ buildings + "', + '" + rooms + "', + '" + numberOfSeats + "', + '"
 				+ numberOfAccessibleSeats + "')";
-		System.out.println("Inserting into location.. [" + buildings + "]" + "[" + rooms + "]" + "["
-				+ numberOfSeats + "]" + "[" + numberOfAccessibleSeats + "]");
 		stmt.executeUpdate(insertSql);
 		
 	}
@@ -89,7 +87,6 @@ public class Location {
 				buildingNumber = rs.getInt(1);
 			}
 		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
 		}
 		return buildingNumber;
 	}
@@ -105,7 +102,6 @@ public class Location {
 				this.roomNumber = room;
 			}
 		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
 		}
 		return room;
 	}

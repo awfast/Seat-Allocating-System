@@ -176,14 +176,13 @@ public class Schedule {
 	public Map<String, ArrayList<Schedule>> insertSchedulesIntoTable(Map<String, ArrayList<Schedule>> s)
 			throws SQLException {
 		int j = 1;
-	
+		System.out.println("All schedules + " + s.size());
 		for (String moduleCode : s.keySet()) {
 			for (int i = 0; i < s.get(moduleCode).size(); i++) {
 				insertIntoTableSchedule(schedules.get(moduleCode).get(i).getStudentID(), moduleCode,
 						schedules.get(moduleCode).get(i).getSessionID(), schedules.get(moduleCode).get(i).getDate(),
 						schedules.get(moduleCode).get(i).getBuildingNumber(),
 						schedules.get(moduleCode).get(i).getRoomNumber());
-				// add seat for location
 				
 				String location = "Building: " + schedules.get(moduleCode).get(i).getBuildingNumber() + ", Room: "
 						+ schedules.get(moduleCode).get(i).getRoomNumber() + ", Seat: " + checkSeat(moduleCode);
@@ -205,15 +204,18 @@ public class Schedule {
 		for(String moduleCode: schedules.keySet()) {
 			for(int i=0; i<schedules.get(moduleCode).size(); i++) {
 				if(schedules.get(moduleCode).get(i).getBuildingNumber() == 0 || schedules.get(moduleCode).get(i).getRoomNumber() == 0) {
-					getLocations();
-					findBuildingAndRoom(schedules.get(moduleCode).get(i));
+					System.out.println("module code:" + moduleCode);
+ 					findBuildingAndRoom(schedules.get(moduleCode).get(i));
 					int test = 0;
 					for(int j=0; j<schedules.get(moduleCode).size(); j++) {
-						test++;
-						schedules.get(moduleCode).get(j).setBuildingNumber(schedules.get(moduleCode).get(i).getBuildingNumber());
-						schedules.get(moduleCode).get(j).setRoomNumber(schedules.get(moduleCode).get(i).getRoomNumber());
+						if(schedules.get(moduleCode).get(j).getModuleCode().equals(moduleCode)) {
+							schedules.get(moduleCode).get(j).setBuildingNumber(schedules.get(moduleCode).get(i).getBuildingNumber());
+							schedules.get(moduleCode).get(j).setRoomNumber(schedules.get(moduleCode).get(i).getRoomNumber());
+							test++;
+						}						
 					}
-					System.out.println(test);
+					
+					System.out.println("students: "+test);
 					break;
 				}
 			}
@@ -292,37 +294,44 @@ public class Schedule {
 	private void findBuildingAndRoom(Schedule s) throws SQLException {
 		int room = 0;
 		int building = 0;
-		int tempCapacity = 0;
+		locations_buildingRoom.clear();
+		locations_roomCapacity.clear();
+		list_Capacity_Buildings.clear();
+		getLocations();
 		while(!list_Capacity_Buildings.isEmpty()) {
 			int capacity = closest(getStudentsForThisModuleCode(s.getModuleCode()),s.getModuleCode());
 			room = findRoomNumber(capacity, closestAccessibleSeats);
 			building = findBuildingNumber(room);
 			
+			System.out.println("Room:" + room);
+			System.out.println("Building: " + building);
 			if(checkIfAvailable(s.getModuleCode(), building, room,  s.getSessionID())) {
 				s.setBuildingNumber(building);
 				s.setRoomNumber(room);
 				return;
 			} else {
 				for(int x=0; x<list_Capacity_Buildings.size(); x++) {
-					if(list_Capacity_Buildings.get(x).getCapacity() == tempCapacity) {
 						for(Room key: locations_roomCapacity.keySet()) {
 							if(key.getRoomNumber() == room) {
+								System.out.println("Unavailable***************************************************");
 								locations_roomCapacity.remove(key);
+								list_Capacity_Buildings.remove(list_Capacity_Buildings.get(x));
 								break;
 							}
 						}
-						for(Building key: locations_buildingRoom.keySet()) {
+						/*for(Building key: locations_buildingRoom.keySet()) {
 							if(key.getBuildingNumber() == building) {
 								locations_buildingRoom.remove(key);		
 								break;
 							}
-						}
-						list_Capacity_Buildings.remove(list_Capacity_Buildings.get(x));						
+						}*/
+												
 						break;
-					}
+					
 				}
 			}
 		}
+		System.out.println("Here.");
 	}
 
 	// check if building is available for this date.
@@ -515,6 +524,7 @@ public class Schedule {
 		}
 		return closesetCapacity;
 	}
+	
 	
 	public int findNumberOfAccessibleSeatsNeeded(String moduleCode) throws SQLException {
 		String query2 = "SELECT * FROM RegisteredStudents WHERE ModuleCode='" + moduleCode + "'";

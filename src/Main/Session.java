@@ -18,6 +18,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import javafx.scene.Scene;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.Stage;
+
 public class Session {
 
 	protected String moduleCode = null;
@@ -26,21 +31,18 @@ public class Session {
 	private Statement stmt3;
 	private final String USER = "root";
 	private final String PASS = "";
-	private final String DB_URL = "jdbc:mysql://localhost:3306/test";
+	private final String DB_URL = "jdbc:mysql://localhost:3306/db";
 	private LinkedHashMap<String, String> sessionDate_sessionOccurance = new LinkedHashMap<String, String>();
 	private LinkedHashMap<Integer, HashMap<String, String>> sessionID_sessionDate = new LinkedHashMap<Integer, HashMap<String, String>>();
 	protected int numberOfSessions = 0;
 
 	protected Connection getConnection() {
 		try {
-			System.out.println("Connecting to database...");
+			//establish connection
 			conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
-			System.out.println("Database initialised successfully");
 
 		} catch (SQLException se) {
-			se.printStackTrace();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		return conn;
 	}
@@ -55,8 +57,7 @@ public class Session {
 		long diff = dt2.getTime() - dt1.getTime();
 		int diffDays = (int) (diff / (24 * 1000 * 60 * 60));
 		this.numberOfSessions = diffDays;
-		System.out.println(diffDays);
-		while(i<=(diffDays*2) + 1) {
+		while(i<=(diffDays*2) + 1) {			
 			insertIntoSessionAM(conn, i, finalFromDate);
 			i++;
 			insertIntoSessionPM(conn, i, finalFromDate);
@@ -85,7 +86,6 @@ public class Session {
 		stmt3.executeUpdate(insertSessionsPm);
 	}
 
-
 	private String getNextDate(String curDate) throws ParseException {
 		final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		final Date date = format.parse(curDate);
@@ -94,12 +94,5 @@ public class Session {
 		calendar.add(Calendar.DAY_OF_YEAR, 1);
 
 		return format.format(calendar.getTime());
-	}
-
-	protected void getAllSessions() {
-		for(Integer key: sessionID_sessionDate.keySet()) {
-			System.out.println(key);
-			System.out.println(sessionID_sessionDate.get(key));
-		}
 	}
 }

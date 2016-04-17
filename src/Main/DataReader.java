@@ -43,24 +43,18 @@ public class DataReader {
 	}
 
 	// student data reader
-	public void getStudentID(DB db, Connection conn) throws SQLException, IOException {
-		//File file = fileChooser.showOpenDialog(stage);
+	public String getStudentID(DB db, Connection conn) throws SQLException, IOException {
+		Stage stage = new Stage();
+		File file = fileChooser.showOpenDialog(stage);
 		db.students.getConnection();
 		this.db = db;
 		this.conn = conn;
 		db.createTableStudents(conn);
-		/*if (file != null) {
-			String path = file.getAbsolutePath();*/
-		//String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\StudentData.csv";
-		String path = "F:\\ProjectData\\TestFiles\\500students, 25modules\\StudentData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\5000students, 50modules\\StudentData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\StudentData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\StudentData.csv";
+		if (file != null) {
+			String path = file.getAbsolutePath();
 			try {
 				reader = new CsvReader(path);
 				reader.readHeaders();
-
-				System.out.println("Inserting into student data. Please wait..");
 				while (reader.readRecord()) {
 					String x = reader.get("STUDENT ID");
 					int studentID = Integer.valueOf(x);
@@ -68,65 +62,69 @@ public class DataReader {
 					String accessible = reader.get("ACCESSIBLE");
 					db.students.pushStudentData(studentID, name, accessible);
 				}
-				System.out.println("Completed.");
+				return file.getName();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} 
-	/*else {
+		else {
 			System.out.println("File's empty!");
-		}*/
-	//}
-
-	public void generateRegisteredStudentsData() throws IOException, SQLException {
-		db.createTableCohort(conn);
-		db.createTableExam(conn);
-		db.createTableRegisteredStudents(conn);
-		db.students.populateCohorts(cohorts);
-		//String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\RegistrationData.csv";
-		String path = "F:\\ProjectData\\TestFiles\\500students, 25modules\\RegistrationData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\5000students, 50modules\\RegistrationData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\RegistrationData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\RegistrationData.csv";
-		System.out.println(path);
-		reader = new CsvReader(path);
-		reader.readHeaders();
-		System.out.println("Inserting into RegistrationData. Please wait..");
-		while (reader.readRecord()) {
-			String col1 = reader.get("ModuleCode");
-			String col2 = reader.get("Title");
-			String col3 = reader.get("Duration");
-			int valCol3 = Integer.valueOf(col3);
-			db.students.pushModuleCodes(col1, col2, valCol3);
 		}
-		System.out.println("Completed.");
+		return null;
 	}
 
-	public void getLocations() throws IOException, SQLException {
+	public String generateRegisteredStudentsData() throws IOException, SQLException {
+		Stage stage = new Stage();
+		File file = fileChooser.showOpenDialog(stage);
+		if (file != null) {
+			String path = file.getAbsolutePath();
+			db.createTableCohort(conn);
+			db.createTableExam(conn);
+			db.createTableRegisteredStudents(conn);
+			db.students.populateCohorts(cohorts);
+			reader = new CsvReader(path);
+			reader.readHeaders();
+			while (reader.readRecord()) {
+				String col1 = reader.get("ModuleCode");
+				String col2 = reader.get("Title");
+				String col3 = reader.get("Duration");
+				int valCol3 = Integer.valueOf(col3);
+				db.students.pushModuleCodes(col1, col2, valCol3);
+			}
+			return file.getName();
+		} else {
+			System.out.println("File's empty");
+		}
+		return null;
+	}
+
+	public String getLocations() throws IOException, SQLException {
 		db.createTableLocation(conn);
-		getAvailableBuildings();
+		return getAvailableBuildings();
 	}
 
-	protected void getAvailableBuildings() throws IOException, SQLException {
-		//String path = "F:\\ProjectData\\TestFiles\\1000Students, 50modules\\LocationData.csv";
-		String path = "F:\\ProjectData\\TestFiles\\500students, 25modules\\LocationData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\5000students, 50modules\\LocationData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\LocationData.csv";
-		//String path = "F:\\ProjectData\\TestFiles\\No AccessibleSeats\\LocationData.csv";
-		reader = new CsvReader(path);
-		reader.readHeaders();
-		while (reader.readRecord()) {
-			String col1 = reader.get("Building");
-			String col2 = reader.get("Room");
-			String col3 = reader.get("Capacity");
-			String col4 = reader.get("Accessible");
-			int buildings = Integer.valueOf(col1);
-			int rooms = Integer.valueOf(col2);
-			int numberOfSeats = Integer.valueOf(col3);
-			int numberOfAccessibleSeats = Integer.valueOf(col4);
-			db.location.storeLocationInformation(conn, buildings, rooms, numberOfSeats, numberOfAccessibleSeats);
+	protected String getAvailableBuildings() throws IOException, SQLException {
+		Stage stage = new Stage();
+		File file = fileChooser.showOpenDialog(stage);
+		if (file != null) {
+			String path = file.getAbsolutePath();
+			reader = new CsvReader(path);
+			reader.readHeaders();
+			while (reader.readRecord()) {
+				String col1 = reader.get("Building");
+				String col2 = reader.get("Room");
+				String col3 = reader.get("Capacity");
+				String col4 = reader.get("Accessible");
+				int buildings = Integer.valueOf(col1);
+				int rooms = Integer.valueOf(col2);
+				int numberOfSeats = Integer.valueOf(col3);
+				int numberOfAccessibleSeats = Integer.valueOf(col4);
+				db.location.storeLocationInformation(conn, buildings, rooms, numberOfSeats, numberOfAccessibleSeats);
+			}
+			db.location.processData();
+			return file.getName();
 		}
-		db.location.processData();
+		return null;
 	}
 }
