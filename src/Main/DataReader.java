@@ -24,12 +24,12 @@ public class DataReader {
 	protected FileChooser fileChooser = new FileChooser();
 	protected DB db = null;
 	private Connection conn = null;
-	private String[] cohorts = { "ADMN", "ANTH", "ARCH", "ARTD", "AUDI", "BIOL", "CENV", "CHEM", "CHIN", "CHIN", "COMP",
-			"CRIM", "CZEC", "DUTC", "ECON", "ECSG", "EDUC", "ELEC", "ENTR", "FEEG", "FILM", "FREN", "GEOG", "GERM",
+	private String[] cohorts = { "ADMN", "ANTH", "ARAB", "ARCH", "ARTD", "AUDI", "BIOL", "CENV", "CHEM", "CHIN", "CHIN", "COMP",
+			"CRIM", "CZEC", "DUTC", "ECON", "ECSG", "EDUC", "ELEC", "ENGL", "ENTR", "FEEG", "FILM", "FREN", "GEOG", "GERM",
 			"GREE", "HIST", "HLTH", "HPRS", "HSQM", "HUMA", "IFYP", "IPLU", "ITAL", "JAPA", "LANG", "LATI", "LAWS",
 			"LING", "LLLL", "MANG", "MATH", "MEDI", "MUSI", "NPCG", "NPCH", "NPMH", "NPMS", "NQCG", "NURS", "OCCT",
 			"OPTO", "PAIR", "PHIL", "PHYS", "PODY", "POLS", "PORT", "PRES", "PSIO", "PSYC", "RESM", "RUSS", "SESG",
-			"SESM", "SESS", "SOCI", "SOES", "SPAN", "SAAS", "STAT", "UOSM", "WEBS" };
+			"SESM", "SESS", "SOCI", "SOES", "SPAN", "SSAS", "STAT", "UOSM", "WEBS" };
 
 	public void createExamPeriod(DB db, Connection conn, String examPeriodFrom, String examPeriodTo)
 			throws SQLException, ParseException {

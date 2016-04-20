@@ -37,8 +37,6 @@ public class Schedule {
 	private int closestAccessibleSeats;
 	private ArrayList<String> alphabet = new ArrayList<String>();
 	private int seatCounter10 = 0;
-	private int seatCounter20 = 10;
-	private int seatCounter30 = 20;
 	private String tempModule = null;
 	private boolean goalReached = false;
 	private List<String> modules = new ArrayList<String>();
@@ -600,7 +598,7 @@ public class Schedule {
 			return str + 0;
 		} else {
 			seatCounter10++;
-			if (seatCounter10 == 10) {
+			if (seatCounter10 == 35) {
 				alphabet.remove(0);
 				String str = alphabet.get(0).toUpperCase();
 				seatCounter10 = 0;

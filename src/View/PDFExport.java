@@ -93,7 +93,7 @@ public class PDFExport {
 			throws DocumentException {
 		PdfPTable table = new PdfPTable(6);
 		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.setWidths(new int[] { 170, 400, 70, 150, 100, 300 });
+		table.setWidths(new int[] { 170, 400, 70, 150, 100, 303 });
 
 		PdfPCell c1 = new PdfPCell(new Phrase("Code"));
 		c1.setHorizontalAlignment(Element.ALIGN_CENTER);

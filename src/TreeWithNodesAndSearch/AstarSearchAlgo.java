@@ -3,9 +3,6 @@ package TreeWithNodesAndSearch;
 import java.util.PriorityQueue;
 import java.util.HashSet;
 import java.util.Set;
-
-import Main.Schedule;
-
 import java.util.List;
 import java.util.Comparator;
 import java.util.ArrayList;
@@ -14,6 +11,9 @@ import java.util.Collections;
 public class AstarSearchAlgo {
 	int studentID = 0;
 	String moduleCode = null;
+	private double dx;
+	private double dy;
+	private double D;
 	
 	public List<Node> printPath(Node target) {
 		List<Node> path = new ArrayList<Node>();
@@ -26,8 +26,6 @@ public class AstarSearchAlgo {
 	
 	public void printPathTest(Node target) {
 		List<Node> path = new ArrayList<Node>();
-		Schedule schedule = null;
-
 		for (Node node = target; node != null; node = node.parent) {
 			path.add(node);
 		}
@@ -44,15 +42,18 @@ public class AstarSearchAlgo {
 		}
 	}
 
-	public void AstarSearch(Node source, Node goal) {
-		Set<Node> explored = new HashSet<Node>();
-		PriorityQueue<Node> queue = new PriorityQueue<Node>(20, new Comparator<Node>() {
+	
+	public void a_star_search(Node start, Node goal) {
+		//already evaluated
+		Set<Node> closed = new HashSet<Node>();
+		//nodes to be evaluated
+		PriorityQueue<Node> open = new PriorityQueue<Node>(20, new Comparator<Node>() {
 			// override compare method
-			public int compare(Node i, Node j) {
-				if (i.f_scores > j.f_scores) {
+			public int compare(Node goal, Node current) {
+				if (goal.fScore > current.fScore) {
 					return 1;
 				}
-				else if (i.f_scores < j.f_scores) {
+				else if (goal.fScore < current.fScore) {
 					return -1;
 				}
 				else {
@@ -60,46 +61,46 @@ public class AstarSearchAlgo {
 				}
 			}
 		});
-		// cost from start
-		source.g_scores = 0;
-		queue.add(source);
-		boolean found = false;
-		while ((!queue.isEmpty()) && (!found)) {
-			// the node in having the lowest f_score value
-			Node current = queue.poll();
-			explored.add(current);
-			// goal found
-			if (current.value.equals(goal.value)) {
+		//start cost
+		start.gScore = 0;
+		boolean found = false;		
+		open.add(start);
+		while ((!open.isEmpty()) && (!found)) {
+			Node current = open.poll();
+			closed.add(current);
+			// if goal found, return true
+			if (current.cost.equals(goal.cost)) {
 				found = true;
 			}
-			// check every child of current node
-			for (Edge e : current.adjacencies) {
-				Node child = e.target;
-				double cost = e.cost;
-				double temp_g_scores = current.g_scores + cost;
-				double temp_f_scores = temp_g_scores + child.h_scores;
-				/*
-				 * if child node has been evaluated and the newer f_score is
-				 * higher, skip
-				 */
-				if ((explored.contains(child)) && (temp_f_scores >= child.f_scores)) {
+			// check all children nodes
+			for (Edge edge : current.adjacentNodes) {
+				Node child = edge.target;
+				
+				// If the child has already been checked and its cost is lower than the euclidean estimation, continue				 
+				if ((closed.contains(child)) && (getEuclideanDistance(current, goal) >= child.fScore)) {
 					continue;
 				}
-
-				/*
-				 * else if child node is not in queue or newer f_score is lower
-				 */
-
-				else if ((!queue.contains(child)) || (temp_f_scores < child.f_scores)) {
+				
+				//If child node is not in open or the euclidean distance is less than the estimate
+				else if ((!open.contains(child)) || (getEuclideanDistance(current, goal) < child.fScore)) {
 					child.parent = current;
-					child.g_scores = temp_g_scores;
-					child.f_scores = temp_f_scores;
-					if (queue.contains(child)) {
-						queue.remove(child);
+					child.gScore = current.gScore;
+					child.fScore = current.fScore;
+					if (open.contains(child)) {
+						open.remove(child);
+						closed.add(child);
 					}
-					queue.add(child);
+					open.add(child);
 				}
 			}
 		}
 	}
+	
+	public double getEuclideanDistance(Node node, Node goal) {
+	    dx = Math.abs(node.getX() - node.getX());
+	    dy = Math.abs(node.getY() - goal.getY());
+	    return D * Math.sqrt(dx * dx + dy * dy);  
+	}
+
+
 }

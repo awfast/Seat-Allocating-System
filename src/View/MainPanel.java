@@ -244,8 +244,8 @@ public class MainPanel implements Initializable {
 		
 		
 		fieldSearch.textProperty().addListener(
-	            new ChangeListener() {
-	                public void changed(ObservableValue observable, 
+	            new ChangeListener<Object>() {
+	                public void changed(ObservableValue<?> observable, 
 	                                    Object oldVal, Object newVal) {
 	                   
 	                    	handleSearchByKey((String)oldVal, (String)newVal);
@@ -425,31 +425,6 @@ public class MainPanel implements Initializable {
 			tableView.setItems(data);
 		}
 	}
-		    
-	/* public void handleSearchByKey(String oldVal, String newVal) {
-	        // If the number of characters in the text box is less than last time
-	        // it must be because the user pressed delete
-	        if ( oldVal != null && (newVal.length() < oldVal.length())) {
-	            // Restore the lists original set of entries 
-	            // and start from the beginning
-	            tableView.setItems(data);
-	        }
-	         
-	        // Change to upper case so that case is not an issue
-	        newVal = newVal.toUpperCase();
-	 
-	        // Filter out the entries that don't contain the entered text
-	        ObservableList<View.Schedule> subentries = FXCollections.observableArrayList();
-	        for (Object entry: tableView.getItems() ) {
-	        	String entryText = entry.toString();
-	            if ( entryText.toUpperCase().contains(newVal) ) {
-	            	Schedule s  = (Schedule) entry;
-	                subentries.add(s);
-	            }
-	        }
-	        
-	        tableView.setItems(subentries);
-	    }*/
 	 
 	 public void handleSearchByKey(String oldVal, String newVal) {
 	        // If the number of characters in the text box is less than last time
@@ -512,5 +487,17 @@ public class MainPanel implements Initializable {
 	        + "-fx-text-fill: grey;"
 	        + "-fx-font-family: Arial;");
 	fieldSearch.setText("Search ID");
+	
+	fieldStudentID.setStyle(""
+	        + "-fx-font-style: italic;"
+	        + "-fx-text-fill: grey;"
+	        + "-fx-font-family: Arial;");
+	fieldStudentID.setText("Search ID");
+	
+	fieldModuleCode.setStyle(""
+	        + "-fx-font-style: italic;"
+	        + "-fx-text-fill: grey;"
+	        + "-fx-font-family: Arial;");
+	fieldModuleCode.setText("Search ID");
 	}
 }

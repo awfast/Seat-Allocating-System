@@ -2,29 +2,45 @@ package TreeWithNodesAndSearch;
 import Main.*;
 public class Node {
 	
-	public final Schedule value;
-	public double g_scores;
+	public final Schedule cost;
+	public double gScore;
 	public final double h_scores;
-	public double f_scores = 0;
-	public Edge[] adjacencies;
+	public double fScore = 0;
+	public Edge[] adjacentNodes;
 	public Node parent;
 	public Node target = null;
-	int key;
+	private int key;
+	private int x;
+	private int y;
 	public Node leftChild;
 	public Node rightChild;
 
 	
-	public Node(Schedule val, double hVal) {
-		value = val;
+	public Node(Schedule val, double hVal, int x, int y) {
+		cost = val;
 		h_scores = hVal;
+		this.x = x;
+		this.y = y;
 	}
 	
 	public Schedule getSchedule() {
-		return value;
+		return cost;
 	}
 	
 	public Schedule toString(Schedule schedule, double cost) {
 		System.out.println(schedule + " has the key " + cost);
 		return schedule;
+	}
+	
+	public int getKey() {
+		return this.key;
+	}
+	
+	public int getX() {
+		return x;
+	}
+	
+	public int getY() {
+		return y;
 	}
 }
