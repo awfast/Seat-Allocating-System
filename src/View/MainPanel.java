@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ResourceBundle;
 
 import com.itextpdf.text.log.SysoCounter;
@@ -27,13 +29,14 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
+import javafx.util.Callback;
 public class MainPanel implements Initializable {
 
 	// BLOCK CAPITALS FOR EVERY NEW
 	// ENTRY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	LocalConnection local = new LocalConnection();
 	SimpleSearch search = new SimpleSearch();
+	PopUp pop = new PopUp();
 	// has been reset previously
 	boolean reset = false;
 
@@ -63,7 +66,7 @@ public class MainPanel implements Initializable {
 
 	@FXML // fx:id="goButton"
 	private Button goButton;
-	
+
 	@FXML // fx:id="searchButton"
 	private Button searchButton;
 
@@ -126,7 +129,7 @@ public class MainPanel implements Initializable {
 
 	@FXML // fx:id="fieldLocation"
 	private TextField fieldLocation;
-	
+
 	@FXML // fx:id="fieldSearch"
 	private TextField fieldSearch;
 
@@ -166,6 +169,52 @@ public class MainPanel implements Initializable {
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		preSetText();
+		preSetDatePicker();
+		
+		fieldStudentID.setOnMouseClicked(event -> {
+			fieldStudentID.clear();
+		});
+
+		fieldModuleCode.setOnMouseClicked(event -> {
+			fieldModuleCode.clear();
+		});
+
+		fieldModuleTitle.setOnMouseClicked(event -> {
+			fieldModuleTitle.clear();
+		});
+
+		fieldDay.setOnMouseClicked(event -> {
+			fieldDay.clear();
+		});
+
+		fieldDate.setOnMouseClicked(event -> {
+			fieldDate.clear();
+		});
+
+		fieldSession.setOnMouseClicked(event -> {
+			fieldSession.clear();
+		});
+
+		fieldLocation.setOnMouseClicked(event -> {
+			fieldLocation.clear();
+		});
+
+		fieldSearch.setOnMouseClicked(event -> {
+			fieldSearch.clear();
+		});
+
+		fieldImportStudentData.setOnMouseClicked(event -> {
+			fieldImportStudentData.clear();
+		});
+
+		fieldimportRegistrationData.setOnMouseClicked(event -> {
+			fieldimportRegistrationData.clear();
+		});
+
+		fieldImportLocationData.setOnMouseClicked(event -> {
+			fieldImportLocationData.clear();
+		});
+
 		addButton.setOnAction(event -> {
 			// if has been reset, add new data to the table
 			addRow();
@@ -176,17 +225,20 @@ public class MainPanel implements Initializable {
 			// remove selected item from the table list
 			Schedule p = tableView.getSelectionModel().getSelectedItem();
 			if (p == null) {
-				System.out.println("Nothing selected");
+				pop.deleteIndexNotSelected();
 				return;
 			} else {
-				data.remove(p);
-				tableView.setItems(data);
+				if (pop.extraCheck()) {
+					data.remove(p);
+					tableView.setItems(data);
+				} else {
+					return;
+				}
 			}
 		});
 
 		exportButton.setOnAction(event -> {
 			PDFExport pdf = new PDFExport();
-			// pdf.export1(inputData);
 			pdf.export2(data);
 		});
 
@@ -198,6 +250,7 @@ public class MainPanel implements Initializable {
 				 */
 				fieldImportStudentData.setText(processStudentData());
 				fieldImportStudentData.setDisable(true);
+				importButton1.setDisable(true);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -233,43 +286,46 @@ public class MainPanel implements Initializable {
 		});
 
 		goButton.setOnAction(event -> {
-			// if has been reset, add new data to the table
 			try {
-				processExamPeriod();
-				populateTable();
+				if (dateFrom.getValue() != null && dateTo.getValue() != null) {
+					String examPeriodFrom = dateFrom.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					String examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					if (!dateFrom.equals(examPeriodFrom) || !dateTo.equals(examPeriodTo)) {
+						pop.examPeriodFormat();
+					} else {
+						if (pop.confirmExamPeriod(examPeriodFrom, examPeriodTo)) {
+							if (importButton1.isDisabled() || importButton2.isDisabled()
+									|| importButton3.isDisabled()) {
+								processExamPeriod();
+								populateTable();
+								importButton1.setDisable(false);
+								importButton2.setDisable(false);
+								importButton3.setDisable(false);
+								fieldImportStudentData.setDisable(false);
+								fieldimportRegistrationData.setDisable(false);
+								fieldImportLocationData.setDisable(false);
+							} else {
+								pop.fileNotImported();
+							}
+
+						}
+						return;
+					}
+				} else {
+					pop.examPeriodNotSelected();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		});
-		
-		
-		fieldSearch.textProperty().addListener(
-	            new ChangeListener<Object>() {
-	                public void changed(ObservableValue<?> observable, 
-	                                    Object oldVal, Object newVal) {
-	                   
-	                    	handleSearchByKey((String)oldVal, (String)newVal);
-	                    
-	                }
-	            });
-	         
-				
 
-		/*
-		 * test.setOnAction(event -> { examPeriodFrom =
-		 * dateFrom.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-		 * ; examPeriodTo =
-		 * dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		 * System.out.println(examPeriodFrom + " " + examPeriodTo);
-		 * openProgressBar(); organizeColumnCode(); tableView.setItems(data);
-		 * });
-		 * 
-		 * 
-		 * 
-		 * resetButton.setOnAction(event -> { resetEverything(); });
-		 */
+		fieldSearch.textProperty().addListener(new ChangeListener<Object>() {
+			public void changed(ObservableValue<?> observable, Object oldVal, Object newVal) {
 
-		// checkImports();
+				handleSearchByKey((String) oldVal, (String) newVal);
+
+			}
+		});
 	}
 
 	private void organizeColumnCode() {
@@ -282,15 +338,6 @@ public class MainPanel implements Initializable {
 		columnLocation.setCellValueFactory(new PropertyValueFactory<View.Schedule, String>("location"));
 	}
 
-	private void checkFields() {
-		fieldStudentID.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				hideOptions(oldValue, newValue);
-			}
-		});
-	}
-
 	// loading bar
 	private boolean allFieldsAreFilledUp() {
 		if (fieldStudentID.getText().trim().isEmpty() || fieldModuleCode.getText().trim().isEmpty()
@@ -301,62 +348,6 @@ public class MainPanel implements Initializable {
 		}
 	}
 
-	private void triggerPopUp() {
-		Stage s = new Stage();
-		MessageBox.show(s,
-				"Sample of information dialog.\n\nDialog option is below.\n[MessageBox.ICON_INFORMATION | MessageBox.OK | MessageBox.CANCEL]",
-				"Information dialog", MessageBox.ICON_INFORMATION | MessageBox.OK);
-	}
-
-	private void hideOptions(String oldValue, String newValue) {
-		if (oldValue.startsWith(" ") || oldValue.isEmpty() || newValue.isEmpty() || newValue.startsWith(" ")) {
-			resetEverything();
-		} else {
-			// manualOptionSelected();
-			oldValue = "";
-			newValue = "";
-		}
-	}
-
-	/*
-	 * private void importOptionSelected() { labelStudentID.setDisable(true);
-	 * labelModuleCode.setDisable(true); labelDate.setDisable(true);
-	 * labelBuildingNumber.setDisable(true); labelRoomNumber.setDisable(true);
-	 * 
-	 * fieldStudentID.setDisable(true); fieldModuleCode.setDisable(true);
-	 * fieldDate.setDisable(true);
-	 * 
-	 * }
-	 * 
-	 * private void manualOptionSelected() { importStudentData.setDisable(true);
-	 * importRegistrationData.setDisable(true);
-	 * importLocationData.setDisable(true);
-	 * 
-	 * importButton1.setDisable(true); importButton2.setDisable(true);
-	 * importButton3.setDisable(true); }
-	 */
-
-	private void resetEverything() {
-		reset = true;
-		labelStudentID.setDisable(false);
-		labelModuleCode.setDisable(false);
-		labelDate.setDisable(false);
-		labelBuildingNumber.setDisable(false);
-		labelRoomNumber.setDisable(false);
-
-		fieldStudentID.setDisable(false);
-		fieldModuleCode.setDisable(false);
-		fieldDate.setDisable(false);
-
-		importButton1.setDisable(false);
-		importButton2.setDisable(false);
-		importButton3.setDisable(false);
-
-		// topPane.getChildren().add(examPeriodPane);
-		// bottomPane.getChildren().remove(tableView);
-	}
-
-	// TODO
 	private void addRow() {
 		if (reset == true) {
 			if (allFieldsAreFilledUp()) {
@@ -369,10 +360,15 @@ public class MainPanel implements Initializable {
 						fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
 				organizeColumnCode();
 				this.tableView.setItems(data);
-				// fieldStudentID.clear();
-				// fieldModuleCode.clear();
+				fieldStudentID.clear();
+				fieldModuleCode.clear();
+				fieldModuleTitle.clear();
+				fieldDay.clear();
+				fieldDate.clear();
+				fieldSession.clear();
+				fieldLocation.clear();
 			} else {
-				triggerPopUp();
+				pop.invalidID();
 			}
 		} else {
 			if (allFieldsAreFilledUp()) {
@@ -381,16 +377,25 @@ public class MainPanel implements Initializable {
 				tableView.setLayoutY(58);
 				tableView.setPrefSize(1235, 584);
 				String str = fieldStudentID.getText();
-				System.out.println(str);
-				int studentID = Integer.parseInt(str);
-				data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText(),
-						fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
-				organizeColumnCode();
-				this.tableView.setItems(data);
-				// fieldStudentID.clear();
-				// fieldModuleCode.clear();
+				if (validateID()) {
+					int studentID = Integer.parseInt(str);
+					data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText(),
+							fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
+					organizeColumnCode();
+					this.tableView.setItems(data);
+					fieldStudentID.clear();
+					fieldModuleCode.clear();
+					fieldModuleTitle.clear();
+					fieldDay.clear();
+					fieldDate.clear();
+					fieldSession.clear();
+					fieldLocation.clear();
+				} else {
+					pop.invalidID();
+				}
+
 			} else {
-				triggerPopUp();
+				pop.notFilledIn();
 			}
 		}
 	}
@@ -425,79 +430,114 @@ public class MainPanel implements Initializable {
 			tableView.setItems(data);
 		}
 	}
-	 
-	 public void handleSearchByKey(String oldVal, String newVal) {
-	        // If the number of characters in the text box is less than last time
-	        // it must be because the user pressed delete
-	        if ( oldVal != null && (newVal.length() < oldVal.length()) ) {
-	            // Restore the lists original set of entries 
-	            // and start from the beginning
-	        	tableView.setItems(data);
-	        }
-	         
-	        // Break out all of the parts of the search text 
-	        // by splitting on white space
-	        String[] parts = newVal.toUpperCase().split(" ");
-	 
-	        // Filter out the entries that don't contain the entered text
-	        ObservableList<View.Schedule> subentries = FXCollections.observableArrayList();
-	        for (Object entry: tableView.getItems() ) {
-	            boolean match = true;
-	            Schedule schedule = (Schedule) entry;
-	            for ( String part: parts ) {
-	                // The entry needs to contain all portions of the
-	                // search string *but* in any order
-	                if (!schedule.getStudentID().toUpperCase().contains(part)) {
-	                    match = false;
-	                    break;
-	                }
-	            }
-	 
-	            if ( match ) {
-	            	Schedule s = (Schedule) entry;
-	                subentries.add(s);
-	            }
-	        }
-	        tableView.setItems(subentries);
-	    }
-	 
-	
-	public void preSetText() {
-	fieldImportStudentData.setStyle(""
-			 + "-fx-font-style: italic;"
-		        + "-fx-text-fill: grey;"
-		        + "-fx-font-family: Arial;");
-	fieldImportStudentData.setText("e.g. StudentData.csv");
 
-	fieldimportRegistrationData.setStyle(""
-			 + "-fx-font-style: italic;"
-		        + "-fx-text-fill: grey;"
-		        + "-fx-font-family: Arial;");
-	fieldimportRegistrationData.setText("e.g. RegistrationData.csv");
+	private boolean validateID() {
+		if (!fieldStudentID.getText().matches("\\d+")) {
+			pop.invalidID();
+			return false;
+		}
+		return true;
+	}
+
+	public void handleSearchByKey(String oldVal, String newVal) {
+		// If the number of characters in the text box is less than last time
+		// it must be because the user pressed delete
+		if (oldVal != null && (newVal.length() < oldVal.length())) {
+			// Restore the lists original set of entries
+			// and start from the beginning
+			tableView.setItems(data);
+		}
+
+		// Break out all of the parts of the search text
+		// by splitting on white space
+		String[] parts = newVal.toUpperCase().split(" ");
+
+		// Filter out the entries that don't contain the entered text
+		ObservableList<View.Schedule> subentries = FXCollections.observableArrayList();
+		for (Object entry : tableView.getItems()) {
+			boolean match = true;
+			Schedule schedule = (Schedule) entry;
+			for (String part : parts) {
+				// The entry needs to contain all portions of the
+				// search string *but* in any order
+				if (!schedule.getStudentID().toUpperCase().contains(part)) {
+					match = false;
+					break;
+				}
+			}
+
+			if (match) {
+				Schedule s = (Schedule) entry;
+				subentries.add(s);
+			}
+		}
+		tableView.setItems(subentries);
+	}
 	
-	fieldImportLocationData.setStyle(""
-			 + "-fx-font-style: italic;"
-		        + "-fx-text-fill: grey;"
-		        + "-fx-font-family: Arial;");
-	fieldImportLocationData.setText("e.g. LocationData.csv");
-	
-	//PUT MOUSELISTENER
-	fieldSearch.setStyle(""
-	        + "-fx-font-style: italic;"
-	        + "-fx-text-fill: grey;"
-	        + "-fx-font-family: Arial;");
-	fieldSearch.setText("Search ID");
-	
-	fieldStudentID.setStyle(""
-	        + "-fx-font-style: italic;"
-	        + "-fx-text-fill: grey;"
-	        + "-fx-font-family: Arial;");
-	fieldStudentID.setText("Search ID");
-	
-	fieldModuleCode.setStyle(""
-	        + "-fx-font-style: italic;"
-	        + "-fx-text-fill: grey;"
-	        + "-fx-font-family: Arial;");
-	fieldModuleCode.setText("Search ID");
+	public void preSetDatePicker() {
+		final Callback<DatePicker, DateCell> dayCellFactory = 
+	            new Callback<DatePicker, DateCell>() {
+	                @Override
+	                public DateCell call(final DatePicker datePicker) {
+	                    return new DateCell() {
+	                        @Override
+	                        public void updateItem(LocalDate item, boolean empty) {
+	                            super.updateItem(item, empty);
+	                           
+	                            if (item.isBefore(
+	                                    dateFrom.getValue().plusDays(1))
+	                                ) {
+	                                    setDisable(true);
+	                                    setStyle("-fx-background-color: #ffc0cb;");
+	                            }   
+	                            long p = ChronoUnit.DAYS.between(
+	                                    dateFrom.getValue(), item
+	                            );
+	                            setTooltip(new Tooltip(
+	                                "The exam period your are about to select is " + p + " days long.")
+	                            );
+	                    }
+	                };
+	            }
+	        };
+	        dateTo.setDayCellFactory(dayCellFactory);
+	}
+
+	public void preSetText() {
+		fieldImportStudentData
+				.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldImportStudentData.setText("e.g. StudentData.csv");
+
+		fieldimportRegistrationData
+				.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldimportRegistrationData.setText("e.g. RegistrationData.csv");
+
+		fieldImportLocationData
+				.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldImportLocationData.setText("e.g. LocationData.csv");
+
+		fieldSearch.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldSearch.setText("Search ID");
+
+		fieldStudentID.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldStudentID.setText("Student ID");
+
+		fieldModuleCode.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldModuleCode.setText("E.g. CENV6141");
+
+		fieldModuleTitle.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldModuleTitle.setText("E.g. Bioenergy ");
+
+		fieldDay.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldDay.setText("E.g. MON");
+
+		fieldDate.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldDate.setText("E.g. 26/04/2016");
+
+		fieldSession.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldSession.setText("E.g. 3 (AM)");
+
+		fieldLocation.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
+		fieldLocation.setText("E.g. Building 3, Room 2001, Seat: A1");
 	}
 }
