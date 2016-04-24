@@ -6,10 +6,12 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import Main.DB;
-import Main.DataReader;
-import Main.Schedule;
+
+import Controller.DataReader;
+import Controller.Schedule;
+import Model.DB;
 import javafx.scene.control.DatePicker;
+import javafx.stage.Stage;
 
 public class LocalConnection {
 
@@ -43,7 +45,7 @@ public class LocalConnection {
 		exam.generateInformation(db.getConnection(conn), dataReader);
 	}
 
-	public ArrayList<Main.Schedule> getData() {
+	public ArrayList<Controller.Schedule> getData() {
 		return exam.getFinalSchedules(conn);
 	}
 }

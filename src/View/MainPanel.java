@@ -1,6 +1,5 @@
 package View;
 
-import java.awt.Font;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -9,33 +8,24 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ResourceBundle;
-
-import com.itextpdf.text.log.SysoCounter;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import jfx.messagebox.MessageBox;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+
 public class MainPanel implements Initializable {
 
 	// BLOCK CAPITALS FOR EVERY NEW
 	// ENTRY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	LocalConnection local = new LocalConnection();
-	SimpleSearch search = new SimpleSearch();
 	PopUp pop = new PopUp();
 	// has been reset previously
 	boolean reset = false;
@@ -170,7 +160,7 @@ public class MainPanel implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		preSetText();
 		preSetDatePicker();
-		
+
 		fieldStudentID.setOnMouseClicked(event -> {
 			fieldStudentID.clear();
 		});
@@ -216,9 +206,7 @@ public class MainPanel implements Initializable {
 		});
 
 		addButton.setOnAction(event -> {
-			// if has been reset, add new data to the table
 			addRow();
-			// TODO
 		});
 
 		deleteButton.setOnAction(event -> {
@@ -244,16 +232,10 @@ public class MainPanel implements Initializable {
 
 		importButton1.setOnAction(event -> {
 			try {
-				/*
-				 * Stage st = new Stage(); st.setX(1438); st.setY(456); PI pi =
-				 * new PI(); pi.start(st);
-				 */
 				fieldImportStudentData.setText(processStudentData());
 				fieldImportStudentData.setDisable(true);
 				importButton1.setDisable(true);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		});
 
@@ -266,8 +248,6 @@ public class MainPanel implements Initializable {
 				fieldimportRegistrationData.setText(processsRegistrationData());
 				fieldimportRegistrationData.setDisable(true);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		});
 
@@ -280,8 +260,6 @@ public class MainPanel implements Initializable {
 				fieldImportLocationData.setText(processLocationData());
 				fieldImportLocationData.setDisable(true);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		});
 
@@ -290,27 +268,21 @@ public class MainPanel implements Initializable {
 				if (dateFrom.getValue() != null && dateTo.getValue() != null) {
 					String examPeriodFrom = dateFrom.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 					String examPeriodTo = dateTo.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-					if (!dateFrom.equals(examPeriodFrom) || !dateTo.equals(examPeriodTo)) {
-						pop.examPeriodFormat();
-					} else {
-						if (pop.confirmExamPeriod(examPeriodFrom, examPeriodTo)) {
-							if (importButton1.isDisabled() || importButton2.isDisabled()
-									|| importButton3.isDisabled()) {
-								processExamPeriod();
-								populateTable();
-								importButton1.setDisable(false);
-								importButton2.setDisable(false);
-								importButton3.setDisable(false);
-								fieldImportStudentData.setDisable(false);
-								fieldimportRegistrationData.setDisable(false);
-								fieldImportLocationData.setDisable(false);
-							} else {
-								pop.fileNotImported();
-							}
-
+					if (pop.confirmExamPeriod(examPeriodFrom, examPeriodTo)) {
+						if (importButton1.isDisabled() || importButton2.isDisabled() || importButton3.isDisabled()) {
+							populateTable();
+							importButton1.setDisable(false);
+							importButton2.setDisable(false);
+							importButton3.setDisable(false);
+							fieldImportStudentData.setDisable(false);
+							fieldimportRegistrationData.setDisable(false);
+							fieldImportLocationData.setDisable(false);
+						} else {
+							pop.fileNotImported();
 						}
-						return;
+
 					}
+					return;
 				} else {
 					pop.examPeriodNotSelected();
 				}
@@ -356,8 +328,9 @@ public class MainPanel implements Initializable {
 				tableView.setLayoutY(58);
 				tableView.setPrefSize(1235, 584);
 				int studentID = Integer.getInteger(fieldStudentID.getText());
-				data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText(),
-						fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
+				data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText().toUpperCase(),
+						fieldDay.getText().toUpperCase(), fieldDate.getText().toUpperCase(),
+						fieldSession.getText().toUpperCase(), fieldLocation.getText().toUpperCase()));
 				organizeColumnCode();
 				this.tableView.setItems(data);
 				fieldStudentID.clear();
@@ -379,8 +352,10 @@ public class MainPanel implements Initializable {
 				String str = fieldStudentID.getText();
 				if (validateID()) {
 					int studentID = Integer.parseInt(str);
-					data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText(),
-							fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
+					data.add(
+							new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText().toUpperCase(),
+									fieldDay.getText().toUpperCase(), fieldDate.getText().toUpperCase(),
+									fieldSession.getText().toUpperCase(), fieldLocation.getText().toUpperCase()));
 					organizeColumnCode();
 					this.tableView.setItems(data);
 					fieldStudentID.clear();
@@ -412,13 +387,6 @@ public class MainPanel implements Initializable {
 		return local.browseForLocationData();
 	}
 
-	public void processExamPeriod() throws SQLException, ParseException, IOException {
-		long startTime = System.currentTimeMillis();
-		local.processExamPeriod(dateFrom, dateTo);
-		long estimatedTime = System.currentTimeMillis() - startTime;
-		System.out.println(estimatedTime);
-	}
-
 	public void populateTable() throws SQLException {
 		for (int i = 0; i < local.getData().size(); i++) {
 			String session = local.getData().get(i).getSessionString();
@@ -440,26 +408,17 @@ public class MainPanel implements Initializable {
 	}
 
 	public void handleSearchByKey(String oldVal, String newVal) {
-		// If the number of characters in the text box is less than last time
-		// it must be because the user pressed delete
 		if (oldVal != null && (newVal.length() < oldVal.length())) {
-			// Restore the lists original set of entries
-			// and start from the beginning
 			tableView.setItems(data);
 		}
 
-		// Break out all of the parts of the search text
-		// by splitting on white space
 		String[] parts = newVal.toUpperCase().split(" ");
 
-		// Filter out the entries that don't contain the entered text
 		ObservableList<View.Schedule> subentries = FXCollections.observableArrayList();
 		for (Object entry : tableView.getItems()) {
 			boolean match = true;
 			Schedule schedule = (Schedule) entry;
 			for (String part : parts) {
-				// The entry needs to contain all portions of the
-				// search string *but* in any order
 				if (!schedule.getStudentID().toUpperCase().contains(part)) {
 					match = false;
 					break;
@@ -473,34 +432,27 @@ public class MainPanel implements Initializable {
 		}
 		tableView.setItems(subentries);
 	}
-	
+
 	public void preSetDatePicker() {
-		final Callback<DatePicker, DateCell> dayCellFactory = 
-	            new Callback<DatePicker, DateCell>() {
-	                @Override
-	                public DateCell call(final DatePicker datePicker) {
-	                    return new DateCell() {
-	                        @Override
-	                        public void updateItem(LocalDate item, boolean empty) {
-	                            super.updateItem(item, empty);
-	                           
-	                            if (item.isBefore(
-	                                    dateFrom.getValue().plusDays(1))
-	                                ) {
-	                                    setDisable(true);
-	                                    setStyle("-fx-background-color: #ffc0cb;");
-	                            }   
-	                            long p = ChronoUnit.DAYS.between(
-	                                    dateFrom.getValue(), item
-	                            );
-	                            setTooltip(new Tooltip(
-	                                "The exam period your are about to select is " + p + " days long.")
-	                            );
-	                    }
-	                };
-	            }
-	        };
-	        dateTo.setDayCellFactory(dayCellFactory);
+		final Callback<DatePicker, DateCell> dayCellFactory = new Callback<DatePicker, DateCell>() {
+			@Override
+			public DateCell call(final DatePicker datePicker) {
+				return new DateCell() {
+					@Override
+					public void updateItem(LocalDate item, boolean empty) {
+						super.updateItem(item, empty);
+
+						if (item.isBefore(dateFrom.getValue().plusDays(1))) {
+							setDisable(true);
+							setStyle("-fx-background-color: #ffc0cb;");
+						}
+						long p = ChronoUnit.DAYS.between(dateFrom.getValue(), item);
+						setTooltip(new Tooltip("The exam period your are about to select is " + p + " days long."));
+					}
+				};
+			}
+		};
+		dateTo.setDayCellFactory(dayCellFactory);
 	}
 
 	public void preSetText() {

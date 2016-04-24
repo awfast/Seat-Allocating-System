@@ -11,7 +11,7 @@
     <URL value="@style.css" />
 </stylesheets>  
   <children>
-      <Pane fx:id="topPane" prefHeight="810.0" prefWidth="1700.0" style="-fx-background-color: lightgrey;" stylesheets="@style.css">
+      <Pane fx:id="topPane" prefHeight="820.0" prefWidth="1711.0" style="-fx-background-color: lightgrey;" stylesheets="@style.css">
          <children>
             <Text layoutX="547.0" layoutY="680.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Insert Data Manually">
                <font>
