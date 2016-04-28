@@ -18,7 +18,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 public class MainPanel implements Initializable {
@@ -210,7 +209,6 @@ public class MainPanel implements Initializable {
 		});
 
 		deleteButton.setOnAction(event -> {
-			// remove selected item from the table list
 			Schedule p = tableView.getSelectionModel().getSelectedItem();
 			if (p == null) {
 				pop.deleteIndexNotSelected();
@@ -235,30 +233,26 @@ public class MainPanel implements Initializable {
 				fieldImportStudentData.setText(processStudentData());
 				fieldImportStudentData.setDisable(true);
 				importButton1.setDisable(true);
+				pop.studentsImportedSuccessfully();
 			} catch (Exception e) {
 			}
 		});
 
 		importButton2.setOnAction(event -> {
 			try {
-				/*
-				 * Stage st = new Stage(); st.setX(1438); st.setY(456); PI pi =
-				 * new PI(); pi.start(st);
-				 */
 				fieldimportRegistrationData.setText(processsRegistrationData());
 				fieldimportRegistrationData.setDisable(true);
+				pop.registrationImportedSuccessfully();
+
 			} catch (Exception e) {
 			}
 		});
 
 		importButton3.setOnAction(event -> {
 			try {
-				/*
-				 * Stage st = new Stage(); st.setX(1438); st.setY(456); PI pi =
-				 * new PI(); pi.start(st);
-				 */
 				fieldImportLocationData.setText(processLocationData());
 				fieldImportLocationData.setDisable(true);
+				pop.locationsImportedSuccessfully();
 			} catch (Exception e) {
 			}
 		});
@@ -328,9 +322,8 @@ public class MainPanel implements Initializable {
 				tableView.setLayoutY(58);
 				tableView.setPrefSize(1235, 584);
 				int studentID = Integer.getInteger(fieldStudentID.getText());
-				data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText().toUpperCase(),
-						fieldDay.getText().toUpperCase(), fieldDate.getText().toUpperCase(),
-						fieldSession.getText().toUpperCase(), fieldLocation.getText().toUpperCase()));
+				data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText(),
+						fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
 				organizeColumnCode();
 				this.tableView.setItems(data);
 				fieldStudentID.clear();
@@ -352,10 +345,8 @@ public class MainPanel implements Initializable {
 				String str = fieldStudentID.getText();
 				if (validateID()) {
 					int studentID = Integer.parseInt(str);
-					data.add(
-							new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText().toUpperCase(),
-									fieldDay.getText().toUpperCase(), fieldDate.getText().toUpperCase(),
-									fieldSession.getText().toUpperCase(), fieldLocation.getText().toUpperCase()));
+					data.add(new Schedule(studentID, fieldModuleCode.getText(), fieldModuleTitle.getText(),
+							fieldDay.getText(), fieldDate.getText(), fieldSession.getText(), fieldLocation.getText()));
 					organizeColumnCode();
 					this.tableView.setItems(data);
 					fieldStudentID.clear();
@@ -387,7 +378,8 @@ public class MainPanel implements Initializable {
 		return local.browseForLocationData();
 	}
 
-	public void populateTable() throws SQLException {
+	public void populateTable() throws SQLException, ParseException {
+		local.processExamPeriod(dateFrom, dateTo);
 		for (int i = 0; i < local.getData().size(); i++) {
 			String session = local.getData().get(i).getSessionString();
 			Schedule s = new Schedule(local.getData().get(i).getStudentID(), local.getData().get(i).getModuleCode(),
@@ -442,9 +434,12 @@ public class MainPanel implements Initializable {
 					public void updateItem(LocalDate item, boolean empty) {
 						super.updateItem(item, empty);
 
-						if (item.isBefore(dateFrom.getValue().plusDays(1))) {
+						if (dateFrom.getValue() == null || item.isBefore(dateFrom.getValue().plusDays(1))) {
 							setDisable(true);
 							setStyle("-fx-background-color: #ffc0cb;");
+						}
+						if (dateFrom.getValue() == null) {
+							return;
 						}
 						long p = ChronoUnit.DAYS.between(dateFrom.getValue(), item);
 						setTooltip(new Tooltip("The exam period your are about to select is " + p + " days long."));
@@ -458,21 +453,21 @@ public class MainPanel implements Initializable {
 	public void preSetText() {
 		fieldImportStudentData
 				.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
-		fieldImportStudentData.setText("e.g. StudentData.csv");
+		fieldImportStudentData.setText("E.g. StudentData.csv");
 
 		fieldimportRegistrationData
 				.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
-		fieldimportRegistrationData.setText("e.g. RegistrationData.csv");
+		fieldimportRegistrationData.setText("E.g. RegistrationData.csv");
 
 		fieldImportLocationData
 				.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
-		fieldImportLocationData.setText("e.g. LocationData.csv");
+		fieldImportLocationData.setText("E.g. LocationData.csv");
 
 		fieldSearch.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
 		fieldSearch.setText("Search ID");
 
 		fieldStudentID.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
-		fieldStudentID.setText("Student ID");
+		fieldStudentID.setText("E.g. 2583827");
 
 		fieldModuleCode.setStyle("" + "-fx-font-style: italic;" + "-fx-text-fill: grey;" + "-fx-font-family: Arial;");
 		fieldModuleCode.setText("E.g. CENV6141");

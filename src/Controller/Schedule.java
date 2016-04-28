@@ -5,22 +5,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.itextpdf.text.log.SysoCounter;
-
 import Model.Building;
 import Model.Capacity;
 import Model.Room;
-
-import java.util.Arrays;
 
 /*
  * @author Damyan Rusinov
@@ -38,6 +31,7 @@ public class Schedule {
 	private Statement stmt2 = null;
 	//reader for the files to be imported
 	
+	@SuppressWarnings("unused")
 	private DataReader dataReader = null;
 	
 	/*the following 12 variables represent what each schedule consists of
@@ -50,6 +44,7 @@ public class Schedule {
 	private String moduleTitle = null;
 	
 	//an accessible seat inside a room specified
+	@SuppressWarnings("unused")
 	private String accessible;
 	
 	//location, made out of a building room, room number and seat number

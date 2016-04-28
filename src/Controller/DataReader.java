@@ -16,7 +16,9 @@ import javafx.stage.Stage;
 
 public class DataReader {
 
+	@SuppressWarnings("unused")
 	private String dateFrom = null;
+	@SuppressWarnings("unused")
 	private String dateTo = null;
 	private CsvReader reader;
 	protected FileChooser fileChooser = new FileChooser();
@@ -67,9 +69,6 @@ public class DataReader {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} 
-		else {
-			System.out.println("File's empty!");
 		}
 		return null;
 	}
@@ -93,8 +92,6 @@ public class DataReader {
 				db.students.pushModuleCodes(col1, col2, valCol3);
 			}
 			return file.getName();
-		} else {
-			System.out.println("File's empty");
 		}
 		return null;
 	}

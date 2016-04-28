@@ -84,4 +84,37 @@ public class PopUp {
 		alert.showAndWait();
 		return false;
 	}
+	
+	public boolean studentsImportedSuccessfully() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Students data successfully imported");
+		alert.setHeaderText("All students have been successfully imported.");
+		alert.showAndWait();
+		return false;
+	}
+	
+	public boolean registrationImportedSuccessfully() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Registration data successfully imported");
+		alert.setHeaderText("All students have been successfully registered to a module.");
+		alert.showAndWait();
+		return false;
+	}
+	
+	public boolean locationsImportedSuccessfully() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Location data successfully imported");
+		alert.setHeaderText("All location data has been successfully imported");
+		alert.showAndWait();
+		return false;
+	}
+	
+	public boolean wrongFileFormat() {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Alert");
+		alert.setHeaderText("Wrong file format or file empty.");
+		alert.setContentText("Please make sure that the file is not empty or is of correct format.");
+		alert.showAndWait();
+		return false;
+	}
 }

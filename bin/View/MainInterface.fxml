@@ -6,12 +6,12 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="810.0" prefWidth="1700.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainPanel">
+<Pane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="799.0" prefWidth="1696.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainPanel">
 <stylesheets>
     <URL value="@style.css" />
 </stylesheets>  
   <children>
-      <Pane fx:id="topPane" prefHeight="820.0" prefWidth="1711.0" style="-fx-background-color: lightgrey;" stylesheets="@style.css">
+      <Pane fx:id="topPane" prefHeight="810.0" prefWidth="1707.0" style="-fx-background-color: darkgrey;" stylesheets="@style.css">
          <children>
             <Text layoutX="547.0" layoutY="680.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Insert Data Manually">
                <font>
@@ -86,7 +86,7 @@
                   <Font size="13.0" />
                </font>
             </Text>
-            <Button fx:id="exportButton" layoutX="840.0" layoutY="773.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="409.0" text="Export To Pdf" />
+            <Button fx:id="exportButton" layoutX="840.0" layoutY="773.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="409.0" text="EXPORT TO PDF" />
             <TextField fx:id="fieldImportStudentData" layoutX="1301.0" layoutY="132.0" prefHeight="25.0" prefWidth="150.0" />
             <TextField fx:id="fieldimportRegistrationData" layoutX="1301.0" layoutY="181.0" prefHeight="25.0" prefWidth="150.0" />
             <TextField fx:id="fieldImportLocationData" layoutX="1301.0" layoutY="228.0" prefHeight="25.0" prefWidth="150.0" />

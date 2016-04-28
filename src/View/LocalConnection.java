@@ -11,13 +11,12 @@ import Controller.DataReader;
 import Controller.Schedule;
 import Model.DB;
 import javafx.scene.control.DatePicker;
-import javafx.stage.Stage;
 
 public class LocalConnection {
 
 	private Connection conn;
 	private DB db = new DB();
-	private DataReader dataReader = new DataReader();
+	protected DataReader dataReader = new DataReader();
 	private String examPeriodFrom, examPeriodTo;
 	private Schedule exam = new Schedule(1, "", 1, "", "", 0, 0);
 	

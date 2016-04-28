@@ -1,24 +1,9 @@
 package Model;
 import java.io.IOException;
 import java.sql.*;
-import java.text.DateFormat;
-import java.text.DateFormatSymbols;
-import java.text.Format;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.Random;
-
-import javax.management.timer.Timer;
-
 import Controller.Location;
 import Controller.Session;
 import Controller.Students;
-import javafx.scene.control.DatePicker;
 
 public class DB {
 	private final String USER = "root";

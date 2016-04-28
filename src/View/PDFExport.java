@@ -1,5 +1,6 @@
 package View;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -11,21 +12,25 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-
 import javafx.collections.ObservableList;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class PDFExport {
 
-	private static String FILE2 = "F:/EclipseProjects/workspace/GUI/src/Main/Students.pdf";
 	private PdfWriter p;
 	private static Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
 	MyEvent event = new MyEvent();
 
 	public void export2(ObservableList<Schedule> data) {
 		try {
+			Stage window = new Stage();
+			FileChooser choose = new FileChooser();
+			File file = choose.showSaveDialog(window);
+			String path = file.getAbsolutePath();
 			Document document = new Document();
 			com.itextpdf.text.Rectangle one = new Rectangle(1000, 1000);
-			p = PdfWriter.getInstance(document, new FileOutputStream(FILE2));
+			p = PdfWriter.getInstance(document, new FileOutputStream(new File(path)));
 			document.setPageSize(one);
 			document.setMargins(2, 2, 2, 2);
 			document.open();

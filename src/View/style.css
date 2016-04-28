@@ -1,7 +1,15 @@
 .button {
-    -fx-background-color: yellow;
+     -fx-background-color: #006dcc;
+	-fx-background-repeat: repeat-x;
+	-fx-border-color: #0024cc #0046cc #006a80;
+	-fx-border-color: rgba(0, 0, 0, 0.1) rgba(0, 30, 0, 0.1) rgba(0, 0, 50, 0.25);
+	-fx-text-fill: white;
+	-fx-border-radius: 10 10 10 10;
+  	-fx-background-radius: 10 10 10 10;
+  	-fx-font-family: "Segoe UI Semibold";
+  	-fx-font-weight: bold;
 }
 
-.root { -fx-background-color: transparent; }
-
-.FlowPane {-fx-background-color: transparent;}
+.button:hover {
+ -fx-background-color:transparent;
+}
